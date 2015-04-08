@@ -1,0 +1,202 @@
+<div ng-controller="ServiceDataController">
+
+
+<div class="row clearfix">
+		<div class="col-md-2 column">
+		
+		
+		</div>
+		<div class="col-md-9 column" >
+		
+		<h4>Service details </h4>
+		
+		
+			<div class="row clearfix">
+				<div class="col-md-4 column">
+					<table class="table">
+						
+							<tr>
+								<td>
+									Circuit ID:
+								</td>
+								<td>
+								{{circuit.circuitID}}
+								</td>
+								
+							</tr>
+							<tr >
+								<td>
+									Status:
+								</td>
+								<td>
+										{{circuit.Status}}
+								</td>
+							
+							</tr>
+							<tr >
+								<td>
+									In service since:
+								</td>
+								<td>
+								{{circuit.InServiceSince}}
+								</td>
+						
+							</tr>
+							<tr >
+								<td>
+									Customer:
+								</td>
+								<td>
+								{{circuit.Customer}}
+								</td>
+						
+							</tr>
+							<tr >
+								<td>
+								Category:
+								</td>
+								<td>
+									{{circuit.Category}}
+								</td>
+					
+							</tr>
+				
+					</table>
+				</div>
+				<div class="col-md-4 column">
+						<table class="table">
+						
+							<tr>
+								<td>
+									Circuit ID:
+								</td>
+								<td>
+								CES/FRA/LE-173127(Rev: 1)
+								</td>
+								
+							</tr>
+							<tr >
+								<td>
+									Status:
+								</td>
+								<td>
+										Live
+								</td>
+							
+							</tr>
+							<tr >
+								<td>
+									In service since:
+								</td>
+								<td>
+								16-Dec-2014
+								</td>
+						
+							</tr>
+							<tr >
+								<td>
+									Customer:
+								</td>
+								<td>
+								Market Prizm
+								</td>
+						
+							</tr>
+							<tr >
+								<td>
+								Category:
+								</td>
+								<td>
+									LANLINK
+								</td>
+					
+							</tr>
+				
+					</table>
+				</div>
+				<div class="col-md-4 column">
+					<table class="table">
+						
+							<tr>
+								<td>
+									Circuit ID:
+								</td>
+								<td>
+								CES/FRA/LE-173127(Rev: 1)
+								</td>
+								
+							</tr>
+							<tr >
+								<td>
+									Status:
+								</td>
+								<td>
+										Live
+								</td>
+							
+							</tr>
+							<tr >
+								<td>
+									In service since:
+								</td>
+								<td>
+								16-Dec-2014
+								</td>
+						
+							</tr>
+							<tr >
+								<td>
+									Customer:
+								</td>
+								<td>
+								Market Prizm
+								</td>
+						
+							</tr>
+							<tr >
+								<td>
+								Category:
+								</td>
+								<td>
+									LANLINK
+								</td>
+					
+							</tr>
+				
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-1 column">
+		</div>
+	</div>
+
+	
+<div class="row clearfix" >
+  <div class="col-md-2 column">
+		</div>
+		
+		<div class="col-md-9 column">
+		
+   <h4>Ticket details </h4>
+   
+    <table class="table"> 
+    
+    <tr>
+        <td> Ticket ID</td>
+          <td> Ticket Title</td>
+        
+    </tr>
+    <tr ng-repeat="ticket in tickets">
+        <td>   {{ticket.ticketID}}</td>
+              <td>   {{ticket.ticketTitle}}</td>
+              
+    </tr>
+          
+    </table>
+	
+	</div>
+	<div class="col-md-1 column">
+		</div>
+</div>    
+</div>
