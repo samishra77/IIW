@@ -24,6 +24,6 @@ Add the following under <datasources> ,  replacing <HOST>:<PORT>:<SID> and [PASS
                     </statement>
                 </datasource>
 
-Copy file ojdbc6.jar from [project_source]/lib/api and place it under [Jboss Home]/standalone/deployments
+Copy file ojdbc6.jar to [Jboss Home]/standalone/deployments
 
 =============================================================================================================================================
