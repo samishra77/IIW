@@ -1,162 +1,72 @@
 <div ng-controller="ServiceDataController">
-
-
-<div class="row clearfix">
-	<div class="col-md-2 column"></div>
-	<div class="col-md-9 column">
-		<h4>Service details</h4>
-		<div class="row clearfix">
-			<div class="col-md-4 column">
-				<table class="table">
-					<tr>
-						<td>
-							Circuit ID:
-						</td>
-						<td>
-							{{circuit.circuitID}}
-						</td>
-					</tr>
-					<tr >
-						<td>
-							Status:
-						</td>
-						<td>
-							{{circuit.Status}}
-						</td>
-					</tr>
-					<tr >
-						<td>
-							In service since:
-						</td>
-						<td>
-						{{circuit.InServiceSince}}
-						</td>
-					</tr>
-					<tr >
-						<td>
-							Customer:
-						</td>
-						<td>
-							{{circuit.Customer}}
-						</td>
-					</tr>
-					<tr >
-						<td>
-						Category:
-						</td>
-						<td>
-							{{circuit.Category}}
-						</td>
-					</tr>
-				</table>
-			</div>
-			<div class="col-md-4 column">
-					<table class="table">
-						<tr>
-							<td>
-								Circuit ID:
-							</td>
-							<td>
-								CES/FRA/LE-173127(Rev: 1)
-							</td>
-						</tr>
-						<tr >
-							<td>
-								Status:
-							</td>
-							<td>
-								Live
-							</td>
-						</tr>
-						<tr>
-							<td>
-								In service since:
-							</td>
-							<td>
-								16-Dec-2014
-							</td>
-						</tr>
-						<tr>
-							<td>
-								Customer:
-							</td>
-							<td>
-								Market Prizm
-							</td>
-						</tr>
-						<tr >
-							<td>
-								Category:
-							</td>
-							<td>
-								LANLINK
-							</td>
-						</tr>
-				</table>
-			</div>
-				<div class="col-md-4 column">
-					<table class="table">
-							<tr>
-								<td>
-									Circuit ID:
-								</td>
-								<td>
-								CES/FRA/LE-173127(Rev: 1)
-								</td>
-							</tr>
-							<tr >
-								<td>
-									Status:
-								</td>
-								<td>
-										Live
-								</td>
-							</tr>
-							<tr >
-								<td>
-									In service since:
-								</td>
-								<td>
-								16-Dec-2014
-								</td>
-							</tr>
-							<tr >
-								<td>
-									Customer:
-								</td>
-								<td>
-								Market Prizm
-								</td>
-							</tr>
-							<tr >
-								<td>
-								Category:
-								</td>
-								<td>
-									LANLINK
-								</td>
-							</tr>
-					</table>
-				</div>
-			</div>
-		</div>
-	<div class="col-md-1 column"></div>
-</div>
-<div class="row clearfix">
-	<div class="col-md-2 column"></div>
-	<div class="col-md-9 column">
-		<h4>Ticket details</h4>
-		<table class="table"> 
-			<tr>
-				<td> Ticket ID</td>
-				<td> Ticket Title</td>
+	<h2 class="app-title">Service details</h2>
+	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth">
+		<tr class="label-without-width">
+			<td class="font-strong">Circuit Id:</td>
+			<td>{{circuit.circuitID}}</td>
+			<td class="font-strong">Status:</td>
+			<td>{{circuit.status}}</td>
+			<td class="font-strong">In Service since:</td>
+			<td>{{circuit.inServiceSince}}</td>
+		</tr>
+		<tr class="label-without-width"> 
+			<td class="font-strong">Customer:</td>
+			<td>{{circuit.customer}}</td>
+			<td class="font-strong">Category:</td>
+			<td>{{circuit.category}}</td>
+			<td class="font-strong">Bandwidth:</td>
+			<td>{{circuit.bandwidth}}</td>
+		</tr>
+		<tr class="label-without-width">
+			<td class="font-strong">Legal Customer OCN:</td>
+			<td>{{circuit.legalCustomerOcn}}</td>
+			<td class="font-strong">AMN SLM (PAM) Status:</td>
+			<td>{{circuit.pamStatus}}</td>
+			<td class="font-strong">Management Team:</td>
+			<td>{{circuit.managementTeam}}</td>
+		</tr>
+		<tr class="label-without-width">
+			<td class="font-strong">Related Order Number:</td>
+			<td>{{circuit.relatedOrderNumber}}</td>
+			<td class="font-strong">Performance Monitoring</td>
+			<td>{{circuit.performanceMonitoring}}</td>
+			<td class="font-strong">Trunk Group</td>
+			<td>{{circuit.trunkGroup}}</td>
+		</tr>
+		<tr class="label-without-width">
+			<td class="font-strong">Order</td>
+			<td>{{circuit.order}}</td>
+			<td class="font-strong">Service Menu:</td>
+			<td colspan="3">{{circuit.serviceMenu}}</td>
+		</tr>
+		<tr class="label-without-width" >
+			<td class="font-strong">Product Name:</td>
+			<td colspan="5"></td>
+		</tr>
+	</table>
+	<div class="marginTop">
+		<h2 class="app-title">Open Tickets Information</h2>
+		<table border="1" cellspacing="0" cellpadding="0" class="fullWidth marginTop">
+			<tr class="rich-table-header">
+				<td align="center">Colt Reference</td>
+				<td align="center">Customer Reference</td>
+				<td align="center">Status</td>
+				<td align="center">Ticket Description</td>
+				<td align="center">Opened Date/Time</td>
+				<td align="center">Type</td>
+				<td align="center">Reported By</td>
+				<td align="center">Priority</td>
 			</tr>
 			<tr ng-repeat="ticket in tickets">
-				<td>{{ticket.ticketID}}</td>
-				<td>{{ticket.ticketTitle}}</td>
-			</tr>
+				<td>{{ticket.coltReference}}</a></td>
+				<td>{{ticket.customer}}</a></td>
+				<td>{{ticket.status}}</a></td>
+				<td>{{ticket.ticketDescription}}</a></td>
+				<td>{{ticket.openDateTime}}</a></td>
+				<td>{{ticket.type}}</a></td>
+				<td>{{ticket.reportedBy}}</a></td>
+				<td>{{ticket.priority}}</a></td>
+			</tr> 
 		</table>
 	</div>
-	<div class="col-md-1 column"></div>
-</div>
 </div>

@@ -1,36 +1,51 @@
 <!DOCTYPE html>
-
-<!-- define angular app -->
-<html  >
-
-<head>
-
-<meta charset="utf-8">
-  <title>Service Status Tool</title>
-  
-  
-  <link rel="stylesheet" href="css/bootstrap.min.css" />
-  <script src="js/angular.js"></script>
-  <script src="js/angular-route.js"></script>  
-  <script src="controllers/SearchController.js"></script>
-  <script src="controllers/ServiceDataController.js"></script>
-  <script src="app.js"></script>
-</head>
-
-<body id="ng-app" ng-app="sstApp">
-<div class="container">
-			<h5 class="text-right">
-				<b>TCS Service Status Tool</b>
-			</h5>
-			<hr>
-	<div id ="ng-view" ng-view></div>
-
-    
-	<footer class="text-center">
-	<hr>
-		<p>Copyright 2015 ; Version 1; </p>
-	</footer>
-</div>
-</body>
-
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+		<title>Service Status Tool</title>
+		<link rel='stylesheet' type='text/css' href='css/default.css' />
+		<link rel='stylesheet' type='text/css' href='css/default-layout.css' />
+		<script src="js/angular.js"></script>
+		<script src="js/angular-route.js"></script>  
+		<script src="controllers/SearchController.js"></script>
+		<script src="controllers/ServiceDataController.js"></script>
+		<script src="app.js"></script>
+	</head>
+	<body id="ng-app" ng-app="sstApp">
+		<table cellspacing="0" cellpadding="5" align="center" width="980" border="0">
+			<tr>
+				<td>
+					<div>
+						<table border="0" cellpadding="0" cellspacing="0" width="100%">
+							<tr>
+								<td valign="top" rowspan="2">
+									<img src="images/layout_logo.gif"  alt=""/> 
+								</td>
+								<td valign="top" align="right">
+									<img src="images/title.jpg"  alt=""/>
+								</td>
+							</tr>
+							<tr>
+								<td align="right">
+									<div class="appmenu">
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2" align="right">
+									<img src="images/Colt_lightbar.jpg"  alt=""/>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div class="marginTop" id="ng-view" ng-view></div>
+					<div id="footer">
+						&#169; 2015 Colt Technology Services Group Limited. The Colt name and logos are trade marks. All rights reserved <br/>
+						<a href="javascript:;">Accessibility</a> | <a href="javascript:;">Terms of Use &amp; Privacy Statement</a>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</body>
 </html>

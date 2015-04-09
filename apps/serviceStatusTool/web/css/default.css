@@ -1,0 +1,96 @@
+/* =================================
+	App
+   =================================*/
+.app-title {
+	margin: 0px;
+	padding: 4px;
+	font-size: 16px;
+	color: #515049;
+	border-left: solid #a0bf35 5px;
+	margin-left:5px;
+}
+
+.label {
+	border-bottom:solid #f0f0f0 1px;
+	width:165px;
+	vertical-align:top;
+}
+.label-without-width {
+	border-bottom:solid #f0f0f0 1px;
+	vertical-align:top;
+}
+
+.value {
+	border-bottom:solid #f0f0f0 1px;
+	padding-right:30px;
+	vertical-align:top;
+}
+
+.value-required {
+	border-bottom:solid #f0f0f0 1px;
+	padding-right:30px;
+	vertical-align:top;	
+}
+
+.labelClean {
+	width:165px;
+	vertical-align:top;
+}
+.valueClean {
+	padding-right:30px;
+	vertical-align:top;
+}
+
+.font-strong {
+	color: black;
+	font-weight: bold;
+}
+
+.font-smaller {
+	font-size:75%
+}
+
+#trail-container {
+border-bottom: 2px solid #DEDFE0;
+padding: 0 10px 10px;
+font-size: 11px;
+color: #515049;
+text-decoration: none;
+margin-bottom: 10px;
+}
+
+input[type='text'] {
+	width:450px;
+}
+
+.fullWidth {
+	width:100%;
+}
+
+.marginTop {
+	margin-top: 10px;
+}
+
+.tableService td {
+	width:16.7%;
+}
+.rich-table-header {
+	background-color: #D4CFC7;
+	background-image: url(/images/richfake/tab_header_gradient.png);
+	font-weight: bold;
+	background-position: top left;
+	background-repeat: repeat-x;
+}
+
+.messageInfo {
+	color: #6ba9c7;
+	background-color: #e2eff6;
+	border-color: #a9d9e3;
+}
+
+.message {
+	padding: 10px;
+	margin-bottom: 10px;
+	border: 2px solid transparent;
+	border-radius: 6px;
+}

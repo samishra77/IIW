@@ -1,44 +1,65 @@
-<div class="row clearfix">
-	<form class="form-horizontal" role="form">
-		<div class="col-md-4 column"> </div>
-			<div class="col-md-4 column">
-				<h4><b>Search For Services</b></h4>
-				OHS Order:<input type="text" ng-model="search.order" class="form-control" id="Order" />
-				Service:<input type="text"   ng-model="search.service"  class="form-control" id="Service"/>
-				Customer:<input type="text"  ng-model="search.customer" class="form-control" id="Customer"/>
-
-				Site1 Address:<input type="text"  ng-model="search.address" class="form-control" id="address"/>
-				Site1 City:<input type="text"  ng-model="search.city" class="form-control" id="City" />
-
-				Site2 Address:<input type="text"  ng-model="search.address2" class="form-control" id="address2"/>
-				Site2 City:<input type="text"  ng-model="search.city2" class="form-control" id="City2" />
-				<button ng-click="doSearch()">Search</button>
-			</div>
-		<div class="col-md-4 column"> </div>
-	</form>
-</div>
-<div class="row clearfix">
-	<div class="col-md-2 column"></div>
-	<div ng-show="isHidden" class="ng-cloak" class="col-md-8 column">
-		<h4>Search Results </h4>
-		<table class="table">
+<h2 class="app-title">Search For Services</h2>
+<form role="form">
+	<br/>
+	<div id="msg" class="message messageInfo" ng-show="msg"></div>
+	<label class="font-smaller">(Use % for wildcard)</label>
+	<table border="0" cellspacing="0" cellpadding="3" class="marginTop">
+		<tbody>
 			<tr>
-				<td>Circuit ID</td>
-				<td>Order Number</td>
-				<td>Customer</td>
-				<td>Product Type</td>
-				<td>A Side Site Information</td>
-				<td>Z Side Site Information</td>
+				<td class="label-without-width"><label class="font-strong">OHS Order:</label></td>
+				<td class="label-without-width"><label class="font-strong">Service:</label></td>
 			</tr>
-			<tr ng-repeat="circuit in circuits">
-				<td><a href="#/ServiceData">{{circuit.circuitID}}</a></td>
-				<td>{{circuit.orderNumber}}</td>
-				<td>{{circuit.customer}}</td>
-				<td>{{circuit.productType}}</td>
-				<td>{{circuit.aSideSite}}</td>
-				<td>{{circuit.zSideSite}}</td>
-			</tr> 
-		</table>
-	</div>
-	<div class="col-md-2 column"></div>
+			<tr>
+				<td class="value"><input type="text" ng-model="search.order" id="order"/></td>
+				<td class="value"><input type="text" ng-model="search.service" id="service"/></td>
+			</tr>
+			<tr>
+				<td class="label-without-width" colspan="2"><label class="font-strong">Customer:</label></td>
+			</tr>
+			<tr>
+				<td class="value" colspan="2"><input type="text" ng-model="search.customer" id="customer"/></td>
+			</tr>
+			<tr>
+				<td class="label-without-width"><label class="font-strong">Site1 Address:</label></td>
+				<td class="label-without-width"><label class="font-strong">Site1 City:</label></td>
+			</tr>
+			<tr>
+				<td class="value"><input type="text" ng-model="search.address" id="address"/></td>
+				<td class="value"><input type="text" ng-model="search.city" id="city"/></td>
+			</tr>
+			
+			<tr>
+				<td class="label-without-width"><label class="font-strong">Site2 Address:</label></td>
+				<td class="label-without-width"><label class="font-strong">Site2 City:</label></td>
+			</tr>
+			<tr>
+				<td class="value"><input type="text" ng-model="search.address2" id="address2"/></td>
+				<td class="value"><input type="text" ng-model="search.city2" id="city2"/></td>
+			</tr>		
+			<tr>
+				<td colspan="2"><button ng-click="doSearch()">Search</button></td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+<div class="marginTop">
+	<h2 class="app-title" ng-show="isHidden">Output Service List</h2>
+	<table border="1" cellspacing="0" cellpadding="0" class="fullWidth marginTop" ng-show="isHidden">
+		<tr class="rich-table-header">
+			<td class="alignMiddle">Circuit ID</td>
+			<td class="alignMiddle">Order Number</td>
+			<td class="alignMiddle">Customer</td>
+			<td class="alignMiddle">Product Type</td>
+			<td class="alignMiddle">A Side Site Information</td>
+			<td class="alignMiddle">Z Side Site Information</td>
+		</tr>
+		<tr ng-repeat="circuit in circuits">
+			<td><a href="#/ServiceData">{{circuit.circuitID}}</a></td>
+			<td>{{circuit.orderNumber}}</td>
+			<td>{{circuit.customer}}</td>
+			<td>{{circuit.productType}}</td>
+			<td>{{circuit.aSideSite}}</td>
+			<td>{{circuit.zSideSite}}</td>
+		</tr> 
+	</table>
 </div>
