@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hibernate-jpa-2.0-api.jar"/>
 	<classpathentry kind="lib" path="lib/spring-web-4.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-4.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
