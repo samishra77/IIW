@@ -8,15 +8,18 @@ var SearchController = function ($scope, $http){
 		} else if(($scope.order != "" &&  $scope.service != "") && $scope.customer == "" &&  $scope.address == "" && $scope.city == "" && $scope.address2 == "" && $scope.city2 == "" ){
 			alert("Erro Order e Service");
 		} else {
-			 $http({
+			var resp = $http({
 			  method  : 'POST',
 			  url     : urlBase + '/getCircuits',
 			  data    : JSON.stringify($scope.search), 
 			  headers : { 'Content-Type': 'application/json' }
-			 })
-			.success(function(data) {
+			 });
+			resp.success(function(data) {
 				$scope.circuits = data;
 				$scope.isHidden = true;
+			});
+			resp.error(function(data, status, headers, config) {
+				alert( "failure message: " + JSON.stringify({config: config}));
 			});
 		}
 	};

@@ -23,16 +23,20 @@
 		<h4>Search Results </h4>
 		<table class="table">
 			<tr>
-				<td>&nbsp</td>
 				<td>Circuit ID</td>
 				<td>Order Number</td>
+				<td>Customer</td>
 				<td>Product Type</td>
+				<td>A Side Site Information</td>
+				<td>Z Side Site Information</td>
 			</tr>
 			<tr ng-repeat="circuit in circuits">
-				<td>  <a href="#/ServiceData">view</a></td>
+				<td><a href="#/ServiceData">{{circuit.circuitID}}</a></td>
 				<td>{{circuit.orderNumber}}</td>
+				<td>{{circuit.customer}}</td>
 				<td>{{circuit.productType}}</td>
-				<td>{{circuit.productType}}</td>
+				<td>{{circuit.aSideSite}}</td>
+				<td>{{circuit.zSideSite}}</td>
 			</tr> 
 		</table>
 	</div>
