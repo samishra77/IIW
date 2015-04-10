@@ -84,17 +84,14 @@ public class SiebelCall {
 //			req.setEarliestStartDate(sdf.format(d_ini));
 //			req.setLatestStartDate(sdf.format(d_fim));
 
-//			url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
-//			action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
-			url =  "http://192.168.0.5:7777/ws/ColtTickets.webSvcProvider:tickets/ColtTickets_webSvcProvider_tickets_Port";
-			action = "";
+			url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
+			action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
 
 			URL u = new URL(url);
 			URLConnection uc = u.openConnection();
 			String userpass = null;
 
-//			userpass = SstConfig.getDefaultInstance().getProperty("ws.siebel.user") + ":" + SstConfig.getDefaultInstance().getProperty("ws.siebel.pass");
-			userpass = "COPortalWS:COPortalWS";
+			userpass = SstConfig.getDefaultInstance().getProperty("ws.siebel.user") + ":" + SstConfig.getDefaultInstance().getProperty("ws.siebel.pass");
 			
 			String basicAuth = "Basic "    + new String(DatatypeConverter.printBase64Binary(userpass.getBytes()));
 			uc.setRequestProperty("Authorization", basicAuth);
