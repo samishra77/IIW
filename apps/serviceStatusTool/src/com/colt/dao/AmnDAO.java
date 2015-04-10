@@ -9,6 +9,7 @@ import javax.persistence.Query;
 
 import com.colt.util.Util;
 import com.colt.ws.biz.Circuit;
+import com.colt.ws.biz.ProductType;
 import com.colt.ws.biz.Response;
 import com.colt.ws.biz.Search;
 
@@ -73,7 +74,7 @@ public class AmnDAO extends DAO {
 			response.setErrorCode(Response.CODE_MAXRESULT);
 			response.setErrorMsg("Too Many Results.");
 			response.setStatus(Response.FAIL);
-		} else if(resutlList != null && resutlList.size() < maxResult) {
+		} else if(resutlList != null && resutlList.size() > 0 && resutlList.size() < maxResult) {
 			Circuit circuit = null;
 			for(Object[] o : resutlList) {
 				circuit = new Circuit();
@@ -86,6 +87,10 @@ public class AmnDAO extends DAO {
 				circuit.setzSideSite(o[6] != null ? ((BigDecimal)o[6]).toString() : "");
 				modelList.add(circuit);
 			}
+		} else if(resutlList != null && resutlList.size() == 0) {
+			response.setErrorCode(Response.CODE_EMPTY);
+			response.setErrorMsg("Not result found.");
+			response.setStatus(Response.FAIL);
 		}
 		if(!modelList.isEmpty()) {
 			response.setResult(modelList);
@@ -117,6 +122,7 @@ public class AmnDAO extends DAO {
 				circuit.setCircuitID((String)o[1] != null ? (String)o[1] : "");
 				circuit.setOrderNumber((String)o[2] != null ? (String)o[2] : "");
 				circuit.setServiceMenu((String)o[3] != null ? (String)o[3] : "");
+				circuit.setProductType(new Util().getProductType((o[3] != null) ? (String)o[3] : ""));
 				circuit.setRevisionNumber(o[4] != null ? ((BigDecimal)o[4]).toString() : "");
 				circuit.setStatus((String)o[5] != null ? (String)o[5] : "");
 				circuit.setBandWidth((String)o[6] != null ? (String)o[6] : "");
@@ -127,13 +133,135 @@ public class AmnDAO extends DAO {
 				circuit.setPerformanceMonitoring((String)o[11] != null ? (String)o[11] : "");
 				response.setResult(circuit);
 			}
+			if(circuit.getOsmOrderNO() != null && !"".equals(circuit.getOsmOrderNO())) {
+				fetchFromSiebelOrder(circuit);
+			} else {
+				fetchFromOHSContractRelatedTables(circuit);
+			}
 		} else {
 			response.setErrorCode(Response.CODE_NOTONE);
 			response.setErrorMsg("More than one result found.");
 			response.setStatus(Response.FAIL);
 		}
+
 		response.setResult(circuit);
 		return response;
+	}
+
+	private void fetchFromSiebelOrder(Circuit circuit) {
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+			String sql = "select LEGAL_PARTY_NAME as CUSTOMER, PRODUCT_NAME, SERVICE_DESC, LEGAL_PARTY_OCN as OCN, D_RELATED_ORDER_NO " +
+					"from AMN.IE_SIEBEL_OSM_ORDERS " +
+					"where XNG_CIRCUIT_ID like :circuitID";
+
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID()+"%");
+			List<Object[]> resutlList = query.getResultList();
+			if(resutlList != null && resutlList.size() == 1) {
+				for(Object[] o : resutlList) {
+					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
+					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
+					circuit.setCustomerOCN((String)o[3] != null ? (String)o[3] : "");
+					circuit.setRelatedOrderNumber((String)o[4] != null ? (String)o[4] : "");
+				}
+			}
+		}
+	}
+
+	private void fetchFromOHSContractRelatedTables(Circuit circuit) {
+		if(circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType()) ) {
+			if(circuit.getProductType().equalsIgnoreCase(ProductType.HSS.value())) {
+				getCircuitHSS(circuit);
+			}
+			if(circuit.getProductType().equalsIgnoreCase(ProductType.LANLINK.value())) {
+				getCircuitLANLINK(circuit);
+			}
+			if(circuit.getProductType().equalsIgnoreCase(ProductType.IP_ACCESS.value())) {
+				getCircuitIPACCESS(circuit);
+			}
+			if(circuit.getProductType().equalsIgnoreCase(ProductType.CPE_SOLUTIONS.value())) {
+				getCircuitCPESOLUTIONS(circuit);
+			}
+		}
+	}
+
+	private void getCircuitHSS(Circuit circuit) {
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+			String sql = "select a.LEGAL_CUSTOMER, a.OCN, a.PRODUCT_NAME " +
+					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_HSS_SERVICE b " +
+					"where a.CONTRACT_NO = b.CONTRACT_NO and a.CIRCUIT_REFERENCE_5D = :circuitID and a.CURR_REVISION = 'YES' ORDER BY a.CIRCUIT_REFERENCE_5D";
+
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			List<Object[]> resutlList = query.getResultList();
+			if(resutlList != null && resutlList.size() == 1) {
+				for(Object[] o : resutlList) {
+					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
+					circuit.setCustomerOCN((String)o[1] != null ? (String)o[1] : "");
+					circuit.setProductName((String)o[2] != null ? (String)o[2] : "");
+				}
+			}
+		}
+	}
+
+	private void getCircuitLANLINK(Circuit circuit) {
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+			String sql = "select a.LEGAL_CUSTOMER, a.PRODUCT_NAME, a.OCN, b.RELATED_CONTRACT_NO_ " +
+					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_LINK_LAN_ORDER b " +
+					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CIRCUIT_REFERENCE_5D = :circuitID and a.CURR_REVISION = 'YES' and b.CURRENT_REVISION = 'YES' ORDER BY a.CIRCUIT_REFERENCE_5D";
+
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			List<Object[]> resutlList = query.getResultList();
+			if(resutlList != null && resutlList.size() == 1) {
+				for(Object[] o : resutlList) {
+					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
+					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
+					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
+					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+				}
+			}
+		}
+	}
+
+	private void getCircuitIPACCESS(Circuit circuit) {
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+			String sql = "select a.LEGAL_CUSTOMER, a.PRODUCT_NAME, a.OCN, b.RELATED_CONTRACT_NO " +
+					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_IP_DATA_ORDER b " +
+					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CIRCUIT_REFERENCE_5D = :circuitID and a.CURR_REVISION = 'YES' and b.CURRENT_REVISION = 'YES' ORDER BY a.CIRCUIT_REFERENCE_5D";
+
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			List<Object[]> resutlList = query.getResultList();
+			if(resutlList != null && resutlList.size() == 1) {
+				for(Object[] o : resutlList) {
+					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
+					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
+					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
+					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+				}
+			}
+		}
+	}
+
+	private void getCircuitCPESOLUTIONS(Circuit circuit) {
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+			String sql = "select a.LEGAL_CUSTOMER, a.PRODUCT_NAME, a.OCN, b.RELATED_ORDER_NO_ " +
+					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
+					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CIRCUIT_REFERENCE_5D = :circuitID and a.CURR_REVISION = 'YES' and b.CURRENT_REVISION = 'YES' ORDER BY a.CIRCUIT_REFERENCE_5D";
+
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			List<Object[]> resutlList = query.getResultList();
+			if(resutlList != null && resutlList.size() == 1) {
+				for(Object[] o : resutlList) {
+					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
+					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
+					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
+					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+				}
+			}
+		}
 	}
 
 }

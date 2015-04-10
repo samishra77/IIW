@@ -25,7 +25,22 @@ public class Circuit {
 	private String zSideSite;
 	private String revisionNumber;
 	private String relatedOrderNumber;
+	private String osmOrderNO;
 	private List<Ticket> tickets;
+
+	/**
+	 * @return the osmOrderNO
+	 */
+	public String getOsmOrderNO() {
+		return osmOrderNO;
+	}
+
+	/**
+	 * @param osmOrderNO the osmOrderNO to set
+	 */
+	public void setOsmOrderNO(String osmOrderNO) {
+		this.osmOrderNO = osmOrderNO;
+	}
 
 	/**
 	 * @return the relatedOrderNumber
