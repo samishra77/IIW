@@ -76,7 +76,7 @@ input[type='text'] {
 }
 .rich-table-header {
 	background-color: #D4CFC7;
-	background-image: url(/images/richfake/tab_header_gradient.png);
+	background-image: url(../images/richfake/tab_header_gradient.png);
 	font-weight: bold;
 	background-position: top left;
 	background-repeat: repeat-x;
