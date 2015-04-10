@@ -1,5 +1,7 @@
 package com.colt.ws.biz;
 
+import java.util.List;
+
 public class Circuit {
 
 	private String circuitIdEscape;
@@ -21,6 +23,7 @@ public class Circuit {
 	private String trunkGroup;
 	private String aSideSite;
 	private String zSideSite;
+	private List<Ticket> tickets;
 
 	/**
 	 * @return the circuitIdEscape
@@ -300,5 +303,19 @@ public class Circuit {
 	 */
 	public void setzSideSite(String zSideSite) {
 		this.zSideSite = zSideSite;
+	}
+
+	/**
+	 * @return the tickets
+	 */
+	public List<Ticket> getTickets() {
+		return tickets;
+	}
+
+	/**
+	 * @param tickets the tickets to set
+	 */
+	public void setTickets(List<Ticket> tickets) {
+		this.tickets = tickets;
 	}
 }

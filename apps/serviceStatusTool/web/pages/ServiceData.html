@@ -53,16 +53,18 @@
 				<td align="center">Status</td>
 				<td align="center">Ticket Description</td>
 				<td align="center">Opened Date/Time</td>
+				<td align="center">Restored Date/Time</td>
 				<td align="center">Type</td>
 				<td align="center">Reported By</td>
 				<td align="center">Priority</td>
 			</tr>
 			<tr ng-repeat="ticket in circuit.tickets">
 				<td>{{ticket.coltReference}}</a></td>
-				<td>{{ticket.customer}}</a></td>
+				<td>{{ticket.customerReference}}</a></td>
 				<td>{{ticket.status}}</a></td>
 				<td>{{ticket.ticketDescription}}</a></td>
-				<td>{{ticket.openDateTime}}</a></td>
+				<td>{{ticket.opened}}</a></td>
+				<td>{{ticket.restored}}</a></td>
 				<td>{{ticket.type}}</a></td>
 				<td>{{ticket.reportedBy}}</a></td>
 				<td>{{ticket.priority}}</a></td>

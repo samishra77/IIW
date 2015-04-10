@@ -167,14 +167,14 @@ public class AmnDAO extends DAO {
 //			query.setParameter("site2City", 	search.getCity2());
 //		}
 
-		Query query = em.createNativeQuery("");
-		List<Object[]> resutlList = query.getResultList();
-		if(resutlList.isEmpty()) {
-			response.setErrorCode(Response.codeEmpty);
-			response.setErrorMsg("Not result found.");
-			response.setStatus(Response.FAIL);
-		}
-		List<Circuit> modelList = new ArrayList<Circuit>();
+//		Query query = em.createNativeQuery("");
+//		List<Object[]> resutlList = query.getResultList();
+//		if(resutlList.isEmpty()) {
+//			response.setErrorCode(Response.codeEmpty);
+//			response.setErrorMsg("Not result found.");
+//			response.setStatus(Response.FAIL);
+//		}
+//		List<Circuit> modelList = new ArrayList<Circuit>();
 //		if(resutlList != null && !resutlList.isEmpty() && resutlList.size() < maxResult) {
 //			Circuit circuit = null;
 //			for(Object[] o : resutlList) {
@@ -192,38 +192,14 @@ public class AmnDAO extends DAO {
 
 		Circuit circuit = new Circuit();
 		circuit.setCircuitIdEscape(replaceCircuitID("HAM/HAM/LE-111805"));
-		circuit.setCircuitID("HAM/HAM/LE-111805");
+		circuit.setCircuitID("LON/LON/IA-095728");
 		circuit.setOrderNumber("150201585");
 		circuit.setCustomer("SAV");
 		circuit.setProductType("LANLINK");
 		circuit.setaSideSite("UK");
 		circuit.setzSideSite("UKZ");
-		modelList.add(circuit);
-		
-		circuit = new Circuit();
-		circuit.setCircuitIdEscape(replaceCircuitID("HAM/HAM/LE-111805"));
-		circuit.setCircuitID("HAM/HAM/LE-111805");
-		circuit.setOrderNumber("150201585");
-		circuit.setCustomer("SAV2");
-		circuit.setProductType("LANLINK");
-		circuit.setaSideSite("UK2");
-		circuit.setzSideSite("UKZ2");
-		modelList.add(circuit);
-		
-		circuit = new Circuit();
-		circuit.setCircuitIdEscape(replaceCircuitID("IPC04060761BRU9"));
-		circuit.setCircuitID("IPC04060761BRU9");
-		circuit.setOrderNumber("150201585");
-		circuit.setCustomer("SAV3");
-		circuit.setaSideSite("UK3");
-		circuit.setzSideSite("UKZ3");
-		circuit.setProductType("ACCESS IP MPLS");
-		modelList.add(circuit);
-
-		if(!modelList.isEmpty()) {
-			response.setResult(modelList);
-		}
-
+		circuit.setCustomerOCN("30330");
+		response.setResult(circuit);
 		return response;
 	}
 

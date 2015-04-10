@@ -1,4 +1,4 @@
-var ServiceDataController = function ($scope,$routeParams) {
+var ServiceDataController = function ($scope,$routeParams,$http) {
 
 //	$scope.circuit= {	circuitID:'HAM-LE-111805',	Status:'Live',	InServiceSince:'16-Dec-2014', Customer:'Market Prizm',Category:	'LANLINK'};
 //
@@ -7,7 +7,7 @@ var ServiceDataController = function ($scope,$routeParams) {
 //	$scope.tickets=[{ticketID:'ticket1',ticketTitle:'ticket title 1'},{ticketID:'ticket2',ticketTitle:'ticket title 2'},{ticketID:'ticket3',ticketTitle:'ticket title 3'},{ticketID:'ticket4',ticketTitle:'ticket title 4'}];
 	var urlBase="/serviceStatusTool/ws";
 	var resp = $http({
-	  method  : 'GET',
+	  method  : 'POST',
 	  url     : urlBase + '/getServiceDetail',
 	  data    : JSON.stringify($routeParams.circuitID), 
 	  headers : { 'Content-Type': 'application/json' }

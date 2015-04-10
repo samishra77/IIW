@@ -8,8 +8,11 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -17,11 +20,12 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.colt.util.SstConfig;
 import com.colt.util.Util;
-import com.colt.ws.biz.*;
+import com.colt.ws.biz.SiebelCallRequest;
+import com.colt.ws.biz.Ticket;
 
 public class SiebelCall {
 
-	private List<Ticket> getTicketList(String response) {
+	public List<Ticket> getTicketList(String response) {
 		List<Ticket> toReturn = new ArrayList<Ticket>();
 		if (response.contains("gtr:tickets")) {
 			int init = response.indexOf("<gtr:tickets>");
@@ -64,19 +68,33 @@ public class SiebelCall {
 		return toReturn;
 	}
 
-	private String siebelCallProcess(SiebelCallRequest req) {
+	public String siebelCallProcess(SiebelCallRequest req) {
 		String result = null;
 		String url = null;
 		String action = null;
 		try {
-			url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
-			action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
+			//set default values----------------
+			Date d_fim = new Date();
+			Date d_ini = new Date();
+			d_ini.setDate(d_fim.getDate() - 2) ;
+			SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", new Locale.Builder().setLanguage("en").setRegion("US").build());
+			req.setSearchMethod("FILTERS");
+			req.setSearchType("EXACT");
+			req.setTicketStatus("All");
+//			req.setEarliestStartDate(sdf.format(d_ini));
+//			req.setLatestStartDate(sdf.format(d_fim));
+
+//			url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
+//			action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
+			url =  "http://192.168.0.5:7777/ws/ColtTickets.webSvcProvider:tickets/ColtTickets_webSvcProvider_tickets_Port";
+			action = "";
 
 			URL u = new URL(url);
 			URLConnection uc = u.openConnection();
 			String userpass = null;
 
-			userpass = SstConfig.getDefaultInstance().getProperty("ws.siebel.user") + ":" + SstConfig.getDefaultInstance().getProperty("ws.siebel.pass");
+//			userpass = SstConfig.getDefaultInstance().getProperty("ws.siebel.user") + ":" + SstConfig.getDefaultInstance().getProperty("ws.siebel.pass");
+			userpass = "COPortalWS:COPortalWS";
 			
 			String basicAuth = "Basic "    + new String(DatatypeConverter.printBase64Binary(userpass.getBytes()));
 			uc.setRequestProperty("Authorization", basicAuth);
