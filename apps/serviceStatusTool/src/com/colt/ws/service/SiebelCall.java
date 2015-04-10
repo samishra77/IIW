@@ -11,6 +11,7 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -74,15 +75,20 @@ public class SiebelCall {
 		String action = null;
 		try {
 			//set default values----------------
-			Date d_fim = new Date();
-			Date d_ini = new Date();
-			d_ini.setDate(d_fim.getDate() - 2) ;
+			Date d_end = new Date();
+			GregorianCalendar gc_end = new GregorianCalendar();
+			gc_end.setTime(d_end);
+			
+			GregorianCalendar gc_start = new GregorianCalendar();
+			gc_start.setTime(d_end);
+			gc_start.add(GregorianCalendar.DAY_OF_MONTH, -2);
+
 			SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", new Locale.Builder().setLanguage("en").setRegion("US").build());
 			req.setSearchMethod("FILTERS");
 			req.setSearchType("EXACT");
 			req.setTicketStatus("All");
-//			req.setEarliestStartDate(sdf.format(d_ini));
-//			req.setLatestStartDate(sdf.format(d_fim));
+			req.setEarliestStartDate(sdf.format(gc_start.getTime()));
+			req.setLatestStartDate(sdf.format(gc_end.getTime()));
 
 			url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
 			action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
