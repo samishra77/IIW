@@ -17,6 +17,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				$scope.message = data.errorMsg;
 			}
 		} else {
+			$scope.msgTicket = false;
+			$scope.msg = false;
+			$scope.error = false;
 			$scope.hasServiceDetail = true;
 			$scope.circuit = data.result;
 			if($scope.circuit != null) {

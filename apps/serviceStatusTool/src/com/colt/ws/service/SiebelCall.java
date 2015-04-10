@@ -69,119 +69,116 @@ public class SiebelCall {
 		return toReturn;
 	}
 
-	public String siebelCallProcess(SiebelCallRequest req) {
+	public String siebelCallProcess(SiebelCallRequest req) throws Exception {
 		String result = null;
 		String url = null;
 		String action = null;
-		try {
-			//set default values----------------
-			Date d_end = new Date();
-			GregorianCalendar gc_end = new GregorianCalendar();
-			gc_end.setTime(d_end);
-			
-			GregorianCalendar gc_start = new GregorianCalendar();
-			gc_start.setTime(d_end);
-			gc_start.add(GregorianCalendar.DAY_OF_MONTH, -2);
+		//set default values----------------
+		Date d_end = new Date();
+		GregorianCalendar gc_end = new GregorianCalendar();
+		gc_end.setTime(d_end);
+		
+		GregorianCalendar gc_start = new GregorianCalendar();
+		gc_start.setTime(d_end);
+		gc_start.add(GregorianCalendar.DAY_OF_MONTH, -2);
 
-			SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", new Locale.Builder().setLanguage("en").setRegion("US").build());
-			req.setSearchMethod("FILTERS");
-			req.setSearchType("EXACT");
-			req.setTicketStatus("All");
-			req.setEarliestStartDate(sdf.format(gc_start.getTime()));
-			req.setLatestStartDate(sdf.format(gc_end.getTime()));
+		SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", new Locale.Builder().setLanguage("en").setRegion("US").build());
+		req.setSearchMethod("FILTERS");
+		req.setSearchType("EXACT");
+		req.setTicketStatus("All");
+		req.setEarliestStartDate(sdf.format(gc_start.getTime()));
+		req.setLatestStartDate(sdf.format(gc_end.getTime()));
 
-			url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
-			action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
+		url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
+		action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
 
-			URL u = new URL(url);
-			URLConnection uc = u.openConnection();
-			String userpass = null;
+		URL u = new URL(url);
+		URLConnection uc = u.openConnection();
+		String userpass = null;
 
-			userpass = SstConfig.getDefaultInstance().getProperty("ws.siebel.user") + ":" + SstConfig.getDefaultInstance().getProperty("ws.siebel.pass");
-			
-			String basicAuth = "Basic "    + new String(DatatypeConverter.printBase64Binary(userpass.getBytes()));
-			uc.setRequestProperty("Authorization", basicAuth);
-			HttpURLConnection connection = (HttpURLConnection) uc;
-			connection.setDoOutput(true);
-			connection.setDoInput(true);
-			connection.setRequestMethod("POST");
-			///connection.setRequestProperty("SOAPAction", action);
-			connection.connect();
-			OutputStream out = connection.getOutputStream();
-			Writer wout = new BufferedWriter(new OutputStreamWriter(out));
+		userpass = SstConfig.getDefaultInstance().getProperty("ws.siebel.user") + ":" + SstConfig.getDefaultInstance().getProperty("ws.siebel.pass");
+		
+		String basicAuth = "Basic "    + new String(DatatypeConverter.printBase64Binary(userpass.getBytes()));
+		uc.setRequestProperty("Authorization", basicAuth);
+		HttpURLConnection connection = (HttpURLConnection) uc;
+		connection.setDoOutput(true);
+		connection.setDoInput(true);
+		connection.setRequestMethod("POST");
+		///connection.setRequestProperty("SOAPAction", action);
+		connection.connect();
+		OutputStream out = connection.getOutputStream();
+		Writer wout = new BufferedWriter(new OutputStreamWriter(out));
 
-			wout.write("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:v1='http://www.colt.net/xml/ns/tickets/v1' xmlns:v2='http://www.colt.net/xml/ns/getTicketList/v2.2'>");
-			wout.write("<soapenv:Header/>");
-			wout.write("<soapenv:Body>");
-			wout.write("<v1:getTicketList>");
+		wout.write("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:v1='http://www.colt.net/xml/ns/tickets/v1' xmlns:v2='http://www.colt.net/xml/ns/getTicketList/v2.2'>");
+		wout.write("<soapenv:Header/>");
+		wout.write("<soapenv:Body>");
+		wout.write("<v1:getTicketList>");
 
-			wout.write("<ticketListRequest>");
-			wout.write("<v2:getTicketListRequest>");
-			wout.write("<v2:TicketInput>");
-			
-			wout.write("<v2:searchMethod>"+StringEscapeUtils.escapeXml(req.getSearchMethod())+"</v2:searchMethod>");
-			wout.write("<v2:searchType>"+StringEscapeUtils.escapeXml(req.getSearchType())+"</v2:searchType>");
-			if (req.getColtReference() != null) {
-				wout.write("<v2:coltReference>"+StringEscapeUtils.escapeXml(req.getColtReference())+"</v2:coltReference>");
-			}
-			if (req.getCustReference() != null) {
-				wout.write("<v2:custReference>"+StringEscapeUtils.escapeXml(req.getCustReference())+"</v2:custReference>");
-			}
-			if (req.getCircuitServiceID() != null) {
-				wout.write("<v2:circuitServiceID>"+StringEscapeUtils.escapeXml(req.getCircuitServiceID())+"</v2:circuitServiceID>");
-			}
-			if (req.getTicketStatus() != null) {
-				wout.write("<v2:ticketStatus>"+StringEscapeUtils.escapeXml(req.getTicketStatus())+"</v2:ticketStatus>");
-			}
-			if (req.getTicketType() != null) {
-				wout.write("<v2:ticketType>"+StringEscapeUtils.escapeXml(req.getTicketType())+"</v2:ticketType>");
-			}
-			if (req.getEarliestStartDate() != null) {
-				wout.write("<v2:earliestStartDate>"+StringEscapeUtils.escapeXml(req.getEarliestStartDate())+"</v2:earliestStartDate>");
-			}
-			if (req.getLatestStartDate() != null) { 
-				wout.write("<v2:latestStartDate>"+StringEscapeUtils.escapeXml(req.getLatestStartDate())+"</v2:latestStartDate>");
-			}
-			if (req.getMaxRowsReq() != null) {
-				wout.write("<v2:maxRowsReq>"+StringEscapeUtils.escapeXml(req.getMaxRowsReq())+"</v2:maxRowsReq>");
-			}
-			if (req.getCityTown() != null) { 
-				wout.write("<v2:cityTown>"+StringEscapeUtils.escapeXml(req.getCityTown())+"</v2:cityTown>");
-			}
-			if (req.getIsPartner() != null) {
-				wout.write("<v2:isPartner>"+StringEscapeUtils.escapeXml(req.getIsPartner())+"</v2:isPartner>");
-			}
-			if (req.getPartner() != null && req.getPartner().getPairs() != null) {
-				wout.write("<v2:partner>");
-				wout.write("<v2:pairs>");
-				wout.write("<v2:OCN>"+StringEscapeUtils.escapeXml(req.getPartner().getPairs().getOcn())+"</v2:OCN>");
-				wout.write("<v2:BCN>"+StringEscapeUtils.escapeXml(req.getPartner().getPairs().getBcn())+"</v2:BCN>");
-				wout.write("</v2:pairs>");
-				wout.write("</v2:partner>");
-			}
-
-			wout.write("<v2:oracleCustomerNumber>");
-			wout.write("<v2:pairs>");
-			if (req.getOcn() != null) {
-				wout.write("<v2:OCN>"+StringEscapeUtils.escapeXml(req.getOcn())+"</v2:OCN>");
-			}
-			if (req.getBcn() != null) {
-				wout.write("<v2:BCN>"+StringEscapeUtils.escapeXml(req.getBcn())+"</v2:BCN>");
-			}
-			wout.write("</v2:pairs>");
-			wout.write("</v2:oracleCustomerNumber>");
-			wout.write("</v2:TicketInput>");
-			wout.write("</v2:getTicketListRequest>");
-			wout.write("</ticketListRequest>");
-			wout.write("</v1:getTicketList>");
-			wout.write("</soapenv:Body>");
-			wout.write("</soapenv:Envelope>");
-			wout.flush();
-			InputStream in  = connection.getInputStream();
-			result = new Util().getStringFromInputStream(in);
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		wout.write("<ticketListRequest>");
+		wout.write("<v2:getTicketListRequest>");
+		wout.write("<v2:TicketInput>");
+		
+		wout.write("<v2:searchMethod>"+StringEscapeUtils.escapeXml(req.getSearchMethod())+"</v2:searchMethod>");
+		wout.write("<v2:searchType>"+StringEscapeUtils.escapeXml(req.getSearchType())+"</v2:searchType>");
+		if (req.getColtReference() != null) {
+			wout.write("<v2:coltReference>"+StringEscapeUtils.escapeXml(req.getColtReference())+"</v2:coltReference>");
 		}
+		if (req.getCustReference() != null) {
+			wout.write("<v2:custReference>"+StringEscapeUtils.escapeXml(req.getCustReference())+"</v2:custReference>");
+		}
+		if (req.getCircuitServiceID() != null) {
+			wout.write("<v2:circuitServiceID>"+StringEscapeUtils.escapeXml(req.getCircuitServiceID())+"</v2:circuitServiceID>");
+		}
+		if (req.getTicketStatus() != null) {
+			wout.write("<v2:ticketStatus>"+StringEscapeUtils.escapeXml(req.getTicketStatus())+"</v2:ticketStatus>");
+		}
+		if (req.getTicketType() != null) {
+			wout.write("<v2:ticketType>"+StringEscapeUtils.escapeXml(req.getTicketType())+"</v2:ticketType>");
+		}
+		if (req.getEarliestStartDate() != null) {
+			wout.write("<v2:earliestStartDate>"+StringEscapeUtils.escapeXml(req.getEarliestStartDate())+"</v2:earliestStartDate>");
+		}
+		if (req.getLatestStartDate() != null) { 
+			wout.write("<v2:latestStartDate>"+StringEscapeUtils.escapeXml(req.getLatestStartDate())+"</v2:latestStartDate>");
+		}
+		if (req.getMaxRowsReq() != null) {
+			wout.write("<v2:maxRowsReq>"+StringEscapeUtils.escapeXml(req.getMaxRowsReq())+"</v2:maxRowsReq>");
+		}
+		if (req.getCityTown() != null) { 
+			wout.write("<v2:cityTown>"+StringEscapeUtils.escapeXml(req.getCityTown())+"</v2:cityTown>");
+		}
+		if (req.getIsPartner() != null) {
+			wout.write("<v2:isPartner>"+StringEscapeUtils.escapeXml(req.getIsPartner())+"</v2:isPartner>");
+		}
+		if (req.getPartner() != null && req.getPartner().getPairs() != null) {
+			wout.write("<v2:partner>");
+			wout.write("<v2:pairs>");
+			wout.write("<v2:OCN>"+StringEscapeUtils.escapeXml(req.getPartner().getPairs().getOcn())+"</v2:OCN>");
+			wout.write("<v2:BCN>"+StringEscapeUtils.escapeXml(req.getPartner().getPairs().getBcn())+"</v2:BCN>");
+			wout.write("</v2:pairs>");
+			wout.write("</v2:partner>");
+		}
+
+		wout.write("<v2:oracleCustomerNumber>");
+		wout.write("<v2:pairs>");
+		if (req.getOcn() != null) {
+			wout.write("<v2:OCN>"+StringEscapeUtils.escapeXml(req.getOcn())+"</v2:OCN>");
+		}
+		if (req.getBcn() != null) {
+			wout.write("<v2:BCN>"+StringEscapeUtils.escapeXml(req.getBcn())+"</v2:BCN>");
+		}
+		wout.write("</v2:pairs>");
+		wout.write("</v2:oracleCustomerNumber>");
+		wout.write("</v2:TicketInput>");
+		wout.write("</v2:getTicketListRequest>");
+		wout.write("</ticketListRequest>");
+		wout.write("</v1:getTicketList>");
+		wout.write("</soapenv:Body>");
+		wout.write("</soapenv:Envelope>");
+		wout.flush();
+		InputStream in  = connection.getInputStream();
+		result = new Util().getStringFromInputStream(in);
+		
 		return result;
 	}
 

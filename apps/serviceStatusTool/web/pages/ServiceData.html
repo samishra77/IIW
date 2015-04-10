@@ -3,7 +3,7 @@
 </div>
 <div>
 	<h2 class="app-title">Service details</h2>
-	<div id="msg" class="message messageInfo" ng-show="error">{{messageError}}</div>
+	<div id="msg" class="message messageInfo" ng-if="error">{{messageError}}</div>
 	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth" ng-show="hasServiceDetail">
 		<tr class="label-without-width">
 			<td class="font-strong">Circuit Id:</td>
@@ -48,7 +48,7 @@
 			<td colspan="5">{{circuit.productName}} </td>
 		</tr>
 	</table>
-	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth" ng-show="msg">
+	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth" ng-if="msg">
 		<tr class="label-without-width" >
 			<td>{{message}}</td>
 		</tr>
@@ -67,10 +67,10 @@
 				<td align="center">Reported By</td>
 				<td align="center">Priority</td>
 			</tr>
-			<tr ng-show="msgTicket">
+			<tr ng-if="msgTicket">
 				<td colspan="9" class="alignMiddle">{{messageTicket}}</td>
 			</tr>
-			<tr ng-repeat="ticket in tickets">
+			<tr ng-repeat="ticket in tickets" ng-if="!msgTicket">
 				<td>{{ticket.coltReference}}</a></td>
 				<td>{{ticket.customerReference}}</a></td>
 				<td>{{ticket.status}}</a></td>

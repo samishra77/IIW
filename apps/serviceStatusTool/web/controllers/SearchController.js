@@ -16,6 +16,8 @@ var SearchController = function ($scope, $http){
 			 });
 			resp.success(function(data) {
 				$scope.isHidden = true;
+				$scope.msg = false;
+				$scope.error = false;
 				if(data.status == 'fail') {
 					if(data.errorCode == '2') {
 						$scope.error = true;
