@@ -2,6 +2,7 @@ package com.colt.ws.biz;
 
 public class Circuit {
 
+	private String circuitIdEscape;
 	private String circuitID;
 	private String orderNumber;
 	private String productType;
@@ -20,6 +21,20 @@ public class Circuit {
 	private String trunkGroup;
 	private String aSideSite;
 	private String zSideSite;
+
+	/**
+	 * @return the circuitIdEscape
+	 */
+	public String getCircuitIdEscape() {
+		return circuitIdEscape;
+	}
+
+	/**
+	 * @param circuitIdEscape the circuitIdEscape to set
+	 */
+	public void setCircuitIdEscape(String circuitIdEscape) {
+		this.circuitIdEscape = circuitIdEscape;
+	}
 
 	/**
 	 * @return the circuitID

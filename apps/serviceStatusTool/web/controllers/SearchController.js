@@ -15,8 +15,13 @@ var SearchController = function ($scope, $http){
 			  headers : { 'Content-Type': 'application/json' }
 			 });
 			resp.success(function(data) {
-				$scope.circuits = data;
-				$scope.isHidden = true;
+				if(data.status == 'fail') {
+					$scope.msg = true;
+					$scope.message = data.errorMsg;
+				} else {
+					$scope.circuits = data.result;
+					$scope.isHidden = true;
+				}
 			});
 			resp.error(function(data, status, headers, config) {
 				alert( "failure message: " + JSON.stringify({config: config}));

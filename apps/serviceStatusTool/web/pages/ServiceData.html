@@ -19,7 +19,7 @@
 		</tr>
 		<tr class="label-without-width">
 			<td class="font-strong">Legal Customer OCN:</td>
-			<td>{{circuit.legalCustomerOcn}}</td>
+			<td>{{circuit.customerOCN}}</td>
 			<td class="font-strong">AMN SLM (PAM) Status:</td>
 			<td>{{circuit.pamStatus}}</td>
 			<td class="font-strong">Management Team:</td>
@@ -27,7 +27,7 @@
 		</tr>
 		<tr class="label-without-width">
 			<td class="font-strong">Related Order Number:</td>
-			<td>{{circuit.relatedOrderNumber}}</td>
+			<td>{{circuit.orderNumber}}</td>
 			<td class="font-strong">Performance Monitoring</td>
 			<td>{{circuit.performanceMonitoring}}</td>
 			<td class="font-strong">Trunk Group</td>
@@ -41,7 +41,7 @@
 		</tr>
 		<tr class="label-without-width" >
 			<td class="font-strong">Product Name:</td>
-			<td colspan="5"></td>
+			<td colspan="5">{{circuit.productName}} </td>
 		</tr>
 	</table>
 	<div class="marginTop">
@@ -57,7 +57,7 @@
 				<td align="center">Reported By</td>
 				<td align="center">Priority</td>
 			</tr>
-			<tr ng-repeat="ticket in tickets">
+			<tr ng-repeat="ticket in circuit.tickets">
 				<td>{{ticket.coltReference}}</a></td>
 				<td>{{ticket.customer}}</a></td>
 				<td>{{ticket.status}}</a></td>

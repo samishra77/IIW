@@ -20,8 +20,27 @@ public class SearchService {
 
 	@RequestMapping(value = "/getCircuits", method = RequestMethod.POST, headers = "Accept=application/json")
 	public Object getCircuits(@RequestBody Search search) {
-		AmnDAO amnDAO = new AmnDAO(em);
-		Response response = amnDAO.retrieveCircuits(search);
+		Response response = null;
+		try {
+			AmnDAO amnDAO = new AmnDAO(em);
+			response = amnDAO.retrieveCircuits(search);
+		} catch (Exception e) {
+			response = new Response();
+			response.setStatus(Response.FAIL);
+		}
+		return response;
+	}
+
+	@RequestMapping(value = "/getServiceDetail", method = RequestMethod.POST, headers = "Accept=application/json")
+	public Object getServiceDetail(@RequestBody String id) {
+		Response response = null;
+		try {
+			AmnDAO amnDAO = new AmnDAO(em);
+			response = amnDAO.retrieveServiceDetails(id);
+		} catch (Exception e) {
+			response = new Response();
+			response.setStatus(Response.FAIL);
+		}
 		return response;
 	}
 }

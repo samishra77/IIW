@@ -1,6 +1,6 @@
 
 
-var sstApp=angular.module('sstApp',['ngRoute']);
+var sstApp = angular.module('sstApp',['ngRoute']);
 
 sstApp.config(function($routeProvider){
     $routeProvider
@@ -9,7 +9,7 @@ sstApp.config(function($routeProvider){
         controller:'SearchController',
         templateUrl:'pages/SearchForm.html'
     })
-   .when('/ServiceData',
+   .when('/ServiceData/:circuitID',
           {
         controller:'ServiceDataController',
         templateUrl:'pages/ServiceData.html'

@@ -9,6 +9,8 @@ public class Response {
 
 	public final static String codeEmpty = "0";
 	public final static String codeMaxResult = "1";
+	public final static String SUCCESS = "success";
+	public final static String FAIL = "fail";
 
 	/**
 	 * @return the status
