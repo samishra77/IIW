@@ -11,20 +11,22 @@ var SearchController = function ($scope, $http){
 			var resp = $http({
 			  method  : 'POST',
 			  url     : urlBase + '/getCircuits',
-			  data    : JSON.stringify($scope.search), 
+			  data    : $scope.search, 
 			  headers : { 'Content-Type': 'application/json' }
 			 });
 			resp.success(function(data) {
+				$scope.isHidden = true;
 				if(data.status == 'fail') {
-					$scope.msg = true;
-					$scope.message = data.errorMsg;
+					if(data.errorCode == '2') {
+						$scope.error = true;
+						$scope.messageError = data.errorMsg;
+					} else {
+						$scope.msg = true;
+						$scope.message = data.errorMsg;
+					}
 				} else {
 					$scope.circuits = data.result;
-					$scope.isHidden = true;
 				}
-			});
-			resp.error(function(data, status, headers, config) {
-				alert( "failure message: " + JSON.stringify({config: config}));
 			});
 		}
 	};

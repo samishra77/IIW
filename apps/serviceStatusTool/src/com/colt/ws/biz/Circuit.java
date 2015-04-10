@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Circuit {
 
-	private String circuitIdEscape;
+	private String circPathInstID;
 	private String circuitID;
 	private String orderNumber;
 	private String productType;
@@ -23,20 +23,50 @@ public class Circuit {
 	private String trunkGroup;
 	private String aSideSite;
 	private String zSideSite;
+	private String revisionNumber;
+	private String relatedOrderNumber;
 	private List<Ticket> tickets;
 
 	/**
-	 * @return the circuitIdEscape
+	 * @return the relatedOrderNumber
 	 */
-	public String getCircuitIdEscape() {
-		return circuitIdEscape;
+	public String getRelatedOrderNumber() {
+		return relatedOrderNumber;
 	}
 
 	/**
-	 * @param circuitIdEscape the circuitIdEscape to set
+	 * @param relatedOrderNumber the relatedOrderNumber to set
 	 */
-	public void setCircuitIdEscape(String circuitIdEscape) {
-		this.circuitIdEscape = circuitIdEscape;
+	public void setRelatedOrderNumber(String relatedOrderNumber) {
+		this.relatedOrderNumber = relatedOrderNumber;
+	}
+
+	/**
+	 * @return the revisionNumber
+	 */
+	public String getRevisionNumber() {
+		return revisionNumber;
+	}
+
+	/**
+	 * @param revisionNumber the revisionNumber to set
+	 */
+	public void setRevisionNumber(String revisionNumber) {
+		this.revisionNumber = revisionNumber;
+	}
+
+	/**
+	 * @return the circPathInstID
+	 */
+	public String getCircPathInstID() {
+		return circPathInstID;
+	}
+
+	/**
+	 * @param circPathInstID the circPathInstID to set
+	 */
+	public void setCircPathInstID(String circPathInstID) {
+		this.circPathInstID = circPathInstID;
 	}
 
 	/**

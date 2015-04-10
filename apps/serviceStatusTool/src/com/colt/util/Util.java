@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.colt.ws.biz.ProductType;
+
 public class Util {
 
 	public String getStringFromInputStream(InputStream is) {
@@ -41,4 +43,22 @@ public class Util {
 		}
 	}
 
+	public String getProductType (String product) {
+		if(product != null) {
+			if(product.toUpperCase().contains("HIGH SPEED SERVICE")) {
+				return ProductType.HSS.value();
+			} else if(product.toUpperCase().contains("LANLINK") || product.toUpperCase().contains("ETHERNET PRIVATE")) {
+				return ProductType.LANLINK.value();
+			} else if(product.toUpperCase().contains("IPVPN")) {
+				return ProductType.IPVPN.value();
+			} else if(product.toUpperCase().contains("CPE SOLUTIONS")) {
+				return ProductType.CPE_SOLUTIONS.value();
+			} else if(product.toUpperCase().contains("IP ACCESS")) {
+				return ProductType.IP_ACCESS.value();
+			} else {
+				return product;
+			}
+		}
+		return "";
+	}
 }

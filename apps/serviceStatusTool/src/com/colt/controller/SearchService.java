@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.colt.dao.AmnDAO;
+import com.colt.util.Util;
 import com.colt.ws.biz.Circuit;
 import com.colt.ws.biz.Response;
 import com.colt.ws.biz.Search;
@@ -32,8 +33,11 @@ public class SearchService {
 			AmnDAO amnDAO = new AmnDAO(em);
 			response = amnDAO.retrieveCircuits(search);
 		} catch (Exception e) {
+			e.printStackTrace();
 			response = new Response();
 			response.setStatus(Response.FAIL);
+			response.setErrorCode(Response.CODE_UNKNOWN);
+			response.setErrorMsg(e.getMessage());
 		}
 		return response;
 	}
@@ -44,25 +48,39 @@ public class SearchService {
 		try {
 			AmnDAO amnDAO = new AmnDAO(em);
 			response = amnDAO.retrieveServiceDetails(id);
-			response.getResult();
-			if(response.getResult() instanceof Circuit) {
-				Circuit circuit = (Circuit) response.getResult();
-				SiebelCallRequest sielbelRequest = new SiebelCallRequest();
-				sielbelRequest.setCircuitServiceID(circuit.getCircuitID());
-				sielbelRequest.setOcn(circuit.getCustomerOCN());
-				SiebelCall siebel = new SiebelCall();
-				String siebelResponse = siebel.siebelCallProcess(sielbelRequest);
-				List<Ticket> tickets = siebel.getTicketList(siebelResponse);
-				if(tickets != null && !tickets.isEmpty()) {
-					circuit.setTickets(tickets);
-				} else {
-					tickets = new ArrayList<Ticket>();
-					circuit.setTickets(tickets);
-				}
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = new Response();
+			response.setStatus(Response.FAIL);
+			response.setErrorCode(Response.CODE_UNKNOWN);
+			response.setErrorMsg(e.getMessage());
+		}
+		return response;
+	}
+
+	@RequestMapping(value = "/getTickets", method = RequestMethod.POST, headers = "Accept=application/json")
+	public Object getTickets(@RequestBody Circuit circuit) {
+		Response response = new Response();
+		try {
+			SiebelCallRequest sielbelRequest = new SiebelCallRequest();
+			sielbelRequest.setCircuitServiceID(circuit.getCircuitID());
+			sielbelRequest.setOcn(circuit.getCustomerOCN());
+			SiebelCall siebel = new SiebelCall();
+			String siebelResponse = siebel.siebelCallProcess(sielbelRequest);
+			List<Ticket> tickets = siebel.getTicketList(siebelResponse);
+			if(tickets != null && !tickets.isEmpty()) {
+				response.setStatus(Response.SUCCESS);
+				response.setResult(tickets);
+			} else {
+				response.setStatus(Response.FAIL);
+				response.setErrorCode(Response.CODE_EMPTY);
+				response.setErrorMsg("Not result found.");
 			}
 		} catch (Exception e) {
 			response = new Response();
 			response.setStatus(Response.FAIL);
+			response.setErrorCode(Response.CODE_UNKNOWN);
+			response.setErrorMsg(e.getMessage());
 		}
 		return response;
 	}

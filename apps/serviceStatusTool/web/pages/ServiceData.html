@@ -1,9 +1,10 @@
 <div id="trail">
 	<div id="trail-container"><a href="/serviceStatusTool/">Home</a> &gt;  TCS Service Status Tool</div>
 </div>
-<div ng-controller="ServiceDataController">
+<div>
 	<h2 class="app-title">Service details</h2>
-	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth">
+	<div id="msg" class="message messageInfo" ng-show="error">{{messageError}}</div>
+	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth" ng-show="hasServiceDetail">
 		<tr class="label-without-width">
 			<td class="font-strong">Circuit Id:</td>
 			<td>{{circuit.circuitID}}</td>
@@ -18,7 +19,7 @@
 			<td class="font-strong">Category:</td>
 			<td>{{circuit.category}}</td>
 			<td class="font-strong">Bandwidth:</td>
-			<td>{{circuit.bandwidth}}</td>
+			<td>{{circuit.bandWidth}}</td>
 		</tr>
 		<tr class="label-without-width">
 			<td class="font-strong">Legal Customer OCN:</td>
@@ -30,7 +31,7 @@
 		</tr>
 		<tr class="label-without-width">
 			<td class="font-strong">Related Order Number:</td>
-			<td>{{circuit.orderNumber}}</td>
+			<td>{{circuit.relatedOrderNumber}}</td>
 			<td class="font-strong">Performance Monitoring</td>
 			<td>{{circuit.performanceMonitoring}}</td>
 			<td class="font-strong">Trunk Group</td>
@@ -38,13 +39,18 @@
 		</tr>
 		<tr class="label-without-width">
 			<td class="font-strong">Order</td>
-			<td>{{circuit.order}}</td>
+			<td>{{circuit.orderNumber}}</td>
 			<td class="font-strong">Service Menu:</td>
 			<td colspan="3">{{circuit.serviceMenu}}</td>
 		</tr>
 		<tr class="label-without-width" >
 			<td class="font-strong">Product Name:</td>
 			<td colspan="5">{{circuit.productName}} </td>
+		</tr>
+	</table>
+	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth" ng-show="msg">
+		<tr class="label-without-width" >
+			<td>{{message}}</td>
 		</tr>
 	</table>
 	<div class="marginTop">
@@ -61,7 +67,10 @@
 				<td align="center">Reported By</td>
 				<td align="center">Priority</td>
 			</tr>
-			<tr ng-repeat="ticket in circuit.tickets">
+			<tr ng-show="msgTicket">
+				<td colspan="9" class="alignMiddle">{{messageTicket}}</td>
+			</tr>
+			<tr ng-repeat="ticket in tickets">
 				<td>{{ticket.coltReference}}</a></td>
 				<td>{{ticket.customerReference}}</a></td>
 				<td>{{ticket.status}}</a></td>

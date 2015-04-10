@@ -4,7 +4,7 @@
 <h2 class="app-title">Search For Services</h2>
 <form role="form">
 	<br/>
-	<div id="msg" class="message messageInfo" ng-show="msg">{{message}}</div>
+	<div id="msg" class="message messageInfo" ng-show="error">{{messageError}}</div>
 	<label class="font-smaller">(Use % for wildcard)</label>
 	<table border="0" cellspacing="0" cellpadding="3" class="marginTop">
 		<tbody>
@@ -56,8 +56,11 @@
 			<td class="alignMiddle">A Side Site Information</td>
 			<td class="alignMiddle">Z Side Site Information</td>
 		</tr>
+		<tr ng-show="msg">
+			<td colspan="6" class="alignMiddle">{{message}}</td>
+		</tr>
 		<tr ng-repeat="circuit in circuits">
-			<td><a href="#/ServiceData/{{circuit.circuitIdEscape}}">{{circuit.circuitID}}</a></td>
+			<td><a href="#/ServiceData/{{circuit.circPathInstID}}">{{circuit.circuitID}}</a></td>
 			<td>{{circuit.orderNumber}}</td>
 			<td>{{circuit.customer}}</td>
 			<td>{{circuit.productType}}</td>

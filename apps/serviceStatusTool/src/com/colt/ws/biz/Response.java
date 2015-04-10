@@ -7,8 +7,10 @@ public class Response {
 	private String errorCode;
 	private Object result;
 
-	public final static String codeEmpty = "0";
-	public final static String codeMaxResult = "1";
+	public final static String CODE_EMPTY = "0";
+	public final static String CODE_MAXRESULT = "1";
+	public final static String CODE_UNKNOWN = "2";
+	public final static String CODE_NOTONE = "3";
 	public final static String SUCCESS = "success";
 	public final static String FAIL = "fail";
 
