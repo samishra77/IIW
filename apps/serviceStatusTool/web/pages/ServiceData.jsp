@@ -1,5 +1,5 @@
 <div id="trail">
-	<div id="trail-container"><a href="/serviceStatusTool/">Home</a> &gt;  TCS Service Status Tool</div>
+	<div id="trail-container"><a href="<%=request.getContextPath()%>/">Home</a> &gt;  TCS Service Status Tool</div>
 </div>
 <div>
 	<h2 class="app-title">Service details</h2>
@@ -13,7 +13,7 @@
 			<td class="font-strong">In Service since:</td>
 			<td>{{circuit.inServiceSince}}</td>
 		</tr>
-		<tr class="label-without-width"> 
+		<tr class="label-without-width">
 			<td class="font-strong">Customer:</td>
 			<td>{{circuit.customer}}</td>
 			<td class="font-strong">Category:</td>
@@ -80,7 +80,7 @@
 				<td>{{ticket.type}}</a></td>
 				<td>{{ticket.reportedBy}}</a></td>
 				<td>{{ticket.priority}}</a></td>
-			</tr> 
+			</tr>
 		</table>
 	</div>
 </div>

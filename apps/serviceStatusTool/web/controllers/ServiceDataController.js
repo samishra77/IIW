@@ -1,6 +1,6 @@
 var ServiceDataController = function ($scope,$routeParams,$http) {
 
-	var urlBase="/serviceStatusTool/ws";
+	var urlBase = contextPath + "/ws";
 	var resp = $http({
 	  method  : 'POST',
 	  url     : urlBase + '/getServiceDetail',

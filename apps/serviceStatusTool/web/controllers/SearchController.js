@@ -1,6 +1,6 @@
 var SearchController = function ($scope, $http){
 
-	var urlBase="/serviceStatusTool/ws";
+	var urlBase= contextPath + "/ws";
 	$scope.doSearch = function doSearch() {
 		if(!($scope.customer != "" && ($scope.order == "" || $scope.service == "") &&
 				( ($scope.address != "" && $scope.city != "") || ($scope.address2 != "" && $scope.city2 != "")) || (($scope.address != "" && $scope.city != "") && ($scope.address2 != "" && $scope.city2 != "") ) )  ) {

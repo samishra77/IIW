@@ -7,12 +7,12 @@ sstApp.config(function($routeProvider){
     .when('/',
           {
         controller:'SearchController',
-        templateUrl:'pages/SearchForm.html'
+        templateUrl:'pages/SearchForm.jsp'
     })
    .when('/ServiceData/:circuitID',
           {
         controller:'ServiceDataController',
-        templateUrl:'pages/ServiceData.html'
+        templateUrl:'pages/ServiceData.jsp'
     })     
     .otherwise({redirectTo:'/'});
    

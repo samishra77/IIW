@@ -30,7 +30,6 @@
 				<td class="value"><input type="text" ng-model="search.address" id="address"/></td>
 				<td class="value"><input type="text" ng-model="search.city" id="city"/></td>
 			</tr>
-			
 			<tr>
 				<td class="label-without-width"><label class="font-strong">Site2 Address:</label></td>
 				<td class="label-without-width"><label class="font-strong">Site2 City:</label></td>
@@ -38,7 +37,7 @@
 			<tr>
 				<td class="value"><input type="text" ng-model="search.address2" id="address2"/></td>
 				<td class="value"><input type="text" ng-model="search.city2" id="city2"/></td>
-			</tr>		
+			</tr>
 			<tr>
 				<td colspan="2"><button ng-click="doSearch()">Search</button></td>
 			</tr>
@@ -66,6 +65,6 @@
 			<td>{{circuit.productType}}</td>
 			<td>{{circuit.aSideSite}}</td>
 			<td>{{circuit.zSideSite}}</td>
-		</tr> 
+		</tr>
 	</table>
 </div>
