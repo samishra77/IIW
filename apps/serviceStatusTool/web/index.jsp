@@ -11,9 +11,9 @@
 		<script>
 			var contextPath = "<%=request.getContextPath()%>";
 		</script>
+		<script src="<%=request.getContextPath()%>/app.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/SearchController.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/ServiceDataController.js"></script>
-		<script src="<%=request.getContextPath()%>/app.js"></script>
 	</head>
 	<body id="ng-app" ng-app="sstApp">
 		<table cellspacing="0" cellpadding="5" align="center" width="980" border="0">
