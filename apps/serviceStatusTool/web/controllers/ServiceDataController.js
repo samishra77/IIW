@@ -1,5 +1,6 @@
 var ServiceDataController = function ($scope,$routeParams,$http) {
-
+	$scope.showDetailsLoading = true;
+	$scope.showTicketLoading = true;
 	var urlBase = contextPath + "/ws";
 	var resp = $http({
 	  method  : 'POST',
@@ -16,11 +17,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				$scope.msg = true;
 				$scope.message = data.errorMsg;
 			}
+			$scope.showDetailsLoading = false;
 		} else {
 			$scope.msgTicket = false;
 			$scope.msg = false;
 			$scope.error = false;
 			$scope.hasServiceDetail = true;
+			$scope.showDetailsLoading = false;
 			$scope.circuit = data.result;
 			if($scope.circuit != null) {
 				var resp2 = $http({
@@ -38,8 +41,10 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							$scope.msgTicket = true;
 							$scope.messageTicket = data.errorMsg;
 						}
+						$scope.showTicketLoading = false;
 					} else {
 						$scope.tickets = data.result;
+						$scope.showTicketLoading = false;
 					}
 				});
 			}

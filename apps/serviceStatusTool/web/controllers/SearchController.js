@@ -3,6 +3,9 @@ var SearchController = function ($scope, $http){
 	var urlBase= contextPath + "/ws";
 	$scope.doSearch = function doSearch() {
 		$scope.error = false;
+		$scope.msg = false;
+		$scope.showResult = false;
+		$scope.showLoading = true;
 		if( ($scope.search == undefined)) {
 			$scope.error = true;
 			$scope.messageError = "OHS Order/Service or Customer/Site Address/Site City is required";
@@ -160,6 +163,7 @@ var SearchController = function ($scope, $http){
 		}
 		
 		if(!$scope.error) {
+			$scope.isHidden = true;
 			var resp = $http({
 			  method  : 'POST',
 			  url     : urlBase + '/getCircuits',
@@ -167,8 +171,6 @@ var SearchController = function ($scope, $http){
 			  headers : { 'Content-Type': 'application/json' }
 			 });
 			resp.success(function(data) {
-				$scope.isHidden = true;
-				$scope.msg = false;
 				$scope.error = false;
 				if(data.status == 'fail') {
 					if(data.errorCode == '2') {
@@ -178,10 +180,16 @@ var SearchController = function ($scope, $http){
 						$scope.msg = true;
 						$scope.message = data.errorMsg;
 					}
+					$scope.showLoading = false;
 				} else {
+					$scope.showLoading = false;
 					$scope.circuits = data.result;
+					$scope.showResult = true;
 				}
+				
 			});
+		} else {
+			$scope.isHidden = false;
 		}
 	};
 };

@@ -2,7 +2,10 @@
 	<div id="trail-container"><a href="<%=request.getContextPath()%>/">Home</a> &gt;  TCS Service Status Tool</div>
 </div>
 <div>
-	<h2 class="app-title">Service details</h2>
+	<h2 class="app-title">
+		<div style="display: inline;">Service details</div>
+		<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showDetailsLoading"/ >
+	</h2>
 	<div id="msg" class="message messageInfo" ng-if="error">{{messageError}}</div>
 	<table border="0" cellspacing="0" cellpadding="3" class="marginTop tableService fullWidth" ng-show="hasServiceDetail">
 		<tr class="label-without-width">
@@ -54,7 +57,10 @@
 		</tr>
 	</table>
 	<div class="marginTop">
-		<h2 class="app-title">Open Tickets Information</h2>
+		<h2 class="app-title">
+			<div style="display: inline;">Open Tickets Information</div>
+			<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showTicketLoading"/ >
+		</h2>
 		<table border="1" cellspacing="0" cellpadding="0" class="fullWidth marginTop">
 			<tr class="rich-table-header">
 				<td align="center">Colt Reference</td>

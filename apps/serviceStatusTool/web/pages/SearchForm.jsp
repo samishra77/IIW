@@ -45,8 +45,11 @@
 	</table>
 </form>
 <div class="marginTop">
-	<h2 class="app-title" ng-show="isHidden">Output Service List</h2>
-	<table border="1" cellspacing="0" cellpadding="0" class="fullWidth marginTop" ng-show="isHidden">
+	<h2 class="app-title" ng-if="isHidden">
+		<div style="display: inline;">Output Service List</div>
+		<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showLoading"/ >
+	</h2>
+	<table border="1" cellspacing="0" cellpadding="0" class="fullWidth marginTop" ng-if="isHidden">
 		<tr class="rich-table-header">
 			<td class="alignMiddle">Circuit ID</td>
 			<td class="alignMiddle">Order Number</td>
@@ -58,7 +61,7 @@
 		<tr ng-if="msg">
 			<td colspan="6" class="alignMiddle">{{message}}</td>
 		</tr>
-		<tr ng-repeat="circuit in circuits" ng-if="!msg">
+		<tr ng-repeat="circuit in circuits" ng-if="showResult">
 			<td><a href="#/ServiceData/{{circuit.circPathInstID}}">{{circuit.circuitID}}</a></td>
 			<td>{{circuit.orderNumber}}</td>
 			<td>{{circuit.customer}}</td>
