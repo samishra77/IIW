@@ -49,7 +49,7 @@ public class AmnDAO extends DAO {
 		}
 
 		String sql = "select unique i.circ_path_inst_id, i.circ_path_hum_id as CIRCUIT_ID, i.order_num as ORDER_NUMBER, i.customer_id as CUSTOMER, i.service_menu as PRODUC_TYPE, " +
-				"i.A_Side_Site_ID as ASIDE_SITE, i.Z_Side_Site_ID as ZSIDE_SITE, i.status, j.SITE_HUM_ID as A_SITE_HUM_ID, j.City as A_City, k.SITE_HUM_ID as Z_SITE_HUM_ID, k.City as Z_City " +
+				"j.SITE_HUM_ID as A_SITE_HUM_ID, k.SITE_HUM_ID as Z_SITE_HUM_ID, i.status, j.City as A_City, i.A_Side_Site_ID as ASIDE_SITE, i.Z_Side_Site_ID as ZSIDE_SITE, k.City as Z_City " +
 				"from AMN.ie_circ_path_inst i, AMN.ie_site_inst j, AMN.ie_site_inst k " +
 				"where i.status = 'Live' and ";
 				if( (search.getService() != null && !"".equals(search.getService())) && (search.getOrder() != null && !"".equals(search.getOrder())) ) {
@@ -214,15 +214,14 @@ public class AmnDAO extends DAO {
 		if(circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType()) ) {
 			if(circuit.getProductType().equalsIgnoreCase(ProductType.HSS.value())) {
 				getCircuitHSS(circuit);
-			}
-			if(circuit.getProductType().equalsIgnoreCase(ProductType.LANLINK.value())) {
+			} else if(circuit.getProductType().equalsIgnoreCase(ProductType.LANLINK.value())) {
 				getCircuitLANLINK(circuit);
-			}
-			if(circuit.getProductType().equalsIgnoreCase(ProductType.IP_ACCESS.value())) {
-				getCircuitIPACCESS(circuit);
-			}
-			if(circuit.getProductType().equalsIgnoreCase(ProductType.CPE_SOLUTIONS.value())) {
+			} else if(circuit.getProductType().equalsIgnoreCase(ProductType.IP_ACCESS.value()) || circuit.getProductType().equalsIgnoreCase(ProductType.IPVPN.value())) {
+				getCircuitIP(circuit);
+			} else if(circuit.getProductType().equalsIgnoreCase(ProductType.CPE_SOLUTIONS.value())) {
 				getCircuitCPESOLUTIONS(circuit);
+			} else {
+				getCircuitOthers(circuit);
 			}
 		}
 	}
@@ -266,7 +265,7 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	private void getCircuitIPACCESS(Circuit circuit) {
+	private void getCircuitIP(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
 			String sql = "select a.LEGAL_CUSTOMER, a.PRODUCT_NAME, a.OCN, b.RELATED_CONTRACT_NO " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_IP_DATA_ORDER b " +
@@ -301,6 +300,25 @@ public class AmnDAO extends DAO {
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
 					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
 					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+				}
+			}
+		}
+	}
+
+	private void getCircuitOthers(Circuit circuit) {
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+			String sql = "select LEGAL_CUSTOMER, PRODUCT_NAME, OCN " +
+					"from AMN.IE_OHS_CONTRACT " +
+					"where CONTRACT_NO = <Order Number> and CIRCUIT_REFERENCE_5D = :circuitID and CURR_REVISION = 'YES'";
+
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			List<Object[]> resutlList = query.getResultList();
+			if(resutlList != null && resutlList.size() == 1) {
+				for(Object[] o : resutlList) {
+					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
+					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
+					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
 				}
 			}
 		}
