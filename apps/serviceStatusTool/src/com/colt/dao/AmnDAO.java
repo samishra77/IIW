@@ -2,9 +2,10 @@ package com.colt.dao;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -87,6 +88,7 @@ public class AmnDAO extends DAO {
 		}
 
 		List<Circuit> modelList = new ArrayList<Circuit>();
+		HashMap<String, Circuit> circPathInstIDCircuit = new HashMap<String, Circuit>();
 		query.setMaxResults(maxResult);
 		List<Object[]> resutlList = query.getResultList();
 		if(resutlList == null && resutlList.isEmpty()) {
@@ -108,7 +110,9 @@ public class AmnDAO extends DAO {
 				circuit.setProductType(new Util().getProductType((o[4] != null) ? (String)o[4] : ""));
 				circuit.setaSideSite(o[5] != null ? ((BigDecimal)o[5]).toString() : "");
 				circuit.setzSideSite(o[6] != null ? ((BigDecimal)o[6]).toString() : "");
-				modelList.add(circuit);
+				if(!circPathInstIDCircuit.containsKey(circuit.getCircPathInstID())) {
+					circPathInstIDCircuit.put(circuit.getCircPathInstID(), circuit);
+				}
 			}
 		} else if(resutlList != null && resutlList.size() == 0) {
 			response.setErrorCode(Response.CODE_EMPTY);
@@ -120,6 +124,21 @@ public class AmnDAO extends DAO {
 		}
 
 		return response;
+	}
+
+	private void sortServiceSearch(List<Circuit> modelList, HashMap<String, Circuit> circPathInstIDCircuit ) {
+		if(modelList != null && circPathInstIDCircuit != null && !circPathInstIDCircuit.isEmpty()) {
+			Set<String> circPathInstIDs = circPathInstIDCircuit.keySet();
+			if(circPathInstIDs != null && !circPathInstIDs.isEmpty()) {
+				List<String> circPathInstIDList = new ArrayList<String>(circPathInstIDs);
+				Collections.sort(circPathInstIDList);
+				for(String circPathInstID : circPathInstIDList) {
+					if(circPathInstIDCircuit.containsKey(circPathInstID)) {
+						modelList.add(circPathInstIDCircuit.get(circPathInstID));
+					}
+				}
+			}
+		}
 	}
 
 	public Response retrieveServiceDetails(String circPathInstID) {
