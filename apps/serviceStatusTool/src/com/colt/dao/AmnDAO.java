@@ -3,6 +3,8 @@ package com.colt.dao;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -21,9 +23,30 @@ public class AmnDAO extends DAO {
 		super(em);
 	}
 
+	public String geRegexSite (String value) {
+		String site = value.trim();
+		site = site.replaceAll("[^\\x01-\\x7F]+", ".*?"); // substitute any non-ASCII, no need to use Normalizer
+		site = site.replaceAll("[\\x00-\\x1F]+", ""); // remove control chars
+		site = site.replaceAll("[ _:;%.{}()\\[\\]\\+-]+",".*?"); // substitute other chars
+		//site = site.replaceAll("'","''"); // escape single quotes
+		site = site.replace("^\\.\\*\\?",""); // strip leading 'match all' for performance
+		return site;
+	}
+
 	public Response retrieveCircuits(Search search) {
 		Response response = new Response();
-		
+		//site 1 pattern
+		String site = null;
+		if (search.getAddress() != null && !search.getAddress().equals("")) {
+			site = geRegexSite(search.getAddress());
+		}
+		 
+		//site 2 pattern
+		String site2 = null;
+		if (search.getAddress2() != null && !search.getAddress2().equals("")) {
+			site2 = geRegexSite(search.getAddress2());
+		}
+
 		String sql = "select unique i.circ_path_inst_id, i.circ_path_hum_id as CIRCUIT_ID, i.order_num as ORDER_NUMBER, i.customer_id as CUSTOMER, i.service_menu as PRODUC_TYPE, " +
 				"i.A_Side_Site_ID as ASIDE_SITE, i.Z_Side_Site_ID as ZSIDE_SITE, i.status, j.SITE_HUM_ID as A_SITE_HUM_ID, j.City as A_City, k.SITE_HUM_ID as Z_SITE_HUM_ID, k.City as Z_City " +
 				"from AMN.ie_circ_path_inst i, AMN.ie_site_inst j, AMN.ie_site_inst k " +
@@ -36,13 +59,13 @@ public class AmnDAO extends DAO {
 					sql+= "i.circ_path_hum_id like :service and ";
 				} else if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
 						( search.getAddress() != null && !"".equals(search.getAddress()) && search.getCity() != null && !"".equals(search.getCity()) ) ) {
-					sql+= "i.customer_id like :customer and ((j.SITE_HUM_ID like :site1Address and j.City like :site1City) or (k.SITE_HUM_ID like :site1Address and k.City like :site1City)) and ";
+					sql+= "i.customer_id like :customer and (((REGEXP_LIKE(j.SITE_HUM_ID, :site1Address, 'i') or REGEXP_LIKE(j.ADDRESS, :site1Address, 'i')) and j.City like :site1City) or ((REGEXP_LIKE(k.SITE_HUM_ID, :site1Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site1Address, 'i')) and k.City like :site1City)) and ";
 				} else if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
 						( search.getAddress2() != null && !"".equals(search.getAddress2()) && search.getCity2() != null && !"".equals(search.getCity2()) ) ) {
-					sql+= "i.customer_id like :customer and ((j.SITE_HUM_ID like :site2Address and j.City like :site2City) or (k.SITE_HUM_ID like :site2Address and k.City like :site2City)) and ";
+					sql+= "i.customer_id like :customer and (((REGEXP_LIKE(j.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(j.ADDRESS, :site2Address, 'i')) and j.City like :site2City) or ((REGEXP_LIKE(k.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site2Address, 'i')) and k.City like :site2City)) and ";
 				}
 				sql+= "NOT REGEXP_LIKE (i.circ_path_hum_id, '-P|-AP') and i.A_Side_Site_ID = j.Site_Inst_ID and i.Z_Side_Site_ID = k.Site_Inst_ID order by i.circ_path_inst_id";
-		
+
 		Query query = em.createNativeQuery(sql);
 		if( search.getService() != null && !"".equals(search.getService()) ) {
 			query.setParameter("service", search.getService());
@@ -53,13 +76,13 @@ public class AmnDAO extends DAO {
 		if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
 					( search.getAddress() != null && !"".equals(search.getAddress()) && search.getCity() != null && !"".equals(search.getCity()) ) ) {
 			query.setParameter("customer", 		search.getCustomer());
-			query.setParameter("site1Address", 	search.getAddress());
+			query.setParameter("site1Address", 	site);
 			query.setParameter("site1City", 	search.getCity());
 		}
 		if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
 				( search.getAddress2() != null && !"".equals(search.getAddress2()) && search.getCity2() != null && !"".equals(search.getCity2()) ) ) {
 			query.setParameter("customer", 		search.getCustomer());
-			query.setParameter("site2Address", 	search.getAddress2());
+			query.setParameter("site2Address", 	site2);
 			query.setParameter("site2City", 	search.getCity2());
 		}
 
