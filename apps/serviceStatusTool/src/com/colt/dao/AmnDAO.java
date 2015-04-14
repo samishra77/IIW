@@ -65,8 +65,8 @@ public class AmnDAO extends DAO {
 						( search.getAddress2() != null && !"".equals(search.getAddress2()) && search.getCity2() != null && !"".equals(search.getCity2()) ) ) {
 					sql+= "i.customer_id like :customer and (((REGEXP_LIKE(j.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(j.ADDRESS, :site2Address, 'i')) and j.City like :site2City) or ((REGEXP_LIKE(k.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site2Address, 'i')) and k.City like :site2City)) and ";
 				}
-				sql+= "NOT REGEXP_LIKE (i.circ_path_hum_id, '-P|-AP') and i.A_Side_Site_ID = j.Site_Inst_ID and i.Z_Side_Site_ID = k.Site_Inst_ID order by i.circ_path_inst_id";
-
+				sql+= "NOT REGEXP_LIKE (i.circ_path_hum_id, '-P|-AP') and i.A_Side_Site_ID = j.Site_Inst_ID and i.Z_Side_Site_ID = k.Site_Inst_ID";
+		
 		Query query = em.createNativeQuery(sql);
 		if( search.getService() != null && !"".equals(search.getService()) ) {
 			query.setParameter("service", search.getService());
@@ -101,6 +101,7 @@ public class AmnDAO extends DAO {
 			response.setStatus(Response.FAIL);
 		} else if(resutlList != null && resutlList.size() > 0 && resutlList.size() < maxResult) {
 			Circuit circuit = null;
+			HashMap<String, Circuit> circuitIDCircuit = new HashMap<String, Circuit>();
 			for(Object[] o : resutlList) {
 				circuit = new Circuit();
 				circuit.setCircPathInstID(o[0] != null ? ((BigDecimal)o[0]).toString() : "");
@@ -110,10 +111,14 @@ public class AmnDAO extends DAO {
 				circuit.setProductType(new Util().getProductType((o[4] != null) ? (String)o[4] : ""));
 				circuit.setaSideSite(o[5] != null ? ((BigDecimal)o[5]).toString() : "");
 				circuit.setzSideSite(o[6] != null ? ((BigDecimal)o[6]).toString() : "");
-				if(!circPathInstIDCircuit.containsKey(circuit.getCircPathInstID())) {
-					circPathInstIDCircuit.put(circuit.getCircPathInstID(), circuit);
+				if(!circuitIDCircuit.containsKey(circuit.getCircuitID())) { //save just services with diferents circuitIDS 
+					circuitIDCircuit.put(circuit.getCircuitID(), circuit);
+					if(!circPathInstIDCircuit.containsKey(circuit.getCircPathInstID())) {
+						circPathInstIDCircuit.put(circuit.getCircPathInstID(), circuit);
+					}
 				}
 			}
+			sortServiceSearch(modelList, circPathInstIDCircuit);
 		} else if(resutlList != null && resutlList.size() == 0) {
 			response.setErrorCode(Response.CODE_EMPTY);
 			response.setErrorMsg("Not result found.");
@@ -140,6 +145,19 @@ public class AmnDAO extends DAO {
 			}
 		}
 	}
+
+	/**
+	 * If cid has more than 17 characters returns string with only 17 characters 
+	 * @param cid
+	 * @return String
+	 */
+	private String processCIDOHS(String cid) {
+		if(cid != null && cid.length() > 17) {
+			cid = cid.substring(0, 17);
+		}
+		return cid;
+	}
+
 
 	public Response retrieveServiceDetails(String circPathInstID) {
 		Response response = new Response();
