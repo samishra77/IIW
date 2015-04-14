@@ -18,7 +18,8 @@ import com.colt.ws.biz.Search;
 
 public class AmnDAO extends DAO {
 
-	private final int maxResult = 31;
+	private final int queryLimit = 100;
+	private final int maxResult = 30;
 	
 	public AmnDAO(EntityManager em) {
 		super(em);
@@ -89,45 +90,40 @@ public class AmnDAO extends DAO {
 
 		List<Circuit> modelList = new ArrayList<Circuit>();
 		HashMap<String, Circuit> circPathInstIDCircuit = new HashMap<String, Circuit>();
-		query.setMaxResults(maxResult);
+		query.setMaxResults(queryLimit);
 		List<Object[]> resutlList = query.getResultList();
-		if(resutlList == null && resutlList.isEmpty()) {
+		if(resutlList == null || resutlList.isEmpty()) {
 			response.setErrorCode(Response.CODE_EMPTY);
 			response.setErrorMsg("Not result found.");
 			response.setStatus(Response.FAIL);
-		} else if(resutlList != null && resutlList.size() >= maxResult) {
-			response.setErrorCode(Response.CODE_MAXRESULT);
-			response.setErrorMsg("Too Many Results.");
-			response.setStatus(Response.FAIL);
-		} else if(resutlList != null && resutlList.size() > 0 && resutlList.size() < maxResult) {
+		} else if(resutlList != null && resutlList.size() > 0) {
 			Circuit circuit = null;
-			HashMap<String, Circuit> circuitIDCircuit = new HashMap<String, Circuit>();
+			List<String> circuitIDList = new ArrayList<String>();
 			for(Object[] o : resutlList) {
-				circuit = new Circuit();
-				circuit.setCircPathInstID(o[0] != null ? ((BigDecimal)o[0]).toString() : "");
-				circuit.setCircuitID((String)o[1] != null ? (String)o[1] : "");
-				circuit.setOrderNumber((String)o[2] != null ? (String)o[2] : "");
-				circuit.setCustomer((String)o[3] != null ? (String)o[3] : "");
-				circuit.setProductType(new Util().getProductType((o[4] != null) ? (String)o[4] : ""));
-				circuit.setaSideSite(o[5] != null ? ((BigDecimal)o[5]).toString() : "");
-				circuit.setzSideSite(o[6] != null ? ((BigDecimal)o[6]).toString() : "");
-				if(!circuitIDCircuit.containsKey(circuit.getCircuitID())) { //save just services with diferents circuitIDS 
-					circuitIDCircuit.put(circuit.getCircuitID(), circuit);
+				if(!circuitIDList.contains(processCIDOHS((String)o[1] != null ? (String)o[1] : ""))) { //save just services with diferents circuitIDS 
+					circuit = new Circuit();
+					circuit.setCircPathInstID(o[0] != null ? ((BigDecimal)o[0]).toString() : "");
+					circuit.setCircuitID((String)o[1] != null ? (String)o[1] : "");
+					circuit.setOrderNumber((String)o[2] != null ? (String)o[2] : "");
+					circuit.setCustomer((String)o[3] != null ? (String)o[3] : "");
+					circuit.setProductType(new Util().getProductType((o[4] != null) ? (String)o[4] : ""));
+					circuit.setaSideSite((String)o[5] != null ? (String)o[5] : "");
+					circuit.setzSideSite((String)o[6] != null ? (String)o[6] : "");
+					circuitIDList.add(circuit.getCircuitID());
 					if(!circPathInstIDCircuit.containsKey(circuit.getCircPathInstID())) {
 						circPathInstIDCircuit.put(circuit.getCircPathInstID(), circuit);
 					}
 				}
 			}
 			sortServiceSearch(modelList, circPathInstIDCircuit);
-		} else if(resutlList != null && resutlList.size() == 0) {
-			response.setErrorCode(Response.CODE_EMPTY);
-			response.setErrorMsg("Not result found.");
-			response.setStatus(Response.FAIL);
+			if(resutlList.size() > maxResult) {
+				response.setErrorCode(Response.CODE_MAXRESULT);
+				response.setErrorMsg("Too Many Results.");
+				response.setStatus(Response.FAIL);
+			} else {
+				response.setResult(modelList);
+			}
 		}
-		if(!modelList.isEmpty()) {
-			response.setResult(modelList);
-		}
-
 		return response;
 	}
 

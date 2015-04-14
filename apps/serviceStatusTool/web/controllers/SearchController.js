@@ -59,7 +59,7 @@ var SearchController = function ($scope, $http){
 						}
 						$scope.error = true;
 						$scope.messageError = result;
-		} else if ( ($scope.search.service == "" ||  $scope.search.service == undefined) || ($scope.search.order == "" ||  $scope.search.order == undefined) ) {
+		} else if ( ($scope.search.service == "" ||  $scope.search.service == undefined) && ($scope.search.order == "" ||  $scope.search.order == undefined) ) {
 			var msg = "Site1 Address/Site1 City or Site2 Address/Site2 City is required";
 			if($scope.search.customer == undefined || $scope.search.customer == "") {
 				$scope.error = true;
