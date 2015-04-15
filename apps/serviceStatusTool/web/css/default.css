@@ -83,8 +83,8 @@ input[type='text'] {
 }
 
 .messageInfo {
-	color: #6ba9c7;
-	background-color: #e2eff6;
+	color: red;
+	background-color: #fff0f0;
 	border-color: #a9d9e3;
 }
 

@@ -36,7 +36,7 @@ public class SearchService {
 			AmnDAO amnDAO = new AmnDAO(em);
 			response = amnDAO.retrieveCircuits(search);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e, e);
 			response = new Response();
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
@@ -54,7 +54,7 @@ public class SearchService {
 			AmnDAO amnDAO = new AmnDAO(em);
 			response = amnDAO.retrieveServiceDetails(id);
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e, e);
 			response = new Response();
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
@@ -81,10 +81,10 @@ public class SearchService {
 			} else {
 				response.setStatus(Response.FAIL);
 				response.setErrorCode(Response.CODE_EMPTY);
-				response.setErrorMsg("Not result found.");
+				response.setErrorMsg("No result found.");
 			}
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e, e);
 			response = new Response();
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);

@@ -52,22 +52,63 @@ public class AmnDAO extends DAO {
 		String sql = "select unique i.circ_path_inst_id, i.circ_path_hum_id as CIRCUIT_ID, i.order_num as ORDER_NUMBER, i.customer_id as CUSTOMER, i.service_menu as PRODUC_TYPE, " +
 				"j.SITE_HUM_ID as A_SITE_HUM_ID, k.SITE_HUM_ID as Z_SITE_HUM_ID, i.status, j.City as A_City, i.A_Side_Site_ID as ASIDE_SITE, i.Z_Side_Site_ID as ZSIDE_SITE, k.City as Z_City " +
 				"from AMN.ie_circ_path_inst i, AMN.ie_site_inst j, AMN.ie_site_inst k " +
-				"where i.status = 'Live' and ";
+				"where i.status = 'Live' ";
 				if( (search.getService() != null && !"".equals(search.getService())) && (search.getOrder() != null && !"".equals(search.getOrder())) ) {
-					sql+= "i.circ_path_hum_id like :service and i.order_num like :order and ";
+					sql+= " and i.circ_path_hum_id like :service and i.order_num like :order ";
 				} else if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
-					sql+= "i.order_num like :order and ";
+					sql+= "and i.order_num like :order ";
 				} else if( search.getService() != null && !"".equals(search.getService()) ) {
-					sql+= "i.circ_path_hum_id like :service and ";
-				} else if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
-						( search.getAddress() != null && !"".equals(search.getAddress()) && search.getCity() != null && !"".equals(search.getCity()) ) ) {
-					sql+= "i.customer_id like :customer and (((REGEXP_LIKE(j.SITE_HUM_ID, :site1Address, 'i') or REGEXP_LIKE(j.ADDRESS, :site1Address, 'i')) and j.City like :site1City) or ((REGEXP_LIKE(k.SITE_HUM_ID, :site1Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site1Address, 'i')) and k.City like :site1City)) and ";
-				} else if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
-						( search.getAddress2() != null && !"".equals(search.getAddress2()) && search.getCity2() != null && !"".equals(search.getCity2()) ) ) {
-					sql+= "i.customer_id like :customer and (((REGEXP_LIKE(j.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(j.ADDRESS, :site2Address, 'i')) and j.City like :site2City) or ((REGEXP_LIKE(k.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site2Address, 'i')) and k.City like :site2City)) and ";
+					sql+= "and i.circ_path_hum_id like :service ";
+				} else if(search.getCustomer() != null && !"".equals(search.getCustomer())) {
+					sql+= "and i.customer_id like :customer ";
+					if( (search.getAddress() != null && !"".equals(search.getAddress())) || (search.getCity() != null && !"".equals(search.getCity())) ) {
+						sql+= " and (( ";
+						if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
+							sql+= " (REGEXP_LIKE(j.SITE_HUM_ID, :site1Address, 'i')  or REGEXP_LIKE(j.ADDRESS, :site1Address, 'i')) ";
+						}
+						if( search.getCity() != null && !"".equals(search.getCity()) )  {
+							if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
+								sql+= " and ";
+							}
+							sql+= " j.City like :site1City ";
+						}
+						sql+= " ) or ( "; 
+						if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
+							sql+= "(REGEXP_LIKE(k.SITE_HUM_ID, :site1Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site1Address, 'i')) ";
+						}
+						if( search.getCity() != null && !"".equals(search.getCity()) )  {
+							if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
+								sql+= " and ";
+							}
+							sql+= " k.City like :site1City ";
+						}
+						sql+= " )) ";
+					}
+					if( (search.getAddress2() != null && !"".equals(search.getAddress2())) || (search.getCity2() != null && !"".equals(search.getCity2())) ) {
+						sql+= " and (( ";
+						if( search.getAddress2() != null && !"".equals(search.getAddress2()) )  {
+							sql+= " (REGEXP_LIKE(j.SITE_HUM_ID, :site2Address, 'i')  or REGEXP_LIKE(j.ADDRESS, :site2Address, 'i')) ";
+						}
+						if( search.getCity2() != null && !"".equals(search.getCity2()) )  {
+							if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
+								sql+= " and ";
+							}
+							sql+= " j.City like :site2City ";
+						}
+						sql+= " ) or ( "; 
+						if( search.getAddress2() != null && !"".equals(search.getAddress2()) )  {
+							sql+= "(REGEXP_LIKE(k.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site2Address, 'i')) ";
+						}
+						if( search.getCity2() != null && !"".equals(search.getCity2()) )  {
+							if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
+								sql+= " and ";
+							}
+							sql+= " k.City like :site2City ";
+						}
+						sql+= " )) ";
+					}
 				}
-				sql+= "NOT REGEXP_LIKE (i.circ_path_hum_id, '-P|-AP') and i.A_Side_Site_ID = j.Site_Inst_ID and i.Z_Side_Site_ID = k.Site_Inst_ID";
-		
+				sql+= " and NOT REGEXP_LIKE (i.circ_path_hum_id, '-P|-AP') and i.A_Side_Site_ID = j.Site_Inst_ID and i.Z_Side_Site_ID = k.Site_Inst_ID";
 		Query query = em.createNativeQuery(sql);
 		if( search.getService() != null && !"".equals(search.getService()) ) {
 			query.setParameter("service", search.getService());
@@ -75,17 +116,20 @@ public class AmnDAO extends DAO {
 		if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
 			query.setParameter("order", search.getOrder());
 		}
-		if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
-					( search.getAddress() != null && !"".equals(search.getAddress()) && search.getCity() != null && !"".equals(search.getCity()) ) ) {
-			query.setParameter("customer", 		search.getCustomer());
-			query.setParameter("site1Address", 	site);
-			query.setParameter("site1City", 	search.getCity());
+		if( search.getCustomer() != null && !"".equals(search.getCustomer())) {
+			query.setParameter("customer", search.getCustomer());
 		}
-		if( (search.getCustomer() != null && !"".equals(search.getCustomer())) &&
-				( search.getAddress2() != null && !"".equals(search.getAddress2()) && search.getCity2() != null && !"".equals(search.getCity2()) ) ) {
-			query.setParameter("customer", 		search.getCustomer());
+		if( search.getAddress() != null && !"".equals(search.getAddress())) {
+			query.setParameter("site1Address", site);
+		}
+		if( search.getCity() != null && !"".equals(search.getCity())) {
+			query.setParameter("site1City", search.getCity());
+		}
+		if( search.getAddress2() != null && !"".equals(search.getAddress2())) {
 			query.setParameter("site2Address", 	site2);
-			query.setParameter("site2City", 	search.getCity2());
+		}
+		if( search.getCity2() != null && !"".equals(search.getCity2())) {
+			query.setParameter("site2City", search.getCity2());
 		}
 
 		List<Circuit> modelList = new ArrayList<Circuit>();
@@ -94,7 +138,7 @@ public class AmnDAO extends DAO {
 		List<Object[]> resutlList = query.getResultList();
 		if(resutlList == null || resutlList.isEmpty()) {
 			response.setErrorCode(Response.CODE_EMPTY);
-			response.setErrorMsg("Not result found.");
+			response.setErrorMsg("No result found.");
 			response.setStatus(Response.FAIL);
 		} else if(resutlList != null && resutlList.size() > 0) {
 			Circuit circuit = null;
@@ -115,12 +159,12 @@ public class AmnDAO extends DAO {
 					}
 				}
 			}
-			sortServiceSearch(modelList, circPathInstIDCircuit);
-			if(resutlList.size() > maxResult) {
+			if(circPathInstIDCircuit.size() > maxResult) {
 				response.setErrorCode(Response.CODE_MAXRESULT);
 				response.setErrorMsg("Too Many Results.");
 				response.setStatus(Response.FAIL);
 			} else {
+				sortServiceSearch(modelList, circPathInstIDCircuit);
 				response.setResult(modelList);
 			}
 		}
@@ -132,7 +176,9 @@ public class AmnDAO extends DAO {
 			Set<String> circPathInstIDs = circPathInstIDCircuit.keySet();
 			if(circPathInstIDs != null && !circPathInstIDs.isEmpty()) {
 				List<String> circPathInstIDList = new ArrayList<String>(circPathInstIDs);
-				Collections.sort(circPathInstIDList);
+				if(circPathInstIDList.size() > 1) {
+					Collections.sort(circPathInstIDList);
+				}
 				for(String circPathInstID : circPathInstIDList) {
 					if(circPathInstIDCircuit.containsKey(circPathInstID)) {
 						modelList.add(circPathInstIDCircuit.get(circPathInstID));
@@ -170,9 +216,9 @@ public class AmnDAO extends DAO {
 		List<Object[]> resutlList = query.getResultList();
 		if(resutlList == null || resutlList.isEmpty()) {
 			response.setErrorCode(Response.CODE_EMPTY);
-			response.setErrorMsg("Not result found.");
+			response.setErrorMsg("No result found.");
 			response.setStatus(Response.FAIL);
-		} else if(resutlList != null && resutlList.size() == 1) {
+		} else {
 			for(Object[] o : resutlList) {
 				circuit.setCircPathInstID(o[0] != null ? ((BigDecimal)o[0]).toString() : "");
 				circuit.setCircuitID((String)o[1] != null ? (String)o[1] : "");
@@ -194,10 +240,6 @@ public class AmnDAO extends DAO {
 			} else {
 				fetchFromOHSContractRelatedTables(circuit);
 			}
-		} else {
-			response.setErrorCode(Response.CODE_NOTONE);
-			response.setErrorMsg("More than one result found.");
-			response.setStatus(Response.FAIL);
 		}
 
 		response.setResult(circuit);
@@ -213,7 +255,7 @@ public class AmnDAO extends DAO {
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID()+"%");
 			List<Object[]> resutlList = query.getResultList();
-			if(resutlList != null && resutlList.size() == 1) {
+			if(resutlList != null && resutlList.size() > 0) {
 				for(Object[] o : resutlList) {
 					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
@@ -237,6 +279,8 @@ public class AmnDAO extends DAO {
 			} else {
 				getCircuitOthers(circuit);
 			}
+		} else {
+			getCircuitOthers(circuit);
 		}
 	}
 
@@ -249,7 +293,7 @@ public class AmnDAO extends DAO {
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
 			List<Object[]> resutlList = query.getResultList();
-			if(resutlList != null && resutlList.size() == 1) {
+			if(resutlList != null && resutlList.size() > 0) {
 				for(Object[] o : resutlList) {
 					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
 					circuit.setCustomerOCN((String)o[1] != null ? (String)o[1] : "");
@@ -268,7 +312,7 @@ public class AmnDAO extends DAO {
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
 			List<Object[]> resutlList = query.getResultList();
-			if(resutlList != null && resutlList.size() == 1) {
+			if(resutlList != null && resutlList.size() > 0) {
 				for(Object[] o : resutlList) {
 					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
@@ -288,7 +332,7 @@ public class AmnDAO extends DAO {
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
 			List<Object[]> resutlList = query.getResultList();
-			if(resutlList != null && resutlList.size() == 1) {
+			if(resutlList != null && resutlList.size() > 0) {
 				for(Object[] o : resutlList) {
 					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
@@ -308,7 +352,7 @@ public class AmnDAO extends DAO {
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
 			List<Object[]> resutlList = query.getResultList();
-			if(resutlList != null && resutlList.size() == 1) {
+			if(resutlList != null && resutlList.size() > 0) {
 				for(Object[] o : resutlList) {
 					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
@@ -320,15 +364,16 @@ public class AmnDAO extends DAO {
 	}
 
 	private void getCircuitOthers(Circuit circuit) {
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+		if(circuit != null && circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber()) ) {
 			String sql = "select LEGAL_CUSTOMER, PRODUCT_NAME, OCN " +
 					"from AMN.IE_OHS_CONTRACT " +
-					"where CONTRACT_NO = <Order Number> and CIRCUIT_REFERENCE_5D = :circuitID and CURR_REVISION = 'YES'";
+					"where CONTRACT_NO = :orderNumber and CIRCUIT_REFERENCE_5D = :circuitID and CURR_REVISION = 'YES'";
 
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<Object[]> resutlList = query.getResultList();
-			if(resutlList != null && resutlList.size() == 1) {
+			if(resutlList != null && resutlList.size() > 0) {
 				for(Object[] o : resutlList) {
 					circuit.setCustomer((String)o[0] != null ? (String)o[0] : "");
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
