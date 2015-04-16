@@ -82,7 +82,7 @@ public class SiebelCall {
 		gc_start.setTime(d_end);
 		gc_start.add(GregorianCalendar.DAY_OF_MONTH, -2);
 
-		SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", new Locale.Builder().setLanguage("en").setRegion("US").build());
+		SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", Locale.US);
 		req.setSearchMethod("FILTERS");
 		req.setSearchType("EXACT");
 		req.setTicketStatus("All");
@@ -178,7 +178,6 @@ public class SiebelCall {
 		wout.flush();
 		InputStream in  = connection.getInputStream();
 		result = new Util().getStringFromInputStream(in);
-		
 		return result;
 	}
 
