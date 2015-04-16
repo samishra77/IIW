@@ -1,5 +1,7 @@
 package com.colt.ws.biz;
 
+import com.colt.util.Util;
+
 public class Search {
 
 	private String order;
@@ -115,4 +117,10 @@ public class Search {
 		}
 		this.city2 = city2;
 	}
+
+	@Override
+	public String toString() {
+		return Util.serializeObj(this);
+	}
+
 }

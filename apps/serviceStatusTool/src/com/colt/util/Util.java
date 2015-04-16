@@ -1,9 +1,12 @@
 package com.colt.util;
 
+import java.beans.XMLEncoder;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 import com.colt.ws.biz.ProductType;
 
@@ -61,4 +64,13 @@ public class Util {
 		}
 		return "";
 	}
+
+	public static String serializeObj(Object obj) {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		XMLEncoder encoder = new XMLEncoder(os);
+		encoder.writeObject(obj);
+		encoder.close();
+		return new String(os.toByteArray(), Charset.defaultCharset());
+	}
+
 }

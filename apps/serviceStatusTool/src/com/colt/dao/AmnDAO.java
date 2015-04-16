@@ -13,6 +13,9 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.colt.util.Util;
 import com.colt.ws.biz.Circuit;
 import com.colt.ws.biz.ProductType;
@@ -22,7 +25,8 @@ import com.colt.ws.biz.Search;
 public class AmnDAO extends DAO {
 
 	private final int maxResult = 30;
-	
+	private Log log = LogFactory.getLog(AmnDAO.class);
+
 	public AmnDAO(EntityManager em) {
 		super(em);
 	}
@@ -116,6 +120,7 @@ public class AmnDAO extends DAO {
 		Connection conn = null;
 		PreparedStatement prepStmt = null;
 		ResultSet rs = null;
+		log.info(sql + "\n" + search);
 		try {
 			conn = getConnection();
 			prepStmt = conn.prepareStatement(sql);
@@ -163,10 +168,13 @@ public class AmnDAO extends DAO {
 			List<Circuit> modelList = new ArrayList<Circuit>();
 			HashMap<String, Circuit> circPathInstIDCircuit = new HashMap<String, Circuit>();
 
+			long time = System.currentTimeMillis();
 			rs = prepStmt.executeQuery();
 			Circuit circuit = null;
 			List<String> circuitIDList = new ArrayList<String>();
+			int count = 0;
 			while (rs.next()) {
+				count++;
 				if(!circuitIDList.contains(processCIDOHS(rs.getString("CIRCUIT_ID") != null ? rs.getString("CIRCUIT_ID") : ""))) { //save just services with diferents circuitIDS 
 					circuit = new Circuit();
 					circuit.setCircPathInstID(rs.getBigDecimal("circPathInstID") != null ? rs.getBigDecimal("circPathInstID").toString() : "");
@@ -188,6 +196,7 @@ public class AmnDAO extends DAO {
 					break;
 				}
 			}
+			log.info("query time: " + (System.currentTimeMillis() - time) + " | db rows: " + count + " | map size: " + circPathInstIDCircuit.size());
 
 			if(circPathInstIDCircuit.size() == 0) {
 				response.setErrorCode(Response.CODE_EMPTY);
