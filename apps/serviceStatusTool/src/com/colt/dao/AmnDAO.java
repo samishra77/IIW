@@ -1,6 +1,9 @@
 package com.colt.dao;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,13 +21,13 @@ import com.colt.ws.biz.Search;
 
 public class AmnDAO extends DAO {
 
-	private final int queryLimit = 100;
 	private final int maxResult = 30;
 	
 	public AmnDAO(EntityManager em) {
 		super(em);
 	}
 
+	
 	public String geRegexSite (String value) {
 		String site = value.trim();
 		site = site.replaceAll("[^\\x01-\\x7F]+", ".*?"); // substitute any non-ASCII, no need to use Normalizer
@@ -35,7 +38,7 @@ public class AmnDAO extends DAO {
 		return site;
 	}
 
-	public Response retrieveCircuits(Search search) {
+	public Response retrieveCircuits(Search search) throws Exception {
 		Response response = new Response();
 		//site 1 pattern
 		String site = null;
@@ -49,123 +52,160 @@ public class AmnDAO extends DAO {
 			site2 = geRegexSite(search.getAddress2());
 		}
 
-		String sql = "select unique i.circ_path_inst_id, i.circ_path_hum_id as CIRCUIT_ID, i.order_num as ORDER_NUMBER, i.customer_id as CUSTOMER, i.service_menu as PRODUC_TYPE, " +
+		String sql = "select i.circ_path_inst_id as circPathInstID, i.circ_path_hum_id as CIRCUIT_ID, i.order_num as ORDER_NUMBER, i.customer_id as CUSTOMER, i.service_menu as PRODUC_TYPE, " +
 				"j.SITE_HUM_ID as A_SITE_HUM_ID, k.SITE_HUM_ID as Z_SITE_HUM_ID, i.status, j.City as A_City, i.A_Side_Site_ID as ASIDE_SITE, i.Z_Side_Site_ID as ZSIDE_SITE, k.City as Z_City " +
 				"from AMN.ie_circ_path_inst i, AMN.ie_site_inst j, AMN.ie_site_inst k " +
 				"where i.status = 'Live' ";
-				if( (search.getService() != null && !"".equals(search.getService())) && (search.getOrder() != null && !"".equals(search.getOrder())) ) {
-					sql+= " and i.circ_path_hum_id like :service and i.order_num like :order ";
-				} else if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
-					sql+= "and i.order_num like :order ";
-				} else if( search.getService() != null && !"".equals(search.getService()) ) {
-					sql+= "and i.circ_path_hum_id like :service ";
-				} else if(search.getCustomer() != null && !"".equals(search.getCustomer())) {
-					sql+= "and i.customer_id like :customer ";
-					if( (search.getAddress() != null && !"".equals(search.getAddress())) || (search.getCity() != null && !"".equals(search.getCity())) ) {
-						sql+= " and (( ";
-						if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
-							sql+= " (REGEXP_LIKE(j.SITE_HUM_ID, :site1Address, 'i')  or REGEXP_LIKE(j.ADDRESS, :site1Address, 'i')) ";
-						}
-						if( search.getCity() != null && !"".equals(search.getCity()) )  {
-							if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
-								sql+= " and ";
-							}
-							sql+= " j.City like :site1City ";
-						}
-						sql+= " ) or ( "; 
-						if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
-							sql+= "(REGEXP_LIKE(k.SITE_HUM_ID, :site1Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site1Address, 'i')) ";
-						}
-						if( search.getCity() != null && !"".equals(search.getCity()) )  {
-							if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
-								sql+= " and ";
-							}
-							sql+= " k.City like :site1City ";
-						}
-						sql+= " )) ";
-					}
-					if( (search.getAddress2() != null && !"".equals(search.getAddress2())) || (search.getCity2() != null && !"".equals(search.getCity2())) ) {
-						sql+= " and (( ";
-						if( search.getAddress2() != null && !"".equals(search.getAddress2()) )  {
-							sql+= " (REGEXP_LIKE(j.SITE_HUM_ID, :site2Address, 'i')  or REGEXP_LIKE(j.ADDRESS, :site2Address, 'i')) ";
-						}
-						if( search.getCity2() != null && !"".equals(search.getCity2()) )  {
-							if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
-								sql+= " and ";
-							}
-							sql+= " j.City like :site2City ";
-						}
-						sql+= " ) or ( "; 
-						if( search.getAddress2() != null && !"".equals(search.getAddress2()) )  {
-							sql+= "(REGEXP_LIKE(k.SITE_HUM_ID, :site2Address, 'i') or REGEXP_LIKE(k.ADDRESS, :site2Address, 'i')) ";
-						}
-						if( search.getCity2() != null && !"".equals(search.getCity2()) )  {
-							if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
-								sql+= " and ";
-							}
-							sql+= " k.City like :site2City ";
-						}
-						sql+= " )) ";
-					}
+		if( (search.getService() != null && !"".equals(search.getService())) && (search.getOrder() != null && !"".equals(search.getOrder())) ) {
+			sql+= " and i.circ_path_hum_id like ? and i.order_num like ? ";
+		} else if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
+			sql+= "and i.order_num like ? ";
+		} else if( search.getService() != null && !"".equals(search.getService()) ) {
+			sql+= "and i.circ_path_hum_id like ? ";
+		} else if(search.getCustomer() != null && !"".equals(search.getCustomer())) {
+			sql+= "and i.customer_id like ? ";
+			if( (search.getAddress() != null && !"".equals(search.getAddress())) || (search.getCity() != null && !"".equals(search.getCity())) ) {
+				sql+= " and (( ";
+				if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
+					sql+= " (REGEXP_LIKE(j.SITE_HUM_ID, ?, 'i')  or REGEXP_LIKE(j.ADDRESS, ?, 'i')) ";
 				}
-				sql+= " and NOT REGEXP_LIKE (i.circ_path_hum_id, '-P|-AP') and i.A_Side_Site_ID = j.Site_Inst_ID and i.Z_Side_Site_ID = k.Site_Inst_ID";
-		Query query = em.createNativeQuery(sql);
-		if( search.getService() != null && !"".equals(search.getService()) ) {
-			query.setParameter("service", search.getService());
+				if( search.getCity() != null && !"".equals(search.getCity()) )  {
+					if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
+						sql+= " and ";
+					}
+					sql+= " j.City like ? ";
+				}
+				sql+= " ) or ( "; 
+				if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
+					sql+= "(REGEXP_LIKE(k.SITE_HUM_ID, ?, 'i') or REGEXP_LIKE(k.ADDRESS, ?, 'i')) ";
+				}
+				if( search.getCity() != null && !"".equals(search.getCity()) )  {
+					if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
+						sql+= " and ";
+					}
+					sql+= " k.City like ? ";
+				}
+				sql+= " )) ";
+			}
+			if( (search.getAddress2() != null && !"".equals(search.getAddress2())) || (search.getCity2() != null && !"".equals(search.getCity2())) ) {
+				sql+= " and (( ";
+				if( search.getAddress2() != null && !"".equals(search.getAddress2()) )  {
+					sql+= " (REGEXP_LIKE(j.SITE_HUM_ID, ?, 'i')  or REGEXP_LIKE(j.ADDRESS, ?, 'i')) ";
+				}
+				if( search.getCity2() != null && !"".equals(search.getCity2()) )  {
+					if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
+						sql+= " and ";
+					}
+					sql+= " j.City like ? ";
+				}
+				sql+= " ) or ( "; 
+				if( search.getAddress2() != null && !"".equals(search.getAddress2()) )  {
+					sql+= "(REGEXP_LIKE(k.SITE_HUM_ID, ?, 'i') or REGEXP_LIKE(k.ADDRESS, ?, 'i')) ";
+				}
+				if( search.getCity2() != null && !"".equals(search.getCity2()) )  {
+					if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
+						sql+= " and ";
+					}
+					sql+= " k.City like ? ";
+				}
+				sql+= " )) ";
+			}
 		}
-		if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
-			query.setParameter("order", search.getOrder());
-		}
-		if( search.getCustomer() != null && !"".equals(search.getCustomer())) {
-			query.setParameter("customer", search.getCustomer());
-		}
-		if( search.getAddress() != null && !"".equals(search.getAddress())) {
-			query.setParameter("site1Address", site);
-		}
-		if( search.getCity() != null && !"".equals(search.getCity())) {
-			query.setParameter("site1City", search.getCity());
-		}
-		if( search.getAddress2() != null && !"".equals(search.getAddress2())) {
-			query.setParameter("site2Address", 	site2);
-		}
-		if( search.getCity2() != null && !"".equals(search.getCity2())) {
-			query.setParameter("site2City", search.getCity2());
-		}
+		sql+= " and NOT REGEXP_LIKE (i.circ_path_hum_id, '-P|-AP') and i.A_Side_Site_ID = j.Site_Inst_ID and i.Z_Side_Site_ID = k.Site_Inst_ID";
 
-		List<Circuit> modelList = new ArrayList<Circuit>();
-		HashMap<String, Circuit> circPathInstIDCircuit = new HashMap<String, Circuit>();
-		query.setMaxResults(queryLimit);
-		List<Object[]> resutlList = query.getResultList();
-		if(resutlList == null || resutlList.isEmpty()) {
-			response.setErrorCode(Response.CODE_EMPTY);
-			response.setErrorMsg("No result found.");
-			response.setStatus(Response.FAIL);
-		} else if(resutlList != null && resutlList.size() > 0) {
+		Connection conn = null;
+		PreparedStatement prepStmt = null;
+		ResultSet rs = null;
+		try {
+			conn = getConnection();
+			prepStmt = conn.prepareStatement(sql);
+			int idx = 1;
+			if( search.getService() != null && !"".equals(search.getService()) ) {
+				prepStmt.setString(idx++, search.getService());
+			}
+			if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
+				prepStmt.setString(idx++, search.getOrder());
+			}
+			if( search.getCustomer() != null && !"".equals(search.getCustomer())) {
+				prepStmt.setString(idx++, search.getCustomer());
+			}
+
+			if( search.getAddress() != null && !"".equals(search.getAddress())) {
+				prepStmt.setString(idx++, site);
+				prepStmt.setString(idx++, site);
+			}
+			if( search.getCity() != null && !"".equals(search.getCity())) {
+				prepStmt.setString(idx++, search.getCity());
+			}
+			if( search.getAddress() != null && !"".equals(search.getAddress())) {
+				prepStmt.setString(idx++, site);
+				prepStmt.setString(idx++, site);
+			}
+			if( search.getCity() != null && !"".equals(search.getCity())) {
+				prepStmt.setString(idx++, search.getCity());
+			}
+
+			if( search.getAddress2() != null && !"".equals(search.getAddress2())) {
+				prepStmt.setString(idx++, site2);
+				prepStmt.setString(idx++, site2);
+			}
+			if( search.getCity2() != null && !"".equals(search.getCity2())) {
+				prepStmt.setString(idx++, search.getCity2());
+			}
+			if( search.getAddress2() != null && !"".equals(search.getAddress2())) {
+				prepStmt.setString(idx++, site2);
+				prepStmt.setString(idx++, site2);
+			}
+			if( search.getCity2() != null && !"".equals(search.getCity2())) {
+				prepStmt.setString(idx++, search.getCity2());
+			}
+
+			List<Circuit> modelList = new ArrayList<Circuit>();
+			HashMap<String, Circuit> circPathInstIDCircuit = new HashMap<String, Circuit>();
+
+			rs = prepStmt.executeQuery();
 			Circuit circuit = null;
 			List<String> circuitIDList = new ArrayList<String>();
-			for(Object[] o : resutlList) {
-				if(!circuitIDList.contains(processCIDOHS((String)o[1] != null ? (String)o[1] : ""))) { //save just services with diferents circuitIDS 
+			while (rs.next()) {
+				if(!circuitIDList.contains(processCIDOHS(rs.getString("CIRCUIT_ID") != null ? rs.getString("CIRCUIT_ID") : ""))) { //save just services with diferents circuitIDS 
 					circuit = new Circuit();
-					circuit.setCircPathInstID(o[0] != null ? ((BigDecimal)o[0]).toString() : "");
-					circuit.setCircuitID((String)o[1] != null ? (String)o[1] : "");
-					circuit.setOrderNumber((String)o[2] != null ? (String)o[2] : "");
-					circuit.setCustomer((String)o[3] != null ? (String)o[3] : "");
-					circuit.setProductType(new Util().getProductType((o[4] != null) ? (String)o[4] : ""));
-					circuit.setaSideSite((String)o[5] != null ? (String)o[5] : "");
-					circuit.setzSideSite((String)o[6] != null ? (String)o[6] : "");
+					circuit.setCircPathInstID(rs.getBigDecimal("circPathInstID") != null ? rs.getBigDecimal("circPathInstID").toString() : "");
+					circuit.setCircuitID(rs.getString("CIRCUIT_ID") != null ? rs.getString("CIRCUIT_ID") : "");
+					circuit.setOrderNumber(rs.getString("ORDER_NUMBER") != null ? rs.getString("ORDER_NUMBER") : "");
+					circuit.setCustomer(rs.getString("CUSTOMER") != null ? rs.getString("CUSTOMER") : "");
+					circuit.setProductType(new Util().getProductType(rs.getString("PRODUC_TYPE") != null ? rs.getString("PRODUC_TYPE") : ""));
+					circuit.setaSideSite(rs.getString("A_SITE_HUM_ID") != null ? rs.getString("A_SITE_HUM_ID") : "");
+					circuit.setzSideSite(rs.getString("Z_SITE_HUM_ID") != null ? rs.getString("Z_SITE_HUM_ID") : "");
 					circuitIDList.add(circuit.getCircuitID());
 					if(!circPathInstIDCircuit.containsKey(circuit.getCircPathInstID())) {
 						circPathInstIDCircuit.put(circuit.getCircPathInstID(), circuit);
 					}
 				}
+				if (circPathInstIDCircuit.size() > maxResult) {
+					response.setErrorCode(Response.CODE_MAXRESULT);
+					response.setErrorMsg("Too Many Results.");
+					response.setStatus(Response.FAIL);
+					break;
+				}
 			}
-			if(circPathInstIDCircuit.size() > maxResult) {
-				response.setErrorCode(Response.CODE_MAXRESULT);
-				response.setErrorMsg("Too Many Results.");
+
+			if(circPathInstIDCircuit.size() == 0) {
+				response.setErrorCode(Response.CODE_EMPTY);
+				response.setErrorMsg("No result found.");
 				response.setStatus(Response.FAIL);
-			} else {
+			} else if(circPathInstIDCircuit.size() <= maxResult) {
 				sortServiceSearch(modelList, circPathInstIDCircuit);
 				response.setResult(modelList);
+			}
+		} finally {
+			if(rs != null) {
+				rs.close();
+			}
+			if(prepStmt != null) {
+				prepStmt.close();
+			}
+			if(conn != null) {
+				conn.close();
 			}
 		}
 		return response;
