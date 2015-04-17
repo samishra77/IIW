@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
@@ -27,11 +29,10 @@ public class AmnDAO extends DAO {
 	private final int maxResult = 30;
 	private Log log = LogFactory.getLog(AmnDAO.class);
 
-	public AmnDAO(EntityManager em) {
-		super(em);
+	public AmnDAO(EntityManager em, Properties resource) {
+		super(em,resource);
 	}
 
-	
 	public String geRegexSite (String value) {
 		String site = value.trim();
 		site = site.replaceAll("[^\\x01-\\x7F]+", ".*?"); // substitute any non-ASCII, no need to use Normalizer
@@ -191,7 +192,7 @@ public class AmnDAO extends DAO {
 				}
 				if (circPathInstIDCircuit.size() > maxResult) {
 					response.setErrorCode(Response.CODE_MAXRESULT);
-					response.setErrorMsg("Too Many Results.");
+					response.setErrorMsg(getMessages().getProperty("global.error.toManyResults"));
 					response.setStatus(Response.FAIL);
 					break;
 				}
@@ -200,7 +201,7 @@ public class AmnDAO extends DAO {
 
 			if(circPathInstIDCircuit.size() == 0) {
 				response.setErrorCode(Response.CODE_EMPTY);
-				response.setErrorMsg("No result found.");
+				response.setErrorMsg(getMessages().getProperty("global.error.resultNotFound"));
 				response.setStatus(Response.FAIL);
 			} else if(circPathInstIDCircuit.size() <= maxResult) {
 				sortServiceSearch(modelList, circPathInstIDCircuit);
@@ -265,7 +266,7 @@ public class AmnDAO extends DAO {
 		List<Object[]> resutlList = query.getResultList();
 		if(resutlList == null || resutlList.isEmpty()) {
 			response.setErrorCode(Response.CODE_EMPTY);
-			response.setErrorMsg("No result found.");
+			response.setErrorMsg(getMessages().getProperty("global.error.resultNotFound"));
 			response.setStatus(Response.FAIL);
 		} else {
 			for(Object[] o : resutlList) {

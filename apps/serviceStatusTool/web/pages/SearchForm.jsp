@@ -22,8 +22,8 @@
 				<table class="table table-small-font">
 					<tbody>
 						<tr>
-							<td><b><spring:message code="searchForm.xngOrder"></spring:message>:<input type="text" ng-model="search.order" id="Order" class="form-control"/></b></td>
-							<td><b><spring:message code="searchForm.xngService"></spring:message>:<input type="text" ng-model="search.service" id="Service" class="form-control" /></b></td>
+							<td><b><spring:message code="searchForm.ohsOrder"></spring:message>:<input type="text" ng-model="search.order" id="Order" class="form-control"/></b></td>
+							<td><b><spring:message code="searchForm.service"></spring:message>:<input type="text" ng-model="search.service" id="Service" class="form-control" /></b></td>
 						</tr>
 					</tbody>
 				</table>

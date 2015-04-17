@@ -26,6 +26,10 @@
 		<property name="showSql" value="true" />
 	</bean>
 
+	<bean id="messages" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="/WEB-INF/messages.properties" />
+	</bean>
+
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 	  <property name="prefix" value="/"/>
 	  <property name="suffix" value=".jsp"/>

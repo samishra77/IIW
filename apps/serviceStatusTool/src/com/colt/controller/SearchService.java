@@ -1,7 +1,9 @@
 package com.colt.controller;
 
 import java.util.List;
+import java.util.Properties;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -23,6 +25,9 @@ import com.colt.ws.service.SiebelCall;
 @RestController
 public class SearchService {
 
+	@Resource(name="messages")
+	private Properties messages;
+
 	@PersistenceContext(unitName = "mainDatabase")
 	private EntityManager em;
 
@@ -33,7 +38,7 @@ public class SearchService {
 		log.info("Entering method getCircuits()");
 		Response response = null;
 		try {
-			AmnDAO amnDAO = new AmnDAO(em);
+			AmnDAO amnDAO = new AmnDAO(em, messages);
 			response = amnDAO.retrieveCircuits(search);
 		} catch (Exception e) {
 			log.error(e, e);
@@ -51,7 +56,7 @@ public class SearchService {
 		log.info("Entering method getServiceDetail()");
 		Response response = null;
 		try {
-			AmnDAO amnDAO = new AmnDAO(em);
+			AmnDAO amnDAO = new AmnDAO(em, messages);
 			response = amnDAO.retrieveServiceDetails(id);
 		} catch (Exception e) {
 			log.error(e, e);
