@@ -9,8 +9,8 @@
 	<table border="0" cellspacing="0" cellpadding="3" class="marginTop">
 		<tbody>
 			<tr>
-				<td class="label-without-width"><label class="font-strong">XNG Order:</label></td>
-				<td class="label-without-width"><label class="font-strong">XNG Service:</label></td>
+				<td class="label-without-width"><label class="font-strong">OHS Order:</label></td>
+				<td class="label-without-width"><label class="font-strong">Service:</label></td>
 			</tr>
 			<tr>
 				<td class="value"><input type="text" ng-model="search.order" id="order"/></td>
