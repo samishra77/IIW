@@ -62,13 +62,13 @@ public class AmnDAO extends DAO {
 				"from AMN.ie_circ_path_inst i, AMN.ie_site_inst j, AMN.ie_site_inst k " +
 				"where i.status = 'Live' ";
 		if( (search.getService() != null && !"".equals(search.getService())) && (search.getOrder() != null && !"".equals(search.getOrder())) ) {
-			sql+= " and i.circ_path_hum_id like ? and i.order_num like ? ";
+			sql+= " and upper(i.circ_path_hum_id) like ? and upper(i.order_num) like  ? ";
 		} else if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
-			sql+= "and i.order_num like ? ";
+			sql+= "and upper(i.order_num) like ? ";
 		} else if( search.getService() != null && !"".equals(search.getService()) ) {
-			sql+= "and i.circ_path_hum_id like ? ";
+			sql+= "and upper(i.circ_path_hum_id) like ? ";
 		} else if(search.getCustomer() != null && !"".equals(search.getCustomer())) {
-			sql+= "and i.customer_id like ? ";
+			sql+= "and upper(i.customer_id) like ? ";
 			if( (search.getAddress() != null && !"".equals(search.getAddress())) || (search.getCity() != null && !"".equals(search.getCity())) ) {
 				sql+= " and (( ";
 				if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
@@ -78,7 +78,7 @@ public class AmnDAO extends DAO {
 					if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
 						sql+= " and ";
 					}
-					sql+= " j.City like ? ";
+					sql+= " upper(j.City) like ? ";
 				}
 				sql+= " ) or ( "; 
 				if( search.getAddress() != null && !"".equals(search.getAddress()) )  {
@@ -88,7 +88,7 @@ public class AmnDAO extends DAO {
 					if(search.getAddress() != null && !"".equals(search.getAddress()) ) {
 						sql+= " and ";
 					}
-					sql+= " k.City like ? ";
+					sql+= " upper(k.City) like ? ";
 				}
 				sql+= " )) ";
 			}
@@ -101,7 +101,7 @@ public class AmnDAO extends DAO {
 					if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
 						sql+= " and ";
 					}
-					sql+= " j.City like ? ";
+					sql+= " upper(j.City) like ? ";
 				}
 				sql+= " ) or ( "; 
 				if( search.getAddress2() != null && !"".equals(search.getAddress2()) )  {
@@ -111,7 +111,7 @@ public class AmnDAO extends DAO {
 					if(search.getAddress2() != null && !"".equals(search.getAddress2()) ) {
 						sql+= " and ";
 					}
-					sql+= " k.City like ? ";
+					sql+= " upper(k.City) like ? ";
 				}
 				sql+= " )) ";
 			}
@@ -127,13 +127,13 @@ public class AmnDAO extends DAO {
 			prepStmt = conn.prepareStatement(sql);
 			int idx = 1;
 			if( search.getService() != null && !"".equals(search.getService()) ) {
-				prepStmt.setString(idx++, search.getService());
+				prepStmt.setString(idx++, search.getService().toUpperCase());
 			}
 			if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
-				prepStmt.setString(idx++, search.getOrder());
+				prepStmt.setString(idx++, search.getOrder().toUpperCase());
 			}
 			if( search.getCustomer() != null && !"".equals(search.getCustomer())) {
-				prepStmt.setString(idx++, search.getCustomer());
+				prepStmt.setString(idx++, search.getCustomer().toUpperCase());
 			}
 
 			if( search.getAddress() != null && !"".equals(search.getAddress())) {
@@ -141,14 +141,14 @@ public class AmnDAO extends DAO {
 				prepStmt.setString(idx++, site);
 			}
 			if( search.getCity() != null && !"".equals(search.getCity())) {
-				prepStmt.setString(idx++, search.getCity());
+				prepStmt.setString(idx++, search.getCity().toUpperCase());
 			}
 			if( search.getAddress() != null && !"".equals(search.getAddress())) {
 				prepStmt.setString(idx++, site);
 				prepStmt.setString(idx++, site);
 			}
 			if( search.getCity() != null && !"".equals(search.getCity())) {
-				prepStmt.setString(idx++, search.getCity());
+				prepStmt.setString(idx++, search.getCity().toUpperCase());
 			}
 
 			if( search.getAddress2() != null && !"".equals(search.getAddress2())) {
@@ -156,14 +156,14 @@ public class AmnDAO extends DAO {
 				prepStmt.setString(idx++, site2);
 			}
 			if( search.getCity2() != null && !"".equals(search.getCity2())) {
-				prepStmt.setString(idx++, search.getCity2());
+				prepStmt.setString(idx++, search.getCity2().toUpperCase());
 			}
 			if( search.getAddress2() != null && !"".equals(search.getAddress2())) {
 				prepStmt.setString(idx++, site2);
 				prepStmt.setString(idx++, site2);
 			}
 			if( search.getCity2() != null && !"".equals(search.getCity2())) {
-				prepStmt.setString(idx++, search.getCity2());
+				prepStmt.setString(idx++, search.getCity2().toUpperCase());
 			}
 
 			List<Circuit> modelList = new ArrayList<Circuit>();
