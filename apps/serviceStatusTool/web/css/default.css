@@ -7,7 +7,6 @@
 	font-size: 16px;
 	color: #515049;
 	border-left: solid #a0bf35 5px;
-	margin-left:5px;
 }
 
 .label {
@@ -51,29 +50,19 @@
 }
 
 #trail-container {
-border-bottom: 2px solid #DEDFE0;
-padding: 0 10px 10px;
-font-size: 11px;
-color: #515049;
-text-decoration: none;
-margin-bottom: 10px;
+	border-bottom: 2px solid #DEDFE0;
+	padding: 0 10px 10px;
+	font-size: 11px;
+	color: #515049;
+	text-decoration: none;
+	margin-bottom: 10px;
 }
 
-input[type='text'] {
-	width:450px;
-}
-
-.fullWidth {
-	width:100%;
-}
 
 .marginTop {
 	margin-top: 10px;
 }
 
-.tableService td {
-	width:16.7%;
-}
 .rich-table-header {
 	background-color: #D4CFC7;
 	background-image: url(../images/richfake/tab_header_gradient.png);
@@ -93,4 +82,8 @@ input[type='text'] {
 	margin-bottom: 10px;
 	border: 2px solid transparent;
 	border-radius: 6px;
+}
+
+.alignMiddle {
+	vertical-align:middle !important;
 }
