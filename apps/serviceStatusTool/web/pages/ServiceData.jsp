@@ -1,7 +1,8 @@
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <div class="row clearfix" style="margin-top:10px;">
 	<div class="col-md-3 column">
 		<div class="tabbable font-smaller" id="tabs-219456">
-			<a href="#">Home</a> &gt;  TCS Service Status Tool
+			<a href="#"><spring:message code="trail.home"></spring:message></a> &gt;  <spring:message code="trail.serviceData"></spring:message>
 		</div>
 	</div>
 </div>
@@ -9,7 +10,7 @@
 <div class="row clearfix marginTop">
 	<div class="col-md-4 column">
 		<h2 class="app-title">
-			<div style="display: inline;">Service details</div>
+			<div style="display: inline;"><spring:message code="serviceData.subTitle.serviceDetails"></spring:message></div>
 			<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showDetailsLoading"/ >
 		</h2>
 	</div>
@@ -20,45 +21,45 @@
 			<div class="table-responsive"  data-pattern="priority-columns">
 				<table class="table table-small-font">
 					<tr>
-						<td class="font-strong">Circuit Id:</td>
+						<td class="font-strong"><spring:message code="serviceData.circuitId"></spring:message>:</td>
 						<td>{{circuit.circuitID}}</td>
-						<td class="font-strong">Status:</td>
+						<td class="font-strong"><spring:message code="serviceData.status"></spring:message>:</td>
 						<td>{{circuit.status}}</td>
-						<td class="font-strong">In Service since:</td>
+						<td class="font-strong"><spring:message code="serviceData.inServiceSince"></spring:message>:</td>
 						<td>{{circuit.inServiceSince}}</td>
 					</tr>
 					<tr>
-						<td class="font-strong">Customer:</td>
+						<td class="font-strong"><spring:message code="serviceData.customer"></spring:message>:</td>
 						<td>{{circuit.customer}}</td>
-						<td class="font-strong">Category:</td>
+						<td class="font-strong"><spring:message code="serviceData.category"></spring:message>:</td>
 						<td>{{circuit.category}}</td>
-						<td class="font-strong">Bandwidth:</td>
+						<td class="font-strong"><spring:message code="serviceData.bandwidth"></spring:message>:</td>
 						<td>{{circuit.bandWidth}}</td>
 					</tr>
 					<tr>
-						<td class="font-strong">Legal Customer OCN:</td>
+						<td class="font-strong"><spring:message code="serviceData.legalcustomerOCN"></spring:message>:</td>
 						<td>{{circuit.customerOCN}}</td>
-						<td class="font-strong">AMN SLM (PAM) Status:</td>
+						<td class="font-strong"><spring:message code="serviceData.amnSLMStatus"></spring:message>:</td>
 						<td>{{circuit.pamStatus}}</td>
-						<td class="font-strong">Management Team:</td>
+						<td class="font-strong"><spring:message code="serviceData.managementTeam"></spring:message>:</td>
 						<td>{{circuit.managementTeam}}</td>
 					</tr>
 					<tr>
-						<td class="font-strong">Related Order Number:</td>
+						<td class="font-strong"><spring:message code="serviceData.relatedOrderNumber"></spring:message>:</td>
 						<td>{{circuit.relatedOrderNumber}}</td>
-						<td class="font-strong">Performance Monitoring</td>
+						<td class="font-strong"><spring:message code="serviceData.performanceMonitoring"></spring:message>:</td>
 						<td>{{circuit.performanceMonitoring}}</td>
-						<td class="font-strong">Trunk Group</td>
+						<td class="font-strong"><spring:message code="serviceData.trunkGroup"></spring:message>:</td>
 						<td>{{circuit.trunkGroup}}</td>
 					</tr>
 					<tr>
-						<td class="font-strong">Order</td>
+						<td class="font-strong"><spring:message code="serviceData.order"></spring:message>:</td>
 						<td>{{circuit.orderNumber}}</td>
-						<td class="font-strong">Service Menu:</td>
+						<td class="font-strong"><spring:message code="serviceData.serviceMenu"></spring:message>:</td>
 						<td colspan="3">{{circuit.serviceMenu}}</td>
 					</tr>
 					<tr>
-						<td class="font-strong">Product Name:</td>
+						<td class="font-strong"><spring:message code="serviceData.productName"></spring:message>:</td>
 						<td colspan="5">{{circuit.productName}} </td>
 					</tr>
 				</table>
@@ -73,7 +74,7 @@
 	<div class="row clearfix">
 		<div class="col-md-4 column">
 			<h2 class="app-title">
-				<div style="display: inline;">Open Tickets Information</div>
+				<div style="display: inline;"><spring:message code="serviceData.subTitle.openTicketsInformation"></spring:message></div>
 				<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showTicketLoading"/ >
 			</h2>
 		</div>
@@ -84,15 +85,15 @@
 				<table class="table table-small-font">
 					<thead>
 						<tr class="rich-table-header">
-							<th align="center">COLT Reference</th>
-							<th align="center">Customer Reference</th>
-							<th align="center">Status</th>
-							<th align="center">Ticket Description</th>
-							<th align="center">Opened Date/Time</th>
-							<th align="center">Restored Date/Time</th>
-							<th align="center">Type</th>
-							<th align="center">Reported By</th>
-							<th align="center">Priority</th>
+							<th align="center"><spring:message code="serviceData.coltReference"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.customerReference"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.status"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.ticketDescription"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.openedDateTime"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.restoredDateTime"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.type"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.reportedBy"></spring:message></th>
+							<th align="center"><spring:message code="serviceData.priority"></spring:message></th>
 						</tr>
 						<tr ng-if="msgTicket">
 							<th colspan="9" align="center">{{messageTicket}}</th>
