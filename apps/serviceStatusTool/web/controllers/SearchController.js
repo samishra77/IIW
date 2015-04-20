@@ -6,34 +6,26 @@ var SearchController = function ($scope, $http){
 		$scope.msg = false;
 		$scope.showResult = false;
 		$scope.showLoading = true;
-		var msg = "Incorrect Combination. Please, enter the Customer Name and Site Address/City or independent criteria’s service or order.";
+		var msg = "Incorrect Combination. Please, enter the Customer Name and Site Address/City or independent criteria service or order.";
 		if( ($scope.search == undefined)) {
 			$scope.error = true;
 			$scope.messageError = msg;
 		// service and order <> null
-		} else if(
-				((($scope.search.service != "" && $scope.search.service != undefined)  && 
-				  ($scope.search.order != "" && $scope.search.order != undefined)) &&
-					(($scope.search.address != undefined && $scope.search.address != "") ||  
-					  ($scope.search.city != undefined && $scope.search.city != "") || 
-					  ($scope.search.address2 != undefined && $scope.search.address2 != "") || 
-					  ($scope.search.city2 != undefined && $scope.search.city2 != "") ||
-					  ($scope.search.customer != undefined && $scope.search.customer != "")
-					 )
-				 ) ) {
-				
+		} else if(($scope.search.service != "" && $scope.search.service != undefined) &&
+				($scope.search.order != "" && $scope.search.order != undefined)) {
+
 				$scope.error = true;
 				$scope.messageError = msg;
-		} else if (	
+		} else if (
 					!(
-						($scope.search.service != "" &&  $scope.search.service != undefined)  &&
+						($scope.search.service != "" &&  $scope.search.service != undefined) &&
 						($scope.search.order != "" && $scope.search.order != undefined)
 					)
 					&&
-				 	(
-				 		(
-				 			($scope.search.service != "" &&  $scope.search.service != undefined) && 
-				 			( 
+					(
+						(
+							($scope.search.service != "" &&  $scope.search.service != undefined) && 
+							( 
 							  ($scope.search.order != undefined && $scope.search.order != "") ||
 							  ($scope.search.address != undefined && $scope.search.address != "") ||  
 							  ($scope.search.city != undefined && $scope.search.city != "") || 
