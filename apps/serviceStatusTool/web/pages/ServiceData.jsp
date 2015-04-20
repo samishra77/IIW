@@ -2,7 +2,7 @@
 <div class="row clearfix" style="margin-top:10px;">
 	<div class="col-md-3 column">
 		<div class="tabbable font-smaller" id="tabs-219456">
-			<a href="#"><spring:message code="trail.home"></spring:message></a> &gt;  <spring:message code="trail.serviceData"></spring:message>
+			<a href="#/"><spring:message code="trail.home"></spring:message></a> &gt;  <spring:message code="trail.serviceData"></spring:message>
 		</div>
 	</div>
 </div>

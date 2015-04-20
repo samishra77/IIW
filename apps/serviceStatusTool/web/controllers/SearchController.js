@@ -1,6 +1,12 @@
 var SearchController = function ($scope, $http){
 
 	var urlBase= contextPath + "/ws";
+	if (searchScopeBak.circuits) {
+		$scope.circuits = searchScopeBak.circuits;
+		$scope.search = searchScopeBak.search;
+		$scope.showResult = true;
+		$scope.isHidden = true;
+	}
 	$scope.doSearch = function doSearch() {
 		$scope.error = false;
 		$scope.msg = false;
@@ -50,7 +56,6 @@ var SearchController = function ($scope, $http){
 						$scope.error = true;
 						$scope.messageError = msg;
 		} else if ( ($scope.search.service == "" ||  $scope.search.service == undefined) && ($scope.search.order == "" ||  $scope.search.order == undefined) ) {
-			
 			if($scope.search.customer == undefined || $scope.search.customer == "") {
 				$scope.error = true;
 				$scope.messageError = msg;
@@ -86,10 +91,12 @@ var SearchController = function ($scope, $http){
 					$scope.circuits = data.result;
 					$scope.showResult = true;
 				}
-				
+				searchScopeBak.circuits = $scope.circuits;
+				searchScopeBak.search = $scope.search;
 			});
 		} else {
 			$scope.isHidden = false;
+			searchScopeBak.circuits = null;
 		}
 	};
 };

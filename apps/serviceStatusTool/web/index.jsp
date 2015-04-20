@@ -27,6 +27,7 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 
 		<script>
 			var contextPath = "<%=request.getContextPath()%>";
+			var searchScopeBak = {};
 		</script>
 		<script src="<%=request.getContextPath()%>/app.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/SearchController.js"></script>
