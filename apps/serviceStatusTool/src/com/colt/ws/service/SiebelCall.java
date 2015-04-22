@@ -86,8 +86,8 @@ public class SiebelCall {
 		req.setSearchMethod("FILTERS");
 		req.setSearchType("EXACT");
 		req.setTicketStatus("All");
-		req.setEarliestStartDate(sdf.format(gc_start.getTime()));
-		req.setLatestStartDate(sdf.format(gc_end.getTime()));
+//		req.setEarliestStartDate(sdf.format(gc_start.getTime()));
+//		req.setLatestStartDate(sdf.format(gc_end.getTime()));
 
 		url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
 		action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
