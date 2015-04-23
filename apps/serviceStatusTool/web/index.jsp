@@ -16,8 +16,10 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 		<link rel='stylesheet' type='text/css' href='<%=request.getContextPath()%>/css/rwd-table.min.css?v=5.0.4' />
 		<link rel='stylesheet' type='text/css' href='<%=request.getContextPath()%>/css/bootstrap.min.css' />
 		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+		<!-- respond, support of min/max-width for IE 6-8 -->
 		<!--[if lt IE 9]>
-		    <script src="<%=request.getContextPath()%>/js/html5shiv.js"></script>
+			<script src="<%=request.getContextPath()%>/js/html5shiv.js"></script>
+			<script src="<%=request.getContextPath()%>/js/respond.js"></script>
 		<![endif]-->
 		<script src="<%=request.getContextPath()%>/js/jquery.min.js"></script>
 		<script src="<%=request.getContextPath()%>/js/bootstrap.min.js"></script>
