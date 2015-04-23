@@ -336,7 +336,7 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitHSS(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select a.LEGAL_CUSTOMER, a.OCN, a.PRODUCT_NAME " +
+			String sql = "select a.LEGAL_CUSTOMER, a.OCN, b.SERVICE_DETAILS " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_HSS_SERVICE b " +
 					"where a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
@@ -356,9 +356,9 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitLANLINK(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select a.LEGAL_CUSTOMER, a.PRODUCT_NAME, a.OCN, b.RELATED_CONTRACT_NO_ " +
+			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO_ " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_LINK_LAN_ORDER b " +
-					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID and b.CURRENT_REVISION = 'YES' ORDER BY a.CIRCUIT_REFERENCE_5D";
+					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
@@ -377,9 +377,9 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitIP(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select a.LEGAL_CUSTOMER, a.PRODUCT_NAME, a.OCN, b.RELATED_CONTRACT_NO " +
+			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_IP_DATA_ORDER b " +
-					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID and b.CURRENT_REVISION = 'YES' ORDER BY a.CIRCUIT_REFERENCE_5D";
+					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
@@ -398,9 +398,9 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitCPESOLUTIONS(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select a.LEGAL_CUSTOMER, a.SERVICE_OPTION, a.OCN, b.RELATED_ORDER_NO_ " +
+			String sql = "select distinct a.LEGAL_CUSTOMER, b.SERVICE_OPTIONS, a.OCN, b.RELATED_ORDER_NO_ " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
-					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID  and b.CURRENT_REVISION = 'YES' ORDER BY a.CIRCUIT_REFERENCE_5D";
+					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID  ORDER BY a.CIRCUIT_REFERENCE_5D";
 
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuit.getCircuitID());
@@ -419,7 +419,7 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitOthers(Circuit circuit) {
 		if(circuit != null && circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber()) ) {
-			String sql = "select LEGAL_CUSTOMER, PRODUCT_NAME, OCN " +
+			String sql = "select distinct LEGAL_CUSTOMER, PRODUCT_NAME, OCN " +
 					"from AMN.IE_OHS_CONTRACT " +
 					"where CONTRACT_NO = :orderNumber and CIRCUIT_REFERENCE_5D = :circuitID";
 

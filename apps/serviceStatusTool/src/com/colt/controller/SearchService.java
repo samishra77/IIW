@@ -75,7 +75,7 @@ public class SearchService {
 		Response response = new Response();
 		try {
 			SiebelCallRequest sielbelRequest = new SiebelCallRequest();
-			sielbelRequest.setCircuitServiceID(circuit.getCircuitID());
+			sielbelRequest.setCircuitServiceID(circuit.getOrderNumber());
 			sielbelRequest.setOcn(circuit.getCustomerOCN());
 			SiebelCall siebel = new SiebelCall();
 			String siebelResponse = siebel.siebelCallProcess(sielbelRequest);
