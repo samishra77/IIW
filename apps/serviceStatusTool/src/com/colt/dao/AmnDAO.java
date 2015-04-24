@@ -282,7 +282,8 @@ public class AmnDAO extends DAO {
 				circuit.setCustomer((String)o[8] != null ? (String)o[8] : "");
 				circuit.setTrunkGroup((String)o[9] != null ? (String)o[9] : "");
 				circuit.setManagementTeam((String)o[10] != null ? (String)o[10] : "");
-				circuit.setPerformanceMonitoring((String)o[11] != null ? (String)o[11] : "");
+				//circuit.setPerformanceMonitoring((String)o[11] != null ? (String)o[11] : "");
+				circuit.setOsmOrderNO((String)o[12] != null ? (String)o[12] : "");
 				response.setResult(circuit);
 			}
 			if(circuit.getOsmOrderNO() != null && !"".equals(circuit.getOsmOrderNO())) {
