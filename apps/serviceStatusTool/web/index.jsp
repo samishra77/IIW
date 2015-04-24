@@ -21,7 +21,7 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 			<script src="<%=request.getContextPath()%>/js/html5shiv.js"></script>
 			<script src="<%=request.getContextPath()%>/js/respond.js"></script>
 		<![endif]-->
-		<script src="<%=request.getContextPath()%>/js/jquery.min.js"></script>
+		<script src="<%=request.getContextPath()%>/js/jquery-1.11.2.min.js"></script>
 		<script src="<%=request.getContextPath()%>/js/bootstrap.min.js"></script>
 		<script src="<%=request.getContextPath()%>/js/angular.js"></script>
 		<script src="<%=request.getContextPath()%>/js/angular-route.js"></script>
