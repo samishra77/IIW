@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
@@ -29,8 +28,8 @@ public class AmnDAO extends DAO {
 	private final int maxResult = 30;
 	private Log log = LogFactory.getLog(AmnDAO.class);
 
-	public AmnDAO(EntityManager em, Properties resource) {
-		super(em,resource);
+	public AmnDAO(EntityManager em, Properties resource, String username) {
+		super(em, resource, username);
 	}
 
 	public String geRegexSite (String value) {
@@ -121,7 +120,7 @@ public class AmnDAO extends DAO {
 		Connection conn = null;
 		PreparedStatement prepStmt = null;
 		ResultSet rs = null;
-		log.info(sql + "\n" + search);
+		log.info("[" + username + "] " + sql + "\n" + search);
 		try {
 			conn = getConnection();
 			prepStmt = conn.prepareStatement(sql);
@@ -197,7 +196,7 @@ public class AmnDAO extends DAO {
 					break;
 				}
 			}
-			log.info("query time: " + (System.currentTimeMillis() - time) + " | db rows: " + count + " | map size: " + circPathInstIDCircuit.size());
+			log.info("[" + username + "] query time: " + (System.currentTimeMillis() - time) + " | db rows: " + count + " | map size: " + circPathInstIDCircuit.size());
 
 			if(circPathInstIDCircuit.size() == 0) {
 				response.setErrorCode(Response.CODE_EMPTY);

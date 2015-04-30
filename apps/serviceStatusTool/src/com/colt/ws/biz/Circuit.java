@@ -137,7 +137,82 @@ public class Circuit {
 
 	@Override
 	public String toString() {
-		return "Model [circuitID:" + getCircuitID() + ", orderNumber:" + getOrderNumber() + ", productType:" + getProductType() + "]";
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		if (circPathInstID != null && !"".equals(circPathInstID)) {
+			sb.append("circPathInstID:" + circPathInstID + " ");
+		}
+		if (circuitID != null && !"".equals(circuitID)) {
+			sb.append("circuitID:" + circuitID + " ");
+		}
+		if (orderNumber != null && !"".equals(orderNumber)) {
+			sb.append("orderNumber:" + " ");
+		}
+		if (productType != null && !"".equals(productType)) {
+			sb.append("productType:" + productType + " ");
+		}
+		if (customer != null && !"".equals(customer)) {
+			sb.append("customer:" + customer + " ");
+		}
+		if (customerOCN != null && !"".equals(customerOCN)) {
+			sb.append("customerOCN:" + customerOCN + " ");
+		}
+		if (order != null && !"".equals(order)) {
+			sb.append("order:" + order + " ");
+		}
+		if (productName != null && !"".equals(productName)) {
+			sb.append("productName:" + productName + " ");
+		}
+		if (status != null && !"".equals(status)) {
+			sb.append("status:" + status + " ");
+		}
+		if (category != null && !"".equals(category)) {
+			sb.append("category:" + category + " ");
+		}
+		if (pamStatus != null && !"".equals(pamStatus)) {
+			sb.append("pamStatus:" + pamStatus + " ");
+		}
+		if (performanceMonitoring != null && !"".equals(performanceMonitoring)) {
+			sb.append("performanceMonitoring:" + performanceMonitoring + " ");
+		}
+		if (serviceMenu != null && !"".equals(serviceMenu)) {
+			sb.append("serviceMenu:" + serviceMenu + " ");
+		}
+		if (inServiceSince != null && !"".equals(inServiceSince)) {
+			sb.append("inServiceSince:" + inServiceSince + " ");
+		}
+		if (bandWidth != null && !"".equals(bandWidth)) {
+			sb.append("bandWidth:" + bandWidth + " ");
+		}
+		if (managementTeam != null && !"".equals(managementTeam)) {
+			sb.append("managementTeam:" + managementTeam + " ");
+		}
+		if (trunkGroup != null && !"".equals(trunkGroup)) {
+			sb.append("trunkGroup:" + trunkGroup + " ");
+		}
+		if (aSideSite != null && !"".equals(aSideSite)) {
+			sb.append("aSideSite:" + aSideSite + " ");
+		}
+		if (zSideSite != null  && !"".equals(zSideSite)) {
+			sb.append("zSideSite:" + zSideSite + " ");
+		}
+		if (revisionNumber != null && !"".equals(revisionNumber)) {
+			sb.append("revisionNumber:" + revisionNumber + " ");
+		}
+		if (relatedOrderNumber != null && !"".equals(relatedOrderNumber)) {
+			sb.append("relatedOrderNumber:" + relatedOrderNumber + " ");
+		}
+		if (osmOrderNO != null && !"".equals(osmOrderNO)) {
+			sb.append("osmOrderNO:" + osmOrderNO + " ");
+		}
+		if (tickets != null && tickets.size() >0) {
+			sb.append("tickets: ");
+			for (Ticket tick : tickets) {
+				sb.append(tick.toString() + " ");
+			}
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 
 	/**

@@ -66,4 +66,35 @@ public class Ticket {
 		this.priority = priority;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		if (coltReference != null && !"".equals(coltReference)) {
+			sb.append("coltReference" + coltReference + " ");
+		}
+		if (status != null && !"".equals(status)) {
+			sb.append("status" + status + " ");
+		}
+		if (ticketDescription != null && !"".equals(ticketDescription)) {
+			sb.append("ticketDescription" + ticketDescription + " ");
+		}
+		if (opened != null && !"".equals(opened)) {
+			sb.append("opened" + opened + " ");
+		}
+		if (restored != null && !"".equals(restored)) {
+			sb.append("restored" + restored + " ");
+		}
+		if (type != null && !"".equals(type)) {
+			sb.append("type" + type + " ");
+		}
+		if (reportedBy != null && !"".equals(reportedBy)) {
+			sb.append("reportedBy" + reportedBy + " ");
+		}
+		if (priority != null && !"".equals(priority)) {
+			sb.append("priority" + priority + " ");
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 }

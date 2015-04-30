@@ -2,6 +2,7 @@
 response.setHeader("X-UA-Compatible","IE=Edge");
 %><!DOCTYPE html>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import="java.net.URLEncoder"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <!--[if lt IE 7 ]> <html lang="en" class="no-js lt-ie10 lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7 ]>    <html lang="en" class="no-js lt-ie10 lt-ie9 lt-ie8"> <![endif]-->
@@ -30,6 +31,12 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 		<script>
 			var contextPath = "<%=request.getContextPath()%>";
 			var searchScopeBak = {};
+			var username = "";
+			<% String username = request.getParameter("username");
+				if (username != null && !"".equals(username)) {
+			%>
+				username = "<%=URLEncoder.encode(username, "UTF-8")%>";
+			<% } %>
 		</script>
 		<script src="<%=request.getContextPath()%>/app.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/SearchController.js"></script>

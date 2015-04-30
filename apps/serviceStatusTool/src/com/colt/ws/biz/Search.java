@@ -1,6 +1,5 @@
 package com.colt.ws.biz;
 
-import com.colt.util.Util;
 
 public class Search {
 
@@ -120,7 +119,31 @@ public class Search {
 
 	@Override
 	public String toString() {
-		return Util.serializeObj(this);
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		if (order != null && !"".equals(order)) {
+			sb.append("order:" + order + " ");
+		}
+		if (service != null && !"".equals(service)) {
+			sb.append("service:" + service + " ");
+		}
+		if (customer != null && !"".equals(customer)) {
+			sb.append("customer:" + customer + " ");
+		}
+		if (address != null && !"".equals(address)) {
+			sb.append("address:" + address + " ");
+		}
+		if (city != null && !"".equals(city)) {
+			sb.append("city:" + city + " ");
+		}
+		if (address2 != null && !"".equals(address2)) {
+			sb.append("address2:" + address2 + " ");
+		}
+		if (city2 != null && !"".equals(city2)) {
+			sb.append("city2:" + city2 + " ");
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 
 }

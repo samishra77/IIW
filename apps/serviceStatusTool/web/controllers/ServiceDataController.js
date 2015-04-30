@@ -4,7 +4,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 	var urlBase = contextPath + "/ws";
 	var resp = $http({
 	  method  : 'POST',
-	  url     : urlBase + '/getServiceDetail',
+	  url     : urlBase + '/getServiceDetail?username=' + username,
 	  data    : $routeParams.circuitID, 
 	  headers : { 'Content-Type': 'application/json' }
 	 });
@@ -28,7 +28,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			if($scope.circuit != null) {
 				var resp2 = $http({
 				  method  : 'POST',
-				  url     : urlBase + '/getTickets',
+				  url     : urlBase + '/getTickets?username=' + username,
 				  data    : $scope.circuit, 
 				  headers : { 'Content-Type': 'application/json' }
 				 });

@@ -71,7 +71,7 @@ var SearchController = function ($scope, $http){
 			$scope.isHidden = true;
 			var resp = $http({
 			  method  : 'POST',
-			  url     : urlBase + '/getCircuits',
+			  url     : urlBase + '/getCircuits?username=' + username,
 			  data    : $scope.search, 
 			  headers : { 'Content-Type': 'application/json' }
 			 });

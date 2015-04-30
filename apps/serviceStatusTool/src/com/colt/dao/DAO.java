@@ -12,10 +12,12 @@ public class DAO {
 
 	protected EntityManager em;
 	protected Properties messages;
+	protected String username;
 
-	public DAO (EntityManager em, Properties resource) {
+	public DAO (EntityManager em, Properties resource, String username) {
 		this.messages = resource;
 		this.em = em;
+		this.username = username;
 	}
 
 	public Connection getConnection() throws Exception {

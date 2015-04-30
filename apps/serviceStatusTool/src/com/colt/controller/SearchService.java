@@ -12,9 +12,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.colt.dao.AmnDAO;
+import com.colt.util.UsageTracking;
 import com.colt.ws.biz.Circuit;
 import com.colt.ws.biz.Response;
 import com.colt.ws.biz.Search;
@@ -34,44 +36,54 @@ public class SearchService {
 	private Log log = LogFactory.getLog(SearchService.class);
 
 	@RequestMapping(value = "/getCircuits", method = RequestMethod.POST, headers = "Accept=application/json")
-	public Object getCircuits(@RequestBody Search search) {
-		log.info("Entering method getCircuits()");
+	public Object getCircuits(@RequestBody Search search, @RequestParam String username) throws Exception {
+	UsageTracking usageTracking = new UsageTracking("search-circuits", username, search.toString());
+		log.info("[" + username + "] Entering method getCircuits()");
 		Response response = null;
 		try {
-			AmnDAO amnDAO = new AmnDAO(em, messages);
+			AmnDAO amnDAO = new AmnDAO(em, messages, username);
 			response = amnDAO.retrieveCircuits(search);
+			usageTracking.setResultsFetched(((List<Circuit>) response.getResult()).size());
 		} catch (Exception e) {
-			log.error(e, e);
+			log.error("[" + username + "] " + e, e);
 			response = new Response();
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
 			response.setErrorMsg(e.getMessage());
 		}
-		log.info("Exit method getCircuits()");
+		log.info("[" + username + "] Exit method getCircuits()");
+		usageTracking.write();
 		return response;
 	}
 
 	@RequestMapping(value = "/getServiceDetail", method = RequestMethod.POST, headers = "Accept=application/json")
-	public Object getServiceDetail(@RequestBody String id) {
-		log.info("Entering method getServiceDetail()");
+	public Object getServiceDetail(@RequestBody String id, @RequestParam String username) throws Exception {
+		UsageTracking usageTracking = new UsageTracking("service-details", username, "[id:" + id + "]");
+		log.info("[" + username + "] Entering method getServiceDetail()");
 		Response response = null;
 		try {
-			AmnDAO amnDAO = new AmnDAO(em, messages);
+			AmnDAO amnDAO = new AmnDAO(em, messages, username);
 			response = amnDAO.retrieveServiceDetails(id);
+			Circuit circuit = (Circuit) response.getResult();
+			if (circuit.getCircPathInstID() != null) {
+				usageTracking.setResultsFetched(1);
+			}
 		} catch (Exception e) {
-			log.error(e, e);
+			log.error("[" + username + "] " + e, e);
 			response = new Response();
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
 			response.setErrorMsg(e.getMessage());
 		}
-		log.info("Exit method getServiceDetail()");
+		log.info("[" + username + "] Exit method getServiceDetail()");
+		usageTracking.write();
 		return response;
 	}
 
 	@RequestMapping(value = "/getTickets", method = RequestMethod.POST, headers = "Accept=application/json")
-	public Object getTickets(@RequestBody Circuit circuit) {
-		log.info("Entering method getTickets()");
+	public Object getTickets(@RequestBody Circuit circuit, @RequestParam String username) throws Exception {
+		UsageTracking usageTracking = new UsageTracking("tickets-details", username, "[CircuitID:" + circuit.getCircuitID() + " OrderNumber:" + circuit.getOrderNumber() + " OCN:" + circuit.getCustomerOCN() + "]");
+		log.info("[" + username + "] Entering method getTickets()");
 		Response response = new Response();
 		try {
 			SiebelCallRequest sielbelRequest = new SiebelCallRequest();
@@ -80,6 +92,7 @@ public class SearchService {
 			SiebelCall siebel = new SiebelCall();
 			String siebelResponse = siebel.siebelCallProcess(sielbelRequest);
 			List<Ticket> tickets = siebel.getTicketList(siebelResponse);
+			usageTracking.setResultsFetched(tickets.size());
 			if(tickets != null && !tickets.isEmpty()) {
 				response.setStatus(Response.SUCCESS);
 				response.setResult(tickets);
@@ -89,13 +102,14 @@ public class SearchService {
 				response.setErrorMsg("No result found.");
 			}
 		} catch (Exception e) {
-			log.error(e, e);
+			log.error("[" + username + "] " + e, e);
 			response = new Response();
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
 			response.setErrorMsg(e.getMessage());
 		}
-		log.info("Exit method getTickets()");
+		log.info("[" + username + "] Exit method getTickets()");
+		usageTracking.write();
 		return response;
 	}
 }
