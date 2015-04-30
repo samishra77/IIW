@@ -41,8 +41,19 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 		<script src="<%=request.getContextPath()%>/app.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/SearchController.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/ServiceDataController.js"></script>
+		<script src="<%=request.getContextPath()%>/controllers/feedbackController.js"></script>
 	</head>
 	<body id="ng-app" ng-app="sstApp">
+	<script>
+	function showHide () {
+		var elem = document.getElementById("sugestion");
+		if (elem.style.display != 'none') {
+			elem.style.display = 'none';
+		} else { 
+			elem.style.display = '';
+		}
+	}
+</script>
 		<div class="container">
 			<div class="row clearfix">
 				<div class="col-md-2 column">
@@ -54,6 +65,17 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 					<h5 class="text-right">
 						<b><spring:message code="index.app"></spring:message></b>
 					</h5>
+				</div>
+			</div>
+			<div ng-controller="feedbackController" style="margin-top:20px" class="feedbackPop">
+				<a href="" onclick="showHide()"><spring:message code="global.feedback"></spring:message></a>
+				<b id="feedbackMessage" style="display:none">{{feedbackMessage}}</b>
+				<div  id="sugestion" style="display:none">
+					<div align="right" style = "background-color: #E0E0E0; border:1px; width:100%;margin-bottom:1px;font-size:x-small"><spring:message code="global.message.developer.team"></spring:message></div>
+					<form class="form-horizontal">
+						<textarea style="resize: none;width: 100%;" ng-model="sugestion" ng-maxlength="1000" ng-trim="true" rows="4" cols="50"></textarea>
+						<br/><button style="margin-top:5px" ng-click="doFeedback()"> <spring:message code="global.feedback"></spring:message> </button>
+					</form>
 				</div>
 			</div>
 			<div id="ng-view" ng-view></div>
