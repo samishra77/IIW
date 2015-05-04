@@ -45,7 +45,7 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 	</head>
 	<body id="ng-app" ng-app="sstApp">
 	<script>
-	function showHide () {
+	function showHide() {
 		var elem = document.getElementById("sugestion");
 		if (elem.style.display != 'none') {
 			elem.style.display = 'none';
@@ -55,28 +55,31 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 	}
 </script>
 		<div class="container">
+			<div ng-controller="feedbackController">
 			<div class="row clearfix">
-				<div class="col-md-2 column">
-					<img src="<%=request.getContextPath()%>/images/layout_logo.gif"  alt=""/> 
+				<div class="col-md-6 column">
+					<img src="<%=request.getContextPath()%>/images/layout_logo.gif" alt=""/> 
 				</div>
-				<div class="col-md-8 column">
-				</div>
-				<div class="col-md-2 column">
-					<h5 class="text-right">
-						<b><spring:message code="index.app"></spring:message></b>
+				<div class="col-md-6 column">
+					<h5 style="text-align: right">
+						<b><spring:message code="index.app"></spring:message></b><br>
+						<button class="btn btn-primary" onclick="showHide()"><spring:message code="global.feedback"></spring:message></button><br>
+						<b id="feedbackMessage" style="display:none">{{feedbackMessage}}</b>
 					</h5>
 				</div>
 			</div>
-			<div ng-controller="feedbackController" style="margin-top:20px" class="feedbackPop">
-				<a href="" onclick="showHide()"><spring:message code="global.feedback"></spring:message></a>
-				<b id="feedbackMessage" style="display:none">{{feedbackMessage}}</b>
-				<div  id="sugestion" style="display:none">
-					<div align="right" style = "background-color: #E0E0E0; border:1px; width:100%;margin-bottom:1px;font-size:x-small"><spring:message code="global.message.developer.team"></spring:message></div>
-					<form class="form-horizontal">
+			<div style="margin-top:10px" class="feedbackPop">
+				<div id="sugestion" style="display:none;border:5px solid #ccc;border-radius:5px">
+					<div style="background-color:#ccc;border-bottom:1px solid #aaa;padding:0px 0px 3px 10px;font-weight:bold">
+						<spring:message code="global.message.developer.team"></spring:message>
+						<div style="float:right;padding-right:10px"><a href="#" onclick="showHide();return false;" style="text-decoration: none">X</a></div>
+					</div>
+					<form class="form-horizontal" style="padding:10px">
 						<textarea style="resize: none;width: 100%;" ng-model="sugestion" ng-maxlength="1000" ng-trim="true" rows="4" cols="50"></textarea>
-						<br/><button style="margin-top:5px" ng-click="doFeedback()"> <spring:message code="global.feedback"></spring:message> </button>
+						<br/><button class="btn btn-primary" style="margin-top:5px" ng-click="doFeedback()"><spring:message code="global.send"></spring:message></button>
 					</form>
 				</div>
+			</div>
 			</div>
 			<div id="ng-view" ng-view></div>
 			<div id="footer">
