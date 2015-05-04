@@ -116,4 +116,17 @@
 			</div>
 		</div>
 	</div>
+	<div class="marginTop">
+		<div class="table-responsive"  data-pattern="priority-columns">
+			<table>
+				<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td><button class="btn btn-primary" ng-click="openXperdrawPopup();"><spring:message code="global.showPath"></spring:message></button></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>

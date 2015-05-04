@@ -50,5 +50,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			}
 		}
 	});
+	$scope.openXperdrawPopup = function() {
+		var URL = "http://lonxng67/xperdraw/circuit.php?circuit_id=" + encodeURIComponent($scope.circuit.circuitID) + "&action=return";
+		window.open(URL, '_blank');
+	}
 };
 angular.module('sstApp').controller('ServiceDataController',ServiceDataController);
