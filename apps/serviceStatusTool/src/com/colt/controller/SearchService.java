@@ -43,7 +43,11 @@ public class SearchService {
 		try {
 			AmnDAO amnDAO = new AmnDAO(em, messages, username);
 			response = amnDAO.retrieveCircuits(search);
-			usageTracking.setResultsFetched(((List<Circuit>) response.getResult()).size());
+			long resultsFetched = 0;
+			if (response.getResult() != null) {
+				resultsFetched = ((List<Circuit>) response.getResult()).size();
+			}
+			usageTracking.setResultsFetched(resultsFetched);
 		} catch (Exception e) {
 			log.error("[" + username + "] " + e, e);
 			response = new Response();
@@ -92,7 +96,11 @@ public class SearchService {
 			SiebelCall siebel = new SiebelCall();
 			String siebelResponse = siebel.siebelCallProcess(sielbelRequest);
 			List<Ticket> tickets = siebel.getTicketList(siebelResponse);
-			usageTracking.setResultsFetched(tickets.size());
+			long resultsFetched = 0;
+			if (tickets != null) {
+				resultsFetched = tickets.size();
+			}
+			usageTracking.setResultsFetched(resultsFetched);
 			if(tickets != null && !tickets.isEmpty()) {
 				response.setStatus(Response.SUCCESS);
 				response.setResult(tickets);

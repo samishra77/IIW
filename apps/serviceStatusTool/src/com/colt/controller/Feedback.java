@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.colt.util.SstConfig;
@@ -21,8 +22,8 @@ public class Feedback {
 	private Log log = LogFactory.getLog(SearchService.class);
 
 	@RequestMapping(value = "/doFeedback", method = RequestMethod.POST, headers = "Accept=application/json")
-	public synchronized Object doFeedback(@RequestBody String sugestion) {
-		log.info("Entering method doFeedback()");
+	public synchronized Object doFeedback(@RequestBody String sugestion, @RequestParam String username) {
+		log.info("[" + username + "] Entering method doFeedback()");
 		Response response =  new Response();
 		BufferedWriter b = null;
 		try {
@@ -30,12 +31,12 @@ public class Feedback {
 			Date d = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			b = new BufferedWriter(new FileWriter(file, true));
-			b.write(sdf.format(d.getTime()) + "\n" + sugestion + "\n======================================================");
+			b.write(sdf.format(d.getTime()) + " [" + username + "]" + "\n" + sugestion + "\n======================================================");
 			b.newLine();
 			b.flush();
 			response.setStatus(Response.SUCCESS);
 		} catch (Exception e) {
-			log.error(e, e);
+			log.error("[" + username + "] " + e, e);
 			response = new Response();
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);

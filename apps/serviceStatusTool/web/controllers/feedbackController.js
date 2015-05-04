@@ -4,7 +4,7 @@ function feedbackController ($scope, $http){
 	$scope.doFeedback = function doFeedback() {
 		var resp = $http({
 		  method  : 'POST',
-		  url     : urlBase + '/doFeedback',
+		  url     : urlBase + '/doFeedback?username=' + username,
 		  data    : $scope.sugestion, 
 		  headers : { 'Content-Type': 'application/json' }
 		 });
