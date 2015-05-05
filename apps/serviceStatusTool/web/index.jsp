@@ -45,15 +45,18 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 	</head>
 	<body id="ng-app" ng-app="sstApp">
 	<script>
+	var feedbackshow = false;
 	function showHide() {
 		var elem = document.getElementById("sugestion");
-		if (elem.style.display != 'none') {
-			elem.style.display = 'none';
-		} else { 
+		if (feedbackshow) {
+			$("#sugestion").slideUp('slow');
+		} else {
 			elem.style.display = '';
+			$("#sugestion").hide().slideDown('slow');
 		}
+		feedbackshow = !feedbackshow;
 	}
-</script>
+	</script>
 		<div class="container">
 			<div ng-controller="feedbackController">
 			<div class="row clearfix">

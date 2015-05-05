@@ -18,8 +18,8 @@ function feedbackController ($scope, $http){
 				$scope.feedbackMessage="Successfully submitted.";
 			}
 			$scope.sugestion='';
-			var elem = document.getElementById("sugestion");
-			elem.style.display = 'none';
+			feedbackshow = !feedbackshow;
+			$("#sugestion").slideUp('slow');
 
 			$("#feedbackMessage").show();
 			$("#feedbackMessage").fadeOut(7000);
