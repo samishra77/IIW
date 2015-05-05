@@ -80,14 +80,14 @@ public class SiebelCall {
 		
 		GregorianCalendar gc_start = new GregorianCalendar();
 		gc_start.setTime(d_end);
-		gc_start.add(GregorianCalendar.DAY_OF_MONTH, -2);
+		gc_start.add(GregorianCalendar.DAY_OF_MONTH, -7);
 
 		SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy", Locale.US);
 		req.setSearchMethod("FILTERS");
 		req.setSearchType("EXACT");
 		req.setTicketStatus("All");
-//		req.setEarliestStartDate(sdf.format(gc_start.getTime()));
-//		req.setLatestStartDate(sdf.format(gc_end.getTime()));
+		req.setEarliestStartDate(sdf.format(gc_start.getTime()));
+		req.setLatestStartDate(sdf.format(gc_end.getTime()));
 
 		url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
 		action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
