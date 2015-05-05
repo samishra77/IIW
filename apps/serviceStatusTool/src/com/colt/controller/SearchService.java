@@ -54,6 +54,7 @@ public class SearchService {
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
 			response.setErrorMsg(e.getMessage());
+			usageTracking.setStatus(UsageTracking.ERROR);
 		}
 		log.info("[" + username + "] Exit method getCircuits()");
 		usageTracking.write();
@@ -78,6 +79,7 @@ public class SearchService {
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
 			response.setErrorMsg(e.getMessage());
+			usageTracking.setStatus(UsageTracking.ERROR);
 		}
 		log.info("[" + username + "] Exit method getServiceDetail()");
 		usageTracking.write();
@@ -115,6 +117,7 @@ public class SearchService {
 			response.setStatus(Response.FAIL);
 			response.setErrorCode(Response.CODE_UNKNOWN);
 			response.setErrorMsg(e.getMessage());
+			usageTracking.setStatus(UsageTracking.ERROR);
 		}
 		log.info("[" + username + "] Exit method getTickets()");
 		usageTracking.write();
