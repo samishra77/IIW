@@ -47,8 +47,8 @@
 					<tr>
 						<td class="font-strong"><spring:message code="serviceData.relatedOrderNumber"></spring:message>:</td>
 						<td>{{circuit.relatedOrderNumber}}</td>
-						<td class="font-strong"><spring:message code="serviceData.performanceMonitoring"></spring:message>:</td>
-						<td>{{circuit.performanceMonitoring}}</td>
+						<td class="font-strong"><spring:message code="serviceData.resilienceType"></spring:message>:</td>
+						<td>{{circuit.resilienceType}}</td>
 						<td class="font-strong"><spring:message code="serviceData.trunkGroup"></spring:message>:</td>
 						<td>{{circuit.trunkGroup}}</td>
 					</tr>
@@ -60,7 +60,11 @@
 					</tr>
 					<tr>
 						<td class="font-strong"><spring:message code="serviceData.productName"></spring:message>:</td>
-						<td colspan="5">{{circuit.productName}} </td>
+						<td>{{circuit.productName}} </td>
+						<td class="font-strong"><spring:message code="serviceData.serviceId"></spring:message>:</td>
+						<td>{{circuit.serviceId}} </td>
+						<td class="font-strong"><spring:message code="serviceData.performanceMonitoring"></spring:message>:</td>
+						<td>{{circuit.performanceMonitoring}}</td>
 					</tr>
 				</table>
 			</div>

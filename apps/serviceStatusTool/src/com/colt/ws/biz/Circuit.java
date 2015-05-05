@@ -27,6 +27,8 @@ public class Circuit {
 	private String relatedOrderNumber;
 	private String osmOrderNO;
 	private List<Ticket> tickets;
+	private String resilienceType;
+	private String serviceId;
 
 	/**
 	 * @return the osmOrderNO
@@ -210,6 +212,12 @@ public class Circuit {
 			for (Ticket tick : tickets) {
 				sb.append(tick.toString() + " ");
 			}
+		}
+		if (resilienceType != null && !"".equals(resilienceType)) {
+			sb.append("resilienceType:" + resilienceType + " ");
+		}
+		if (serviceId != null && !"".equals(serviceId)) {
+			sb.append("serviceId:" + serviceId + " ");
 		}
 		sb.append("]");
 		return sb.toString();
@@ -437,5 +445,33 @@ public class Circuit {
 	 */
 	public void setTickets(List<Ticket> tickets) {
 		this.tickets = tickets;
+	}
+
+	/**
+	 * @return the resilienceType
+	 */
+	public String getResilienceType() {
+		return resilienceType;
+	}
+
+	/**
+	 * @param resilienceType the resilienceType to set
+	 */
+	public void setResilienceType(String resilienceType) {
+		this.resilienceType = resilienceType;
+	}
+
+	/**
+	 * @return the serviceId
+	 */
+	public String getServiceId() {
+		return serviceId;
+	}
+
+	/**
+	 * @param serviceId the serviceId to set
+	 */
+	public void setServiceId(String serviceId) {
+		this.serviceId = serviceId;
 	}
 }

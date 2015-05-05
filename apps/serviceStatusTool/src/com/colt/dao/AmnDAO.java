@@ -298,7 +298,7 @@ public class AmnDAO extends DAO {
 
 	private void fetchFromSiebelOrder(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
-			String sql = "select LEGAL_PARTY_NAME as CUSTOMER, SERVICE_DESC, LEGAL_PARTY_OCN as OCN, D_RELATED_ORDER_NO " +
+			String sql = "select LEGAL_PARTY_NAME as CUSTOMER, SERVICE_DESC, LEGAL_PARTY_OCN as OCN, D_RELATED_ORDER_NO, NETWORK_ID, RESILIENCE_OPTION " +
 					"from AMN.IE_SIEBEL_OSM_ORDERS " +
 					"where XNG_CIRCUIT_ID like :circuitID";
 
@@ -311,6 +311,8 @@ public class AmnDAO extends DAO {
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
 					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
 					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+					circuit.setServiceId((String)o[4] != null ? (String)o[4] : "");
+					circuit.setResilienceType((String)o[5] != null ? (String)o[5] : "");
 				}
 			}
 		}
@@ -356,7 +358,7 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitLANLINK(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO_ " +
+			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO_ , b.SERVICE_ID, b.RESILIENCY " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_LINK_LAN_ORDER b " +
 					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
@@ -370,6 +372,8 @@ public class AmnDAO extends DAO {
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
 					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
 					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+					circuit.setServiceId((String)o[4] != null ? (String)o[4] : "");
+					circuit.setResilienceType((String)o[5] != null ? (String)o[5] : "");
 				}
 			}
 		}
@@ -377,7 +381,7 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitIP(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO " +
+			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO, b.SERVICE_ID, b.RESILIENCY " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_IP_DATA_ORDER b " +
 					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
@@ -391,6 +395,10 @@ public class AmnDAO extends DAO {
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
 					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
 					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+					if (circuit.getProductType().equalsIgnoreCase(ProductType.IPVPN.value())) {
+						circuit.setServiceId((String)o[4] != null ? (String)o[4] : "");
+					}
+					circuit.setResilienceType((String)o[5] != null ? (String)o[5] : "");
 				}
 			}
 		}
@@ -398,7 +406,7 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitCPESOLUTIONS(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select distinct a.LEGAL_CUSTOMER, b.SERVICE_OPTIONS, a.OCN, b.RELATED_ORDER_NO_ " +
+			String sql = "select distinct a.LEGAL_CUSTOMER, b.SERVICE_OPTIONS, a.OCN, b.RELATED_ORDER_NO_ , b.RESILIENCE_OPTION " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
 					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID  ORDER BY a.CIRCUIT_REFERENCE_5D";
 
@@ -412,6 +420,7 @@ public class AmnDAO extends DAO {
 					circuit.setProductName((String)o[1] != null ? (String)o[1] : "");
 					circuit.setCustomerOCN((String)o[2] != null ? (String)o[2] : "");
 					circuit.setRelatedOrderNumber((String)o[3] != null ? (String)o[3] : "");
+					circuit.setResilienceType(o[4] != null ? ((BigDecimal)o[4]).toString() : "");
 				}
 			}
 		}
