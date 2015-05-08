@@ -15,11 +15,16 @@
 		</h2>
 	</div>
 </div>
+<style>
+.tdwrap td {
+	white-space: normal !important;
+}
+</style>
 <div class="marginTop">
 	<div class="row clearfix" ng-show="hasServiceDetail">
 		<div class="col-md-12 column">
 			<div class="table-responsive"  data-pattern="priority-columns">
-				<table class="table table-small-font">
+				<table class="table table-small-font tdwrap">
 					<tr>
 						<td class="font-strong"><spring:message code="serviceData.circuitId"></spring:message>:</td>
 						<td>{{circuit.circuitID}}</td>
