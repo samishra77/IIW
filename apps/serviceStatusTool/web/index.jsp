@@ -85,7 +85,7 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 			</div>
 			</div>
 			<div id="ng-view" ng-view></div>
-			<div id="footer">
+			<div id="footer" class="clear">
 				&#169;<spring:message code="index.footer"></spring:message> <br/>
 				<a href="javascript:;"><spring:message code="index.accessibility"></spring:message></a> | <a href="javascript:;"><spring:message code="index.termsOfUse"></spring:message></a>
 			</div>

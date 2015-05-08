@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.colt.dao.AmnDAO;
 import com.colt.util.UsageTracking;
 import com.colt.ws.biz.Circuit;
+import com.colt.ws.biz.ProductType;
 import com.colt.ws.biz.Response;
 import com.colt.ws.biz.Search;
+import com.colt.ws.biz.SideInformation;
 import com.colt.ws.biz.SiebelCallRequest;
 import com.colt.ws.biz.Ticket;
+import com.colt.ws.service.SideInformationCall;
 import com.colt.ws.service.SiebelCall;
 
 @RestController
@@ -121,6 +124,55 @@ public class SearchService {
 		}
 		log.info("[" + username + "] Exit method getTickets()");
 		usageTracking.write();
+		return response;
+	}
+
+	@RequestMapping(value = "/getSideInformation", method = RequestMethod.POST, headers = "Accept=application/json")
+	public Object getSideInformation(@RequestBody Circuit circuit, @RequestParam String username) throws Exception {
+		UsageTracking usageTracking = new UsageTracking("side-information", username, circuit.toString());
+		log.info("[" + username + "] Entering method getSideInformation()");
+		Response response = null;
+		try {
+			SideInformationCall pwv = new SideInformationCall(messages);
+			String pathViewerResponse = pwv.sideInformationCallProcess(circuit);
+			response = pwv.retrieveResponseSideInformation(pathViewerResponse);
+			if (response.getResult() != null) {
+				usageTracking.setResultsFetched(1);
+			}
+			response = processDevNameASideInformation(response, circuit, username);
+		} catch (Exception e) {
+			log.error("[" + username + "] " + e, e);
+			response = new Response();
+			response.setStatus(Response.FAIL);
+			response.setErrorCode(Response.CODE_UNKNOWN);
+			response.setErrorMsg(e.getMessage());
+			usageTracking.setStatus(UsageTracking.ERROR);
+		}
+		log.info("[" + username + "] Exit method getSideInformation()");
+		usageTracking.write();
+		return response;
+	}
+
+	private Response processDevNameASideInformation(Response response,Circuit circuit, String username) {
+		if (response != null) {
+			String deviceName = "";
+			SideInformation si = (SideInformation) response.getResult();
+			String routerId = "";
+			if (si != null && si.getaSideInformation() != null) {
+				routerId = si.getaSideInformation().getXngDeviceName();
+			}
+			if (routerId != null && !"".equals(routerId)) {
+				if(circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType()) ) {
+					if(circuit.getProductType().equalsIgnoreCase(ProductType.IP_ACCESS.value())) {
+						deviceName = routerId + ".ia.colt.net";
+					}
+				}
+			}
+			if (deviceName != null && !"".equals(deviceName)) {
+				si.getaSideInformation().setDeviceName(deviceName);
+				response.setResult(si);
+			}
+		}
 		return response;
 	}
 }

@@ -87,3 +87,31 @@
 .alignMiddle {
 	vertical-align:middle !important;
 }
+
+.labelData {
+	margin: 0px;
+	padding: 4px;
+	font-size: 16px;
+}
+
+.clear {
+	clear: both;
+}
+.sideInformation td {
+	border: 1px solid #ddd !important;
+}
+.button {
+	font-size: 10px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+}
+.button-primary {
+	color: #fff;
+	background-color: #428bca;
+	border-color: #357ebd;
+}
+.panel-sideInformation {
+	width: 100%;
+	background: #EEE;
+	border: 1px solid #4a4a4a;
+}

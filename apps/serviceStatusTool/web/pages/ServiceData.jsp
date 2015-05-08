@@ -121,16 +121,207 @@
 		</div>
 	</div>
 	<div class="marginTop">
-		<div class="table-responsive"  data-pattern="priority-columns">
-			<table>
+		<div class="table-responsive" data-pattern="priority-columns" style="border: 0">
+			<table style="width: 50%" cellspacing="10">
 				<tbody>
 					<tr>
-						<td></td>
-						<td></td>
+						<td><button class="btn btn-primary" ng-click="doSideInformation()"><spring:message code="global.showStatus"></spring:message></button></td>
 						<td><button class="btn btn-primary" ng-click="openXperdrawPopup();"><spring:message code="global.showPath"></spring:message></button></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 	</div>
+	<div class="marginTop" ng-if="viewSideInformation">
+		<div class="table-responsive" style="width: 50%;float: left;min-width: 200px;">
+			<table class="panel-sideInformation">
+				<tr class="rich-table-header">
+					<th><label class="labelData"><spring:message code="serviceData.aSide.information.title"></spring:message></label>
+						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showSideLoading" />
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation" >
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.siteType"></spring:message></td>
+								<td>{{sideInformation.aSideInformation.type}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.deviceName"></spring:message></td>
+								<td>{{sideInformation.aSideInformation.deviceName}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.vendor"></spring:message> / <spring:message code="serviceData.aSide.model"></spring:message> </td>
+								<td><label style="font-weight: normal">{{sideInformation.aSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.aSideInformation.model}}</label></td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.xngDeviceName"></spring:message></td>
+								<td>{{sideInformation.aSideInformation.xngDeviceName}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.managementIPAddress"></spring:message></td>
+								<td></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label class="labelData"><spring:message code="serviceData.aSide.portName"></spring:message></label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation">
+							<tr><td>{{sideInformation.aSideInformation.port}}</td></tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<button class="button button-primary"><spring:message code="global.refresh"></spring:message></button>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font" style="border :0;" >
+							<tr>
+								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceStatus"></spring:message>:</td>
+								<td style="border-top: 0" ></td>					
+							</tr>
+							<tr>
+								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
+								<td style="border-top: 0"></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label class="labelData"><spring:message code="serviceData.aSide.customerInterfaces"></spring:message></label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation" >
+							<thead>
+								<tr>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.name"></spring:message></td>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.status"></spring:message></td>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange"></spring:message></td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="table-responsive"  style="width: 50%;float: left;min-width: 200px">
+			<table class="panel-sideInformation">
+				<tr class="rich-table-header">
+					<th>
+						<label class="labelData"><spring:message code="serviceData.zSide.information.title"></spring:message></label>
+						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showSideLoading" />
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation">
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.zSide.siteType"></spring:message></td>
+								<td>{{sideInformation.zSideInformation.type}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.zSide.vendor"></spring:message></td>
+								<td>{{sideInformation.zSideInformation.vendor}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.zSide.managementIPAddress"></spring:message></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.zSide.xngDeviceName"></spring:message></td>
+								<td>{{sideInformation.zSideInformation.deviceName}}</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<button class="button button-primary"><spring:message code="global.refresh"></spring:message></button>
+					</td>
+				</tr>				
+				<tr>
+					<td>
+						<label class="labelData"><spring:message code="serviceData.zSide.customerLogicalInterface"></spring:message></label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation" >
+							<thead>
+								<tr>
+									<td><spring:message code="serviceData.zSide.customerLogicalInterface.name"></spring:message></td>
+									<td><spring:message code="serviceData.zSide.customerLogicalInterface.status"></spring:message></td>
+									<td><spring:message code="serviceData.zSide.customerLogicalInterface.lastStateChange"></spring:message></td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font" style="border :0;">
+							<tr>
+								<td class="font-strong" style="border-top: 0"><spring:message code="serviceData.zSide.deviceStatus"></spring:message>:</td>
+								<td style="border-top: 0"></td>
+							</tr>
+							<tr>
+								<td class="font-strong" style="border-top: 0"><spring:message code="serviceData.zSide.deviceUptime"></spring:message>:</td>
+								<td style="border-top: 0"></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td><label class="labelData"><spring:message code="serviceData.zSide.physicalInterface"></spring:message></label></td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation" >
+							<thead>
+								<tr>
+									<td><spring:message code="serviceData.zSide.physicalInterface.name"></spring:message></td>
+									<td><spring:message code="serviceData.zSide.physicalInterface.status"></spring:message></td>
+									<td><spring:message code="serviceData.zSide.physicalInterface.lastStateChange"></spring:message></td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>	
 </div>

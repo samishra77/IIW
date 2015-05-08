@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.colt.ws.biz.ProductType;
 
 public class Util {
@@ -40,7 +42,7 @@ public class Util {
 		if(result != null && result.contains(startTag)) {
 			String a[] = result.split(startTag);	       
 			String results[] = a[1].split(endTag);
-			return results[0];
+			return StringEscapeUtils.unescapeXml(results[0]);
 		} else {
 			return null;
 		}
