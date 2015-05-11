@@ -176,4 +176,32 @@ public class SearchService {
 		}
 		return response;
 	}
+
+	@RequestMapping(value = "/getCircuitsByOrderNumber", method = RequestMethod.POST, headers = "Accept=application/json")
+	public Object getCircuitsByOrderNumber(@RequestBody String orderNumber, @RequestParam String username) throws Exception {
+		UsageTracking usageTracking = new UsageTracking("circuits-order-number", username, "[OrderNumber:" + orderNumber + "]");
+		log.info("[" + username + "] Entering method getCircuitsByOrderNumber()");
+		Response response = null;
+		try {
+			AmnDAO amnDAO = new AmnDAO(em, messages, username);
+			Search search = new Search();
+			search.setOrder(orderNumber);
+			response = amnDAO.retrieveCircuits(search);
+			long resultsFetched = 0;
+			if (response.getResult() != null) {
+				resultsFetched = ((List<Circuit>) response.getResult()).size();
+				usageTracking.setResultsFetched(resultsFetched);
+			}
+		} catch (Exception e) {
+			log.error("[" + username + "] " + e, e);
+			response = new Response();
+			response.setStatus(Response.FAIL);
+			response.setErrorCode(Response.CODE_UNKNOWN);
+			response.setErrorMsg(e.getMessage());
+			usageTracking.setStatus(UsageTracking.ERROR);
+		}
+		log.info("[" + username + "] Exit method getCircuitsByOrderNumber()");
+		usageTracking.write();
+		return response;
+	}
 }

@@ -1,5 +1,5 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<div class="row clearfix" style="margin-top:10px;">
+<div class="row clearfix" style="margin-top:10px;" ng-show="!showPopUp">
 	<div class="col-md-3 column">
 		<div class="tabbable font-smaller" id="tabs-219456">
 			<a href="#/"><spring:message code="trail.home"></spring:message></a> &gt;  <spring:message code="trail.serviceData"></spring:message>
@@ -7,7 +7,48 @@
 	</div>
 </div>
 <div id="msg" class="message messageInfo marginTop" ng-if="error">{{messageError}}</div>
-<div class="row clearfix marginTop">
+<div class="row clearfix marginTop" ng-show="showPopUp">
+	<div class="col-md-12 column">
+		<h2 class="app-title">
+			<div style="display: inline;"><spring:message code="serviceDataPopUp.search.subTitle.relatedOrderServiceList"></spring:message></div>
+			<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showLoading" />
+		</h2>
+		<div class="table-responsive marginTop" data-pattern="priority-columns" style="max-height: 250px;overflow-y: auto;">
+			<table class="table table-small-font">
+				<thead>
+					<tr class="rich-table-header">
+						<th><spring:message code="serviceDataPopUp.search.circuitId"></spring:message></th>
+						<th><spring:message code="serviceDataPopUp.search.orderNumber"></spring:message></th>
+						<th><spring:message code="serviceDataPopUp.search.customer"></spring:message></th>
+						<th><spring:message code="serviceDataPopUp.search.productType"></spring:message></th>
+						<th><spring:message code="serviceDataPopUp.search.aSideSiteInformation"></spring:message></th>
+						<th><spring:message code="serviceDataPopUp.search.zSideSiteInformation"></spring:message></th>
+					</tr>
+					<tr ng-if="msg">
+						<td colspan="6" class="alignMiddle">{{message}}</td>
+					</tr>
+				</thead>
+				<tbody ng-if="showResult">
+					<tr ng-repeat="circuit in circuitList">
+						<td>
+							<div class="row clearfix">
+								<div class="col-md-12 column">
+									<a href="" ng-click="findCircuitByCircPathInstID(circuit.circPathInstID)">{{circuit.circuitID}}</a>
+								</div>
+							</div>
+						</td>
+						<td>{{circuit.orderNumber}}</td>
+						<td>{{circuit.customer}}</td>
+						<td>{{circuit.productType}}</td>
+						<td>{{circuit.aSideSite}}</td>
+						<td>{{circuit.zSideSite}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<div class="row clearfix marginTop" ng-show="viewServiceData">
 	<div class="col-md-4 column">
 		<h2 class="app-title">
 			<div style="display: inline;"><spring:message code="serviceData.subTitle.serviceDetails"></spring:message></div>
@@ -51,7 +92,9 @@
 					</tr>
 					<tr>
 						<td class="font-strong"><spring:message code="serviceData.relatedOrderNumber"></spring:message>:</td>
-						<td>{{circuit.relatedOrderNumber}}</td>
+						<td>
+							<a href="" ng-click="doRelatedOrderNumber()">{{circuit.relatedOrderNumber}}</a>
+						</td>		
 						<td class="font-strong"><spring:message code="serviceData.resilienceType"></spring:message>:</td>
 						<td>{{circuit.resilienceType}}</td>
 						<td class="font-strong"><spring:message code="serviceData.trunkGroup"></spring:message>:</td>
@@ -80,7 +123,7 @@
 			<td>{{message}}</td>
 		</tr>
 	</table>
-	<div class="row clearfix">
+	<div class="row clearfix" ng-show="viewServiceData">
 		<div class="col-md-4 column">
 			<h2 class="app-title">
 				<div style="display: inline;"><spring:message code="serviceData.subTitle.openTicketsInformation"></spring:message></div>
@@ -88,7 +131,7 @@
 			</h2>
 		</div>
 	</div>
-	<div class="row clearfix marginTop">
+	<div class="row clearfix marginTop" ng-show="viewServiceData">
 		<div class="col-md-12 column">
 			<div class="table-responsive"  data-pattern="priority-columns">
 				<table class="table table-small-font">
@@ -125,7 +168,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="marginTop">
+	<div class="marginTop" ng-show="viewServiceData">
 		<div class="table-responsive" data-pattern="priority-columns" style="border: 0">
 			<table style="width: 50%" cellspacing="10">
 				<tbody>
@@ -328,5 +371,5 @@
 				</tr>
 			</table>
 		</div>
-	</div>	
+	</div>
 </div>
