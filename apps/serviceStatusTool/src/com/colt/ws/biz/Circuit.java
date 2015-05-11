@@ -145,7 +145,7 @@ public class Circuit {
 			sb.append("circPathInstID:" + circPathInstID + " ");
 		}
 		if (circuitID != null && !"".equals(circuitID)) {
-			sb.append("circuitID:" + circuitID + " ");
+			sb.append("service:" + circuitID + " ");
 		}
 		if (orderNumber != null && !"".equals(orderNumber)) {
 			sb.append("orderNumber:" + " ");

@@ -3,8 +3,11 @@ package com.colt.util;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,9 +33,12 @@ public class UsageTracking {
 	}
 
 	private String duration() {
+		NumberFormat nf = NumberFormat.getInstance(Locale.US);
 		long end = System.currentTimeMillis();
-		long diff = (end - start) / 1000;
-		return String.valueOf(diff);
+		Double diff = (double) ((end - start) / 1000.00);
+		DecimalFormat df = (DecimalFormat) nf;
+		df.applyPattern("0.00");
+		return df.format(diff);
 	}
 
 	public synchronized void write() {
@@ -78,5 +84,13 @@ public class UsageTracking {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setParams(String params) {
+		this.params = params;
 	}
 }

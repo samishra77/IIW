@@ -66,7 +66,7 @@ public class SearchService {
 
 	@RequestMapping(value = "/getServiceDetail", method = RequestMethod.POST, headers = "Accept=application/json")
 	public Object getServiceDetail(@RequestBody String id, @RequestParam String username) throws Exception {
-		UsageTracking usageTracking = new UsageTracking("service-details", username, "[id:" + id + "]");
+		UsageTracking usageTracking = new UsageTracking("service-details", username, "[service:]");
 		log.info("[" + username + "] Entering method getServiceDetail()");
 		Response response = null;
 		try {
@@ -75,6 +75,7 @@ public class SearchService {
 			Circuit circuit = (Circuit) response.getResult();
 			if (circuit.getCircPathInstID() != null) {
 				usageTracking.setResultsFetched(1);
+				usageTracking.setParams("[service:" + circuit.getCircuitID() + "]");
 			}
 		} catch (Exception e) {
 			log.error("[" + username + "] " + e, e);
@@ -91,7 +92,7 @@ public class SearchService {
 
 	@RequestMapping(value = "/getTickets", method = RequestMethod.POST, headers = "Accept=application/json")
 	public Object getTickets(@RequestBody Circuit circuit, @RequestParam String username) throws Exception {
-		UsageTracking usageTracking = new UsageTracking("tickets-details", username, "[CircuitID:" + circuit.getCircuitID() + " OrderNumber:" + circuit.getOrderNumber() + " OCN:" + circuit.getCustomerOCN() + "]");
+		UsageTracking usageTracking = new UsageTracking("tickets-details", username, "[service:" + circuit.getCircuitID() + " OrderNumber:" + circuit.getOrderNumber() + " OCN:" + circuit.getCustomerOCN() + "]");
 		log.info("[" + username + "] Entering method getTickets()");
 		Response response = new Response();
 		try {
