@@ -7,6 +7,12 @@
 	</div>
 </div>
 <div class="row clearfix marginTop">
+	<div class="col-md-12 column">
+		<label class="font-medium"><spring:message code="searchForm.usageinfo"></spring:message></label>
+	</div>
+</div>
+
+<div class="row clearfix marginTop">
 	<div class="col-md-4 column">
 		<h2 class="app-title"><spring:message code="searchForm.subTitle"></spring:message></h2>
 	</div>
