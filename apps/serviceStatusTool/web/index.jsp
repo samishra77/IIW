@@ -75,7 +75,7 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 				<div id="sugestion" style="display:none;border:5px solid #ccc;border-radius:5px">
 					<div style="background-color:#ccc;border-bottom:1px solid #aaa;padding:0px 0px 3px 10px;font-weight:bold">
 						<spring:message code="global.message.developer.team"></spring:message>
-						<div style="float:right;padding-right:10px"><a href="#" onclick="showHide();return false;" style="text-decoration: none">X</a></div>
+						<div style="float:right;padding-right:10px"><a href="" onclick="showHide();return false;" style="text-decoration: none">X</a></div>
 					</div>
 					<form class="form-horizontal" style="padding:10px">
 						<textarea style="resize: none;width: 100%;" ng-model="sugestion" ng-maxlength="1000" ng-trim="true" rows="4" cols="50"></textarea>
