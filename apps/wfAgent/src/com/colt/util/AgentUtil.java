@@ -1,7 +1,6 @@
 package com.colt.util;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
@@ -16,8 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import sun.util.logging.resources.logging;
 
 public class AgentUtil {
 
@@ -133,35 +130,16 @@ public class AgentUtil {
 		log.debug(cmd);
 		List<String> output = null;
 		if (cmd != null && !"".equals(cmd)) {
-			String line;
-			DataInputStream ins = null;
-			BufferedReader  br = null;
 			output = new ArrayList<String>();
-			try {
-				Runtime runtime = Runtime.getRuntime();
-				Process pngProcess = runtime.exec(cmd);
-
-				ins  = new DataInputStream(pngProcess.getErrorStream());
-				br = new BufferedReader(new InputStreamReader(ins));
-				while ((line = br.readLine()) != null) {
-					output.add(line);
-				}
-
-				ins  = new DataInputStream(pngProcess.getInputStream());
-				br = new BufferedReader(new InputStreamReader(ins));
-				while ((line = br.readLine()) != null) {
-					output.add(line);
-				}
-				pngProcess.waitFor();
-			} finally {
-				try {
-					ins.close();
-					br.close();
-				}
-				catch (Exception e) {
-					log.error(e,e);
-				}
+			ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", cmd);
+			pb.redirectErrorStream(true);
+			Process p = pb.start();
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line;
+			while ((line = br.readLine()) != null) {
+				output.add(line);
 			}
+			p.waitFor();
 		}
 		if(output != null && !output.isEmpty()) {
 			StringBuffer out = new StringBuffer();

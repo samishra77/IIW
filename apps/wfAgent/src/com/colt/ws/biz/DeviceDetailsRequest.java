@@ -11,21 +11,8 @@ public class DeviceDetailsRequest {
 	private String circuitID;
 	private String ip;
 	private String type;
-	private String status;
 	private String time;
 
-	/**
-	 * @return the status
-	 */
-	public String getStatus() {
-		return status;
-	}
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(String status) {
-		this.status = status;
-	}
 	/**
 	 * @return the time
 	 */

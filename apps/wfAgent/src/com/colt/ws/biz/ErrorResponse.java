@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ErrorResponse {
 
-	private String code;
+	private int code;
 	private String message;
 	private List<String> failedPings;
 	private List<String> failedSnmp;
@@ -14,13 +14,13 @@ public class ErrorResponse {
 	/**
 	 * @return the code
 	 */
-	public String getCode() {
+	public int getCode() {
 		return code;
 	}
 	/**
 	 * @param code the code to set
 	 */
-	public void setCode(String code) {
+	public void setCode(int code) {
 		this.code = code;
 	}
 	/**

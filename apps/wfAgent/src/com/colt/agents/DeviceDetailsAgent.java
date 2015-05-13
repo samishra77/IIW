@@ -15,6 +15,8 @@ import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class DeviceDetailsAgent {
 
+	public static final int CODE_UNKKONWN = 0;
+
 	public L3DeviceDetailsResponse execute(DeviceDetailsRequest deviceDetail) throws Exception {
 		L3DeviceDetailsResponse l3DeviceDetails = null;
 		ApplicationContext ac = new ClassPathXmlApplicationContext("application-config.xml", DeviceDetailsProcess.class);
@@ -28,19 +30,19 @@ public class DeviceDetailsAgent {
 		input.put("deviceDetails", deviceDetail);
 
 		process.execute(input);
-		
-		if(input.containsKey("exception")) {
-			throw (Exception) input.get("exception");
-		}
-		
-		if(wfState.contains("PING_FAIL")) {
-			throw new Exception("Ping Failed");
-		}
 
 		// Generate the response string
 		if(input.containsKey("l3DeviceDetails")) {
 			l3DeviceDetails = (L3DeviceDetailsResponse) input.get("l3DeviceDetails");
 		}
+
+		if(input.containsKey("exception")) {
+			if (l3DeviceDetails != null) {
+				l3DeviceDetails.getErrorResponse().setCode(CODE_UNKKONWN);
+				l3DeviceDetails.getErrorResponse().setMessage(((Exception) input.get("exception")).toString());
+			}
+		}
+
 		return l3DeviceDetails;
 	}
 

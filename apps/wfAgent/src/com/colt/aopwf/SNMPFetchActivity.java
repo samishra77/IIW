@@ -204,7 +204,6 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 		return sysUpTime;
 	}
 
-
 	private String getIfAlias(String line) {
 		if(line != null && (line.contains("= Timeticks:") || line.contains("= STRING:") ||  line.contains("= INTEGER:")) ) {
 			String[] split = line.split("=");
@@ -233,7 +232,7 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 			String[] split = line.split(splitRegex);
 			if(split != null && split.length > 1) {
 				split[1] = split[1].trim();
-				if(split[1].lastIndexOf(")") > 0) {
+				if(splitRegex.equals("= Timeticks:") && split[1].lastIndexOf(")") > 0) {
 					split[1] = split[1].substring(split[1].lastIndexOf(")")+1, split[1].length());
 				}
 				return split[1].trim();

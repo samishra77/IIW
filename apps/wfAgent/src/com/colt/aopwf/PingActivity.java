@@ -2,11 +2,8 @@ package com.colt.aopwf;
 
 import java.net.InetAddress;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.colt.util.AgentUtil;
-import com.colt.util.AgentConfig;
 import com.colt.ws.biz.DeviceDetailsRequest;
 
 public class PingActivity implements IWorkflowProcessActivity {
@@ -30,10 +27,8 @@ public class PingActivity implements IWorkflowProcessActivity {
 				Map<String, Boolean> ipStatus = ping(ip);
 				if(ipStatus != null && !ipStatus.isEmpty()) {
 					if(ipStatus.containsKey(ip) && ipStatus.get(ip)) {
-						deviceDetail.setStatus(AgentUtil.UP);
 						test = true;
 					} else {
-						deviceDetail.setStatus(AgentUtil.DOWN);
 						test = false;
 					}
 				}

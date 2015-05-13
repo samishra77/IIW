@@ -47,7 +47,7 @@
 	</bean>
 	<bean id="netWorkLayerTransitionFilter" parent="filter">
 		<constructor-arg ref="netWorkLayerTransition"/>
-		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, !NETWORK_LAYER_DONE"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, !NETWORK_LAYER_DONE"/>
 	</bean>
 	<bean id="validateVendorModelFilter" parent="filter">
 		<constructor-arg ref="validateVendorModelActivity"/>

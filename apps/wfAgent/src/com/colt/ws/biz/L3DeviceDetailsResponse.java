@@ -6,6 +6,7 @@ public class L3DeviceDetailsResponse {
 	private String wanIP;
 	private String circuitID;
 	private DeviceDetail deviceDetails;
+	private ErrorResponse errorResponse;
 
 	/**
 	 * @return the circuitID
@@ -55,4 +56,17 @@ public class L3DeviceDetailsResponse {
 	public void setWanIP(String wanIP) {
 		this.wanIP = wanIP;
 	}
+	/**
+	 * @return the errorResponse
+	 */
+	public ErrorResponse getErrorResponse() {
+		return errorResponse;
+	}
+	/**
+	 * @param errorResponse the errorResponse to set
+	 */
+	public void setErrorResponse(ErrorResponse errorResponse) {
+		this.errorResponse = errorResponse;
+	}
+
 }

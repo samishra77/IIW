@@ -8,7 +8,6 @@ public class DeviceDetail {
 	private String status;
 	private String time;
 	private List<Interface> interfaces;
-	private ErrorResponse errorResponse;
 	/**
 	 * @return the interfaceList
 	 */
@@ -17,18 +16,6 @@ public class DeviceDetail {
 			interfaces = new ArrayList<Interface>();
 		}
 		return interfaces;
-	}
-	/**
-	 * @return the errorResponse
-	 */
-	public ErrorResponse getErrorResponse() {
-		return errorResponse;
-	}
-	/**
-	 * @param errorResponse the errorResponse to set
-	 */
-	public void setErrorResponse(ErrorResponse errorResponse) {
-		this.errorResponse = errorResponse;
 	}
 	/**
 	 * @return the status
