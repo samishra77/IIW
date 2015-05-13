@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:load-time-weaver/>
+
+	<aop:config>
+		<aop:pointcut id="itemPointcut"
+			expression="bean(deviceDetailsProcess) and execution(void com.colt.aopwf.DeviceDetailsProcess.execute(..))"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="deviceDetailFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="fetchAPTDeviceIPFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="pingFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="netWorkLayerTransitionFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="validateVendorModelFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="snmpFetchFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="cliFetchFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="sendResponseFilter"/>
+	</aop:config>
+
+	<bean id="filter" class="com.colt.aopwf.ActivityFilterInterceptor" abstract="true"/>
+
+	<bean id="receiveDeviceDetailsActivity" class="com.colt.aopwf.ReceiveDeviceDetailsActivity"/>
+	<bean id="fetchAPTDeviceIPActivity" class="com.colt.aopwf.FetchAPTDeviceIPActivity"/>
+	<bean id="pingActivity" class="com.colt.aopwf.PingActivity"/>
+	<bean id="netWorkLayerTransition" class="com.colt.aopwf.NetWorkLayerTransition"/>
+	<bean id="validateVendorModelActivity" class="com.colt.aopwf.ValidateVendorModelActivity"/>
+	<bean id="snmpFetchActivity" class="com.colt.aopwf.SNMPFetchActivity"/>
+	<bean id="cliFetchActivity" class="com.colt.aopwf.CLIFetchActivity"/>
+	<bean id="sendResponseActivity" class="com.colt.aopwf.SendResponseActivity"/>
+
+	<bean id="deviceDetailFilter" parent="filter">
+		<constructor-arg ref="receiveDeviceDetailsActivity"/>
+		<property name="invokeState" value="!RECEIVE_DEVICE_DONE"/>
+	</bean>
+	<bean id="fetchAPTDeviceIPFilter" parent="filter">
+		<constructor-arg ref="fetchAPTDeviceIPActivity"/>
+		<property name="invokeState" value="!FETCH_DEVICE_DONE"/>
+	</bean>
+	<bean id="pingFilter" parent="filter">
+		<constructor-arg ref="pingActivity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, !PING_SUCCESS"/>
+	</bean>
+	<bean id="netWorkLayerTransitionFilter" parent="filter">
+		<constructor-arg ref="netWorkLayerTransition"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, !NETWORK_LAYER_DONE"/>
+	</bean>
+	<bean id="validateVendorModelFilter" parent="filter">
+		<constructor-arg ref="validateVendorModelActivity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L3DEVICE"/>
+	</bean>
+	<bean id="snmpFetchFilter" parent="filter">
+		<constructor-arg ref="snmpFetchActivity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L3DEVICE, SNMPFETCH"/>
+	</bean>
+	<bean id="cliFetchFilter" parent="filter">
+		<constructor-arg ref="cliFetchActivity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L3DEVICE, CLIFETCH"/>
+	</bean>
+	<bean id="sendResponseFilter" parent="filter">
+		<constructor-arg ref="sendResponseActivity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L3DEVICE, SENDRESPONSE"/>
+	</bean>
+</beans>

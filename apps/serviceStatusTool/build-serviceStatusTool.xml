@@ -33,10 +33,27 @@
 				<include name="**/*"/>
 			</fileset>
 		</copy>
-		
+
 		<copy todir="${build.compile}/WEB-INF/lib" >
 			<fileset dir="${root}/lib" >
-				<include name="**/*"/>
+				<include name="spring-web-4.1.6.RELEASE.jar"/>
+				<include name="commons-logging-4.0.6.jar"/>
+				<include name="commons-lang-2.1.jar"/>
+				<include name="hibernate-jpa-2.0-api.jar"/>
+				<include name="spring-jdbc-4.1.6.RELEASE.jar"/>
+				<include name="spring-aop-4.1.6.RELEASE.jar"/>
+				<include name="spring-messaging-4.1.6.RELEASE.jar"/>
+				<include name="spring-orm-4.1.6.RELEASE.jar"/>
+				<include name="spring-beans-4.1.6.RELEASE.jar"/>
+				<include name="spring-core-4.1.6.RELEASE.jar"/>
+				<include name="spring-context-4.1.6.RELEASE.jar"/>
+				<include name="spring-expression-4.1.6.RELEASE.jar"/>
+				<include name="spring-web-4.1.6.RELEASE.jar"/>
+				<include name="spring-webmvc-4.1.6.RELEASE.jar"/>
+				<include name="spring-tx-4.1.6.RELEASE.jar"/>
+				<include name="jackson-annotations-2.5.2.jar"/>
+				<include name="jackson-core-2.5.2.jar"/>
+				<include name="jackson-databind-2.5.2.jar"/>
 			</fileset>
 		</copy>
 

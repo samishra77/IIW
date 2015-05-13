@@ -1,0 +1,101 @@
+<project basedir="." name="wfAgent" xmlns:aspectj="antlib:org.aspectj">
+	<property name="root" value="../.."/>
+	<property name="root-wfAgent" value="web"/>
+	<property name="build" value="build"/>
+	<property name="build.compile" value="build/wfAgent"/>
+	<property name="deploy.dir" value="standalone/deployments" />
+
+	<property file="${user.home}/.ant_colt_serviceStatusTool.properties"/>
+	<property file="${root}/apps/ant_colt_serviceStatusTool.properties"/>
+
+	<taskdef uri="antlib:org.aspectj" resource="org/aspectj/antlib.xml" classpath="${root}/lib/aspectjtools-1.8.5.jar"/>
+
+	<fail unless="jboss-home">
+		jboss-home not set, please update your ~/.ant_colt_serviceStatusTool.properties
+	</fail>
+
+	<path id="build.classpath">
+		<fileset dir="${root}/lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="cleanAll" description="Deletes the build dir.">
+		<delete dir="build"/>
+		<delete file="${jboss-home}/${deploy.dir}/wfAgent.war" dir="${jboss-home}/${deploy.dir}/wfAgent.war"/>
+	</target>
+
+	<target name="compile" description="Compiles webapp.">
+		<mkdir dir="${build.compile}"/>
+		<mkdir dir="${build.compile}/WEB-INF/lib"/>
+		<mkdir dir="${build.compile}/WEB-INF/classes"/>
+
+		<copy todir="${build.compile}">
+			<fileset dir="${root-wfAgent}">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${build.compile}/WEB-INF/classes/META-INF">
+			<fileset dir="${root}/apps/wfAgent/src/META-INF">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${build.compile}/WEB-INF/lib" >
+			<fileset dir="${root}/lib" >
+				<include name="spring-web-4.1.6.RELEASE.jar"/>
+				<include name="commons-logging-4.0.6.jar"/>
+				<include name="spring-beans-4.1.6.RELEASE.jar"/>
+				<include name="aopalliance-1.0.jar"/>
+				<include name="spring-core-4.1.6.RELEASE.jar"/>
+				<include name="aspectjrt-1.8.5.jar"/>
+				<include name="aspectjweaver-1.8.5.jar"/>
+				<include name="spring-context-4.1.6.RELEASE.jar"/>
+				<include name="spring-aop-4.1.6.RELEASE.jar"/>
+				<include name="spring-aspects-4.1.6.RELEASE.jar"/>
+				<include name="spring-expression-4.1.6.RELEASE.jar"/>
+				<include name="spring-web-4.1.6.RELEASE.jar"/>
+				<include name="spring-webmvc-4.1.6.RELEASE.jar"/>
+				<include name="spring-tx-4.1.6.RELEASE.jar"/>
+				<include name="common-aptCache.jar"/>
+				<include name="fabric.jar"/>
+				<include name="common-aptBusiness.jar"/>
+				<include name="jsch-0.1.52.jar"/>
+				<include name="jackson-annotations-2.5.2.jar"/>
+				<include name="jackson-core-2.5.2.jar"/>
+				<include name="jackson-databind-2.5.2.jar"/>
+			</fileset>
+		</copy>
+
+		<aspectj:iajc source="1.6" srcdir="src/" 
+			destDir="${build.compile}/WEB-INF/classes/" 
+			debug="true" 
+			debuglevel="lines,vars,source"
+			classpathref="build.classpath"/>
+
+		<copy todir="${build.compile}/WEB-INF/classes" >
+			<fileset dir="src/" >
+				<include name="**/*.properties"/>
+				<include name="**/*.xml"/>
+				<include name="**/*.MF"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="generateWAR" depends="compile" description="Generates WAR file">
+		<jar destfile="${build}/wfAgent.war">
+			<zipfileset dir="${build.compile}"/>
+		</jar>
+	</target>
+
+	<target name="deploy" depends="generateWAR" description="Deploy WAR file">
+		<copy todir="${jboss-home}/${deploy.dir}/" file="${build}/wfAgent.war" />
+	</target>
+
+	<target name="deploy-exploded" depends="compile" description="Deploy WAR dir">
+		<copy todir="${jboss-home}/${deploy.dir}/wfAgent.war">
+			<fileset dir="${build}/wfAgent"/>
+		</copy>
+	</target>
+</project>
