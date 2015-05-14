@@ -180,6 +180,9 @@
 			</table>
 		</div>
 	</div>
+
+	<div class="message messageInfo marginTop" ng-show="sideInformationError">{{sideInformationErrorMessage}}</div>
+
 	<div class="marginTop" ng-if="viewSideInformation">
 		<div class="table-responsive" style="width: 50%;float: left;min-width: 200px;">
 			<table class="panel-sideInformation">
@@ -209,26 +212,26 @@
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.managementIPAddress"></spring:message></td>
-								<td></td>
+								<td>{{aSideManagementIPAddress}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
+								<td>{{sideInformation.aSideInformation.port}}</td>
 							</tr>
 						</table>
 					</td>
 				</tr>
+				<tr ng-show="showDeviceErrorASide">
+					<td class="msg-red" >{{deviceMessageASideError}}</td>
+				</tr>
 				<tr>
-					<td>
-						<label class="labelData"><spring:message code="serviceData.aSide.portName"></spring:message></label>
+					<td ng-if="showButtonRefreshASide">
+						<button class="button button-primary" ng-click="doDeviceRefresh('aside')"><spring:message code="global.refresh"></spring:message></button>
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<table class="table table-small-font sideInformation">
-							<tr><td>{{sideInformation.aSideInformation.port}}</td></tr>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<button class="button button-primary"><spring:message code="global.refresh"></spring:message></button>
+						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showRefreshASideLoading"/ >
 					</td>
 				</tr>
 				<tr>
@@ -236,11 +239,11 @@
 						<table class="table table-small-font" style="border :0;" >
 							<tr>
 								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceStatus"></spring:message>:</td>
-								<td style="border-top: 0" ></td>					
+								<td style="border-top: 0" >{{aSideDeviceStatus}}</td>
 							</tr>
 							<tr>
 								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
-								<td style="border-top: 0"></td>
+								<td style="border-top: 0">{{aSideDeviceUpTime}}</td>
 							</tr>
 						</table>
 					</td>
@@ -261,10 +264,10 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
+								<tr ng-repeat="asideInferf in aSideInterfaces">
+									<td>{{asideInferf.name}}</td>
+									<td>{{asideInferf.status}}</td>
+									<td>{{asideInferf.lastChgTime}}</td>
 								</tr>
 							</tbody>
 						</table>
@@ -293,20 +296,42 @@
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.zSide.managementIPAddress"></spring:message></td>
-								<td></td>
+								<td>{{zSideManagementIPAddress}}</td>
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.zSide.xngDeviceName"></spring:message></td>
-								<td>{{sideInformation.zSideInformation.deviceName}}</td>
+								<td>{{sideInformation.zSideInformation.xngDeviceName}}</td>
 							</tr>
 						</table>
 					</td>
 				</tr>
+				<tr ng-show="showDeviceErrorZSide">
+					<td class="msg-red">{{deviceMessageZSideError}}</td>
+				</tr>
+				<tr>
+					<td ng-if="showButtonRefreshZSide">
+						<button class="button button-primary" ng-click="doDeviceRefresh('zside')"><spring:message code="global.refresh"></spring:message></button>
+					</td>
+				</tr>
 				<tr>
 					<td>
-						<button class="button button-primary"><spring:message code="global.refresh"></spring:message></button>
+						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showRefreshZSideLoading" />
 					</td>
-				</tr>				
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font" style="border :0;">
+							<tr>
+								<td class="font-strong" style="border-top: 0"><spring:message code="serviceData.zSide.deviceStatus"></spring:message>:</td>
+								<td style="border-top: 0">{{zSideDeviceStatus}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong" style="border-top: 0"><spring:message code="serviceData.zSide.deviceUptime"></spring:message>:</td>
+								<td style="border-top: 0">{{zSideDeviceUpTime}}</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
 				<tr>
 					<td>
 						<label class="labelData"><spring:message code="serviceData.zSide.customerLogicalInterface"></spring:message></label>
@@ -324,25 +349,11 @@
 							</thead>
 							<tbody>
 								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
+									<td>{{zSideInterfaceLogical.name}}</td>
+									<td>{{zSideInterfaceLogical.status}}</td>
+									<td>{{zSideInterfaceLogical.lastChgTime}}</td>
 								</tr>
 							</tbody>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table class="table table-small-font" style="border :0;">
-							<tr>
-								<td class="font-strong" style="border-top: 0"><spring:message code="serviceData.zSide.deviceStatus"></spring:message>:</td>
-								<td style="border-top: 0"></td>
-							</tr>
-							<tr>
-								<td class="font-strong" style="border-top: 0"><spring:message code="serviceData.zSide.deviceUptime"></spring:message>:</td>
-								<td style="border-top: 0"></td>
-							</tr>
 						</table>
 					</td>
 				</tr>
@@ -360,10 +371,10 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
+								<tr ng-repeat="interf in zSidePhysicalInterfaces">
+									<td>{{interf.name}}</td>
+									<td>{{interf.status}}</td>
+									<td>{{interf.lastChgTime}}</td>
 								</tr>
 							</tbody>
 						</table>

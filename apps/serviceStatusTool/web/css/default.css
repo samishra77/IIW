@@ -115,3 +115,8 @@
 	background: #EEE;
 	border: 1px solid #4a4a4a;
 }
+
+.msg-red {
+	color: red;
+	padding: 8px;
+}

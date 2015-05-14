@@ -1,3 +1,6 @@
+var callRefreshCount = 0;
+var callZSideCount = 0;
+var callASideCount = 0;
 var ServiceDataController = function ($scope,$routeParams,$http) {
 	var urlBase = contextPath + "/ws";
 	var orderNumber = findOrderNumberByURL();
@@ -92,8 +95,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 
 	$scope.doSideInformation = function doSideInformation() {
 		$scope.error = false;
-		$scope.viewSideInformation = true;
 		$scope.showSideLoading = true;
+		$scope.sideInformationError = false;
+		$scope.viewSideInformation = true;
 		var resp = $http({
 			  method  : 'POST',
 			  url     : urlBase + '/getSideInformation?username=' + username,
@@ -101,13 +105,20 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			  headers : { 'Content-Type': 'application/json' }
 			 });
 		resp.success(function(data) {
-			$scope.showSideLoading = false;
 			if(data.status == 'fail') {
-				$scope.error = true;
-				$scope.messageError = data.errorMsg;
+				$scope.sideInformationError = true;
+				$scope.sideInformationErrorMessage = data.errorMsg;
 			} else {
 				$scope.sideInformation = data.result;
+				if ($scope.sideInformation != null && $scope.sideInformation.aSideInformation != null && $scope.sideInformation.zSideInformation) {
+					sideInformationFromDevice();
+				} else {
+					$scope.viewSideInformation = false;
+					$scope.sideInformationError = true;
+					$scope.sideInformationErrorMessage = "Status Information not found.";
+				}
 			}
+			$scope.showSideLoading = false;
 		});
 	}
 	$scope.doRelatedOrderNumber = function doRelatedOrderNumber() {
@@ -137,6 +148,228 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		$scope.viewServiceData = true;
 		$routeParams.circuitID = circPathInstID;
 		serviceDetailsAndTickets();
+	}
+
+	function sideInformationFromDevice() {
+		var urlWorkFlow = workFlowAgentUrlBase + "/ws";
+		$scope.showDeviceErrorASide = false;
+		$scope.showDeviceErrorZSide = false;
+		$scope.showButtonRefreshASide = false;
+		$scope.showButtonRefreshZSide = false;
+		$scope.showRefreshASideLoading = true;
+		$scope.showRefreshZSideLoading = true;
+		if (workFlowAgentUrlBase) {
+			if ($scope.sideInformation) {
+				callASideCount++;
+				$scope.showDeviceErrorASide = false;
+				$scope.showDeviceErrorZSide = false;
+				var deviceDetailsAside = {
+						'requestID'	: callASideCount,
+						'seibelUserID'	: username,
+						'name'       	: $scope.sideInformation.aSideInformation.deviceName,
+						'deviceType'	: {
+							'vendor'	: $scope.sideInformation.aSideInformation.vendor,
+							'model'  	: $scope.sideInformation.aSideInformation.model
+						},
+						'type': 'CPE',
+						'circuitID': $scope.circuit.circuitID
+				};
+				var respAgentASide = $http({
+					method  : 'POST',
+					url     : urlWorkFlow + '/getDeviceDetails',
+					data    : deviceDetailsAside,
+					headers : { 'Content-Type': 'application/json' }
+				});
+				respAgentASide.success(function(data) {
+					var l3DeviceDetails = data;
+					if (l3DeviceDetails) {
+						if (l3DeviceDetails.responseID == callASideCount) {
+							if(l3DeviceDetails.errorResponse) {
+								$scope.showDeviceErrorASide = true;
+								$scope.deviceMessageASideError = l3DeviceDetails.errorResponse.message;
+							}
+							if (l3DeviceDetails.deviceDetails) {
+								$scope.aSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+								$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+								$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+							}
+							$scope.aSideManagementIPAddress = l3DeviceDetails.wanIP;
+							$scope.showButtonRefreshASide = true;
+						}
+					} else {
+						$scope.showDeviceErrorASide = true;
+						$scope.deviceMessageASideError = "Error receiving device details.";
+					}
+					$scope.showButtonRefreshASide = true;
+					$scope.showRefreshASideLoading = false;
+				});
+				callZSideCount++;
+				var deviceDetailsZside = {
+						'requestID'	: callZSideCount,
+						'seibelUserID'	: username,
+						'name'       	:  $scope.sideInformation.zSideInformation.xngDeviceName,
+						'deviceType'	: {
+							'vendor'	: $scope.sideInformation.zSideInformation.vendor,
+							'model'  	: $scope.sideInformation.zSideInformation.model
+						},
+						'type': 'PE',
+						'circuitID': $scope.circuit.circuitID
+				};
+				var respAgentZSide = $http({
+					method  : 'POST',
+					url     : urlWorkFlow + '/getDeviceDetails',
+					data    : deviceDetailsZside,
+					headers : { 'Content-Type': 'application/json' }
+				});
+				respAgentZSide.success(function(data) {
+					var l3DeviceDetails = data;
+					if (l3DeviceDetails.deviceDetails) {
+						if (l3DeviceDetails.responseID == callZSideCount) {
+							if (l3DeviceDetails) {
+								$scope.zSideManagementIPAddress = l3DeviceDetails.wanIP;
+								if (l3DeviceDetails.errorResponse) {
+									$scope.showDeviceErrorZSide = true;
+									$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
+								}
+								if (l3DeviceDetails.deviceDetails) {
+									for (var i = 0; l3DeviceDetails.deviceDetails.interfaces.length > i; i++) {
+										if (l3DeviceDetails.deviceDetails.interfaces[i].ipaddress == $scope.zSideManagementIPAddress ) {
+											$scope.zSideInterfaceLogical = l3DeviceDetails.deviceDetails.interfaces[i];
+											l3DeviceDetails.deviceDetails.interfaces.splice(i, 1);
+											$scope.zSidePhysicalInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+											break;
+										};
+									}
+									$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+									$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+								}
+							}
+							$scope.showButtonRefreshZSide = true;
+						}
+					} else {
+						$scope.showDeviceErrorZSide = true;
+						$scope.deviceMessageZSideError = "Error receiving device details.";
+					}
+					$scope.showButtonRefreshZSide = true;
+					$scope.showRefreshZSideLoading = false;
+				});
+			}
+		} else {
+			$scope.showButtonRefreshASide = true;
+			$scope.showButtonRefreshZSide = true;
+			$scope.showRefreshASideLoading = false;
+			$scope.showRefreshZSideLoading = false;
+		}
+	}
+
+	$scope.doDeviceRefresh = function doDeviceRefresh(type) {
+		callRefreshCount++;
+		var urlWorkFlow = workFlowAgentUrlBase + "/ws";
+		if (type == "aside") {
+			$scope.showRefreshASideLoading = true;
+		} else if (type == "zside") {
+			$scope.showRefreshZSideLoading = true;
+		}
+		if (workFlowAgentUrlBase) {
+			var deviceDetails = {};
+			if ($scope.sideInformation) {
+				if (type == "aside") {
+					$scope.showDeviceErrorASide = false;
+					
+					deviceDetails = {
+							'requestID'	: callRefreshCount,
+							'seibelUserID'	: username,
+							'ip'       	: $scope.sideInformation.aSideManagementIPAddress,
+							'deviceType'	: {
+								'vendor'	: $scope.sideInformation.aSideInformation.vendor,
+								'model'  	: $scope.sideInformation.aSideInformation.model
+							},
+							'type': 'CPE',
+							'circuitID': $scope.circuit.circuitID
+					};
+				} else if (type == "zside") {
+					$scope.showDeviceErrorZSide = false;
+					deviceDetails = {
+							'requestID'	: callRefreshCount,
+							'seibelUserID'	: username,
+							'ip'       	: $scope.sideInformation.zSideManagementIPAddress,
+							'deviceType'	: {
+								'vendor'	: $scope.sideInformation.zSideInformation.vendor,
+								'model'  	: $scope.sideInformation.zSideInformation.model
+							},
+							'type': 'PE',
+							'circuitID': $scope.circuit.circuitID
+					};
+				}
+				if (deviceDetails) {
+					var respAgent = $http({
+						method  : 'POST',
+						url     : urlWorkFlow + '/getDeviceDetails',
+						data    : deviceDetails,
+						headers : { 'Content-Type': 'application/json' }
+					});
+					respAgent.success(function(data) {
+						var l3DeviceDetails = data;
+						if (l3DeviceDetails) {
+							if (l3DeviceDetails.responseID == callRefreshCount) {
+								if (type == "aside") {
+									$scope.aSideManagementIPAddress = l3DeviceDetails.wanIP;
+								} else {
+									$scope.zSideManagementIPAddress = l3DeviceDetails.wanIP;
+								}
+								if(l3DeviceDetails.errorResponse) {
+									if (type == "aside") {
+										$scope.showDeviceErrorASide = true;
+										$scope.deviceMessageASideError = l3DeviceDetails.errorResponse.message;
+									} else if (type == "zside") {
+										$scope.showDeviceErrorZSide = true;
+										$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
+									}
+								}
+								if (l3DeviceDetails.deviceDetails) {
+									if (type == "aside") {
+										$scope.aSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+										$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+										$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+									} else if (type == "zside") {
+										for (var i = 0; l3DeviceDetails.deviceDetails.interfaces.length > i; i++) {
+											if (l3DeviceDetails.deviceDetails.interfaces[i].ipaddress == $scope.zSideManagementIPAddress ) {
+												$scope.zSideInterfaceLogical = l3DeviceDetails.deviceDetails.interfaces[i];
+												l3DeviceDetails.deviceDetails.interfaces.splice(i, 1);
+												$scope.zSidePhysicalInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+												break;
+											};
+										}
+										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+										$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+									}
+								}
+							}
+						} else {
+							var errorMsg = "Error receiving device details.";
+							if (type == "aside") {
+								$scope.showDeviceErrorASide = true;
+								$scope.deviceMessageASideError = errorMsg;
+							}  else if (type == "zside") {
+								$scope.showDeviceErrorZSide = true;
+								$scope.deviceMessageZSideError = errorMsg;
+							}
+						}
+						if (type == "aside") {
+							$scope.showRefreshASideLoading = false;
+						} else if (type == "zside") {
+							$scope.showRefreshZSideLoading = false;
+						}
+					});
+				}
+			}
+		} else {
+			if (type == "aside") {
+				$scope.showRefreshASideLoading = false;
+			}  else if (type == "zside") {
+				$scope.showRefreshZSideLoading = false;
+			}
+		}
 	}
 };
 angular.module('sstApp').controller('ServiceDataController',ServiceDataController);

@@ -4,7 +4,8 @@ public class ZSideInformation {
 
 	private String type;
 	private String vendor;
-	private String deviceName;
+	private String xngDeviceName;
+	private String model;
 
 	public String getType() {
 		return type;
@@ -18,10 +19,16 @@ public class ZSideInformation {
 	public void setVendor(String vendor) {
 		this.vendor = vendor;
 	}
-	public String getDeviceName() {
-		return deviceName;
+	public String getXngDeviceName() {
+		return xngDeviceName;
 	}
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
+	public void setXngDeviceName(String xngDeviceName) {
+		this.xngDeviceName = xngDeviceName;
+	}
+	public String getModel() {
+		return model;
+	}
+	public void setModel(String model) {
+		this.model = model;
 	}
 }

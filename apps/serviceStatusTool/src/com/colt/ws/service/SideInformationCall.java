@@ -149,7 +149,10 @@ public class SideInformationCall {
 				zSideInformation.setVendor(kv[1]);
 			}
 			if (kv[0].equals("name")) {
-				zSideInformation.setDeviceName(kv[1]);
+				zSideInformation.setXngDeviceName(kv[1]);
+			}
+			if (kv[0].equals("model")) {
+				zSideInformation.setModel(kv[1]);
 			}
 		}
 		return zSideInformation;

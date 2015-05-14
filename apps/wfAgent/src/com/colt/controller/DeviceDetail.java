@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.colt.agents.DeviceDetailsAgent;
 import com.colt.ws.biz.DeviceDetailsRequest;
-import com.colt.ws.biz.DeviceType;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 @RestController
@@ -19,16 +18,15 @@ public class DeviceDetail {
 
 	@RequestMapping(value = "/getDeviceDetails", method = RequestMethod.POST, headers = "Accept=application/json")
 	public Object getDeviceDetails(@RequestBody DeviceDetailsRequest deviceDetail) {
-		log.info("Entering method getDeviceDetails()");
+		log.info("[" + deviceDetail.getSeibelUserID() + "] Entering method getDeviceDetails()");
 		L3DeviceDetailsResponse l3DeviceDetails = new L3DeviceDetailsResponse();
 		try {
 			DeviceDetailsAgent deviceDetailsAgent = new DeviceDetailsAgent();
-			// L2 or L3
 			l3DeviceDetails = deviceDetailsAgent.execute(deviceDetail);
 		} catch (Exception e) {
-			log.error(e, e);
+			log.error("[" + deviceDetail.getSeibelUserID() + "] " + e, e);
 		}
-		log.info("Exit method getDeviceDetails()");
+		log.info("[" + deviceDetail.getSeibelUserID() + "] Exit method getDeviceDetails()");
 		return l3DeviceDetails;
 	}
 }
