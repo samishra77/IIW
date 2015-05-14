@@ -17,10 +17,12 @@ public class DeviceDetailsAgent {
 
 	public static final int CODE_UNKKONWN = 0;
 
+	private ApplicationContext ac;
+	private static Object lock = new Object();
+
 	public L3DeviceDetailsResponse execute(DeviceDetailsRequest deviceDetail) throws Exception {
 		L3DeviceDetailsResponse l3DeviceDetails = null;
-		ApplicationContext ac = new ClassPathXmlApplicationContext("application-config.xml", DeviceDetailsProcess.class);
-		IWorkflowProcess process = (IWorkflowProcess) ac.getBean("deviceDetailsProcess");
+		IWorkflowProcess process = getProcess();
 
 		Map<String,Object> input = new HashMap<String,Object>();
 
@@ -44,6 +46,15 @@ public class DeviceDetailsAgent {
 		}
 
 		return l3DeviceDetails;
+	}
+
+	private IWorkflowProcess getProcess() {
+		synchronized (lock) {
+			if (ac == null) {
+				ac = new ClassPathXmlApplicationContext("application-config.xml", DeviceDetailsProcess.class);
+			}
+			return (IWorkflowProcess) ac.getBean("deviceDetailsProcess");
+		}
 	}
 
 }
