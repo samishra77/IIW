@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.colt.dao.AmnDAO;
 import com.colt.util.UsageTracking;
+import com.colt.ws.biz.ASideInformation;
 import com.colt.ws.biz.Circuit;
 import com.colt.ws.biz.ProductType;
 import com.colt.ws.biz.Response;
@@ -156,6 +157,7 @@ public class SearchService {
 
 	private Response processDevNameASideInformation(Response response,Circuit circuit, String username) {
 		if (response != null) {
+			AmnDAO amnDAO = new AmnDAO(em, messages, username);
 			String deviceName = "";
 			SideInformation si = (SideInformation) response.getResult();
 			String routerId = "";
@@ -163,14 +165,23 @@ public class SearchService {
 				routerId = si.getaSideInformation().getXngDeviceName();
 			}
 			if (routerId != null && !"".equals(routerId)) {
-				if(circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType()) ) {
+				if (circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType())) {
 					if(circuit.getProductType().equalsIgnoreCase(ProductType.IP_ACCESS.value())) {
 						deviceName = routerId + ".ia.colt.net";
 					}
 				}
 			}
+			if (circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType())) {
+				if(circuit.getProductType().equalsIgnoreCase(ProductType.CPE_SOLUTIONS.value())) {
+					deviceName = amnDAO.getFqdnCpeSol(circuit);
+				} else if(circuit.getProductType().equalsIgnoreCase(ProductType.IPVPN.value())) {
+					deviceName = amnDAO.getFqdnIPVPN(circuit);
+				}
+			}
 			if (deviceName != null && !"".equals(deviceName)) {
-				si.getaSideInformation().setDeviceName(deviceName);
+				if (si != null && si.getaSideInformation() != null) {
+					si.getaSideInformation().setDeviceName(deviceName);
+				}
 				response.setResult(si);
 			}
 		}

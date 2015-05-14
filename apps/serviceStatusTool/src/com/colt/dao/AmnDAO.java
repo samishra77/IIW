@@ -446,4 +446,49 @@ public class AmnDAO extends DAO {
 		}
 	}
 
+	public String getFqdnCpeSol(Circuit circuit) {
+		String result = "";
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+			String sql = "select distinct b.PRIMARY_DEVICE_ID " +
+					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
+					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID  ORDER BY a.CIRCUIT_REFERENCE_5D";
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("orderNumber", circuit.getOrderNumber());
+			List<String> resultList = query.getResultList();
+			if(resultList != null && resultList.size() > 0) {
+				for (int i = 0; i < resultList.size() ; i++) {
+					String resu = (String) resultList.get(i);
+					if (resu != null) {
+						result = resu;
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	public String getFqdnIPVPN(Circuit circuit) {
+		String result = "";
+		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+			String sql = "select b.DEVICE_ID " +
+					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_IP_DATA_ORDER b " +
+					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("orderNumber", circuit.getOrderNumber());
+			List<String> resultList = query.getResultList();
+			if(resultList != null && resultList.size() > 0) {
+				for (int i = 0; i < resultList.size() ; i++) {
+					String resu = (String) resultList.get(i);
+					if (resu != null) {
+						result = resu;
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
 }
