@@ -34,7 +34,7 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 				if(outputList != null && !outputList.isEmpty()) {
 					Map<String, Interface> ifAliasMap = new HashMap<String, Interface>();
 					String l3CircuitParam = "L3Circuit["+deviceDetails.getCircuitID()+"]";
-					String sidParam = "SID["+deviceDetails.getCircuitID()+"]";
+					String sidParam = "Cct["+deviceDetails.getCircuitID()+"]";
 					for(String line : outputList) {
 						if(line.contains(l3CircuitParam) || line.contains(sidParam)) {
 							String ifAlias = getIfAlias(line);
@@ -205,22 +205,23 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 	}
 
 	private String getIfAlias(String line) {
+		String resp = "";
 		if(line != null && (line.contains("= Timeticks:") || line.contains("= STRING:") ||  line.contains("= INTEGER:")) ) {
 			String[] split = line.split("=");
 			if(split != null && split.length > 0) {
 				split[0] = split[0].trim();
 				int index = split[0].lastIndexOf(".")+1;
 				if(index != -1) { 
-					return split[0].substring(index, split[0].length());
+					resp = split[0].substring(index, split[0].length());
 				}
 			}
 		}
-		return null;
+		return resp;
 	}
 
 	private String getIfValue(String line) {
+		String splitRegex = "";
 		if(line != null) {
-			String splitRegex = "";
 			if(line.contains("= Timeticks:")) {
 				splitRegex = "= Timeticks:";
 			} else if(line.contains("= STRING:")) {
@@ -228,16 +229,17 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 			} else if(line.contains("= INTEGER:")){
 				splitRegex = "= INTEGER:";
 			}
-
-			String[] split = line.split(splitRegex);
-			if(split != null && split.length > 1) {
-				split[1] = split[1].trim();
-				if(splitRegex.equals("= Timeticks:") && split[1].lastIndexOf(")") > 0) {
-					split[1] = split[1].substring(split[1].lastIndexOf(")")+1, split[1].length());
+			if(!"".equals(splitRegex)) {
+				String[] split = line.split(splitRegex);
+				if(split != null && split.length > 1) {
+					split[1] = split[1].trim();
+					if(splitRegex.equals("= Timeticks:") && split[1].lastIndexOf(")") > 0) {
+						split[1] = split[1].substring(split[1].lastIndexOf(")")+1, split[1].length());
+					}
+					return split[1].trim();
 				}
-				return split[1].trim();
 			}
 		}
-		return null;
+		return splitRegex;
 	}
 }

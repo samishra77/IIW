@@ -1,0 +1,5 @@
+waitfor,name:|login:
+write,sstoolid
+waitfor,word:
+write,L@svegas!23
+waitfor,#

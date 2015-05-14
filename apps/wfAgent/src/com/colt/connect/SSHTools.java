@@ -35,6 +35,7 @@ public class SSHTools {
 		try {
 			JSch jsch = new JSch();
 			this.session = jsch.getSession(username, serverIP, 22);
+//			this.session = jsch.getSession(username, serverIP, 2324);
 
 			// username and password will be given via UserInfo interface.
 			MyUserInfo ui = new MyUserInfo();

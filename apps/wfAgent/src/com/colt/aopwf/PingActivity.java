@@ -4,13 +4,26 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.colt.ws.biz.DeviceDetailsRequest;
 
 public class PingActivity implements IWorkflowProcessActivity {
 
+	private Log log = LogFactory.getLog(PingActivity.class);
+
 	public String[] process(Map<String,Object> input) {
 		String[] resp = null;
-		if(pingTest(input)) {
+		boolean isPing = false;
+
+		int countPingTest = 0;
+		while(!isPing && countPingTest < 2) {
+			isPing = pingTest(input);
+			countPingTest++;
+		}
+
+		if(isPing) {
 			resp = new String[] {"PING_SUCCESS"};
 		} else {
 			resp = new String[] {"PING_FAIL"};
@@ -56,6 +69,7 @@ public class PingActivity implements IWorkflowProcessActivity {
 			InetAddress addr = InetAddress.getByName(hostname);
 			status = addr.isReachable(3000);
 		} catch (Exception e) {
+			log.error(e,e);
 		}
 		return status;
 	}

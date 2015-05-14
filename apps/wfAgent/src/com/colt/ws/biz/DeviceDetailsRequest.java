@@ -11,20 +11,7 @@ public class DeviceDetailsRequest {
 	private String circuitID;
 	private String ip;
 	private String type;
-	private String time;
 
-	/**
-	 * @return the time
-	 */
-	public String getTime() {
-		return time;
-	}
-	/**
-	 * @param time the time to set
-	 */
-	public void setTime(String time) {
-		this.time = time;
-	}
 	/**
 	 * @return the type
 	 */

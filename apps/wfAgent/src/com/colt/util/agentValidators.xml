@@ -1,14 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <L3Devices vendors="Cisco,Juniper,Huawei">
 	<Cisco os="ios,nx-os">
-		<IOSRouters softwares="ios,xe,xr">
-			<IOSDevice>file1</IOSDevice>
-			<XEDevice>file2</XEDevice>
-			<XRDevice>file3</XRDevice>
+		<IOSRouters softwares=”ios,xe,xr”>
+			<IOSDevice>cisco_ios.txt</IOSDevice>
+			<XEDevice>cisco_xr.txt</XEDevice>
+			<XRDevice>cisco_xr.txt</XRDevice>
 		</IOSRouters>
 		<NexusRouters/>
 	</Cisco>
 	<Juniper os="junos,screenos">
-		<JunOSRouter>file4</JunOSRouter>
+		<JunOSRouter>juniper.txt</JunOSRouter>
 		<ScreenOSRouter/>
 	</Juniper>
 </L3Devices>

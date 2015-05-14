@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +21,7 @@ import com.jcraft.jsch.Session;
  * @author Intelinet
  */
 
-public class ConnectSSH extends TelnetDevice {
+public class ConnectSSH {
 	protected Log log;
 	protected JSch jsch;
 	protected SSHTools ssh;
@@ -50,7 +52,6 @@ public class ConnectSSH extends TelnetDevice {
 		jsch = new JSch();
 	}
 
-	@Override
 	public void connect(String server, int _timeout) throws Exception {
 		try {
 			this.server = server;
@@ -62,7 +63,6 @@ public class ConnectSSH extends TelnetDevice {
 
 	}
 
-	@Override
 	public String waitfor(String pattern) throws Exception {
 		System.out.println("Waiting for :: " + pattern);
 		if (pattern==null || "".equals(pattern)) {
@@ -102,20 +102,17 @@ public class ConnectSSH extends TelnetDevice {
 		}
 	}
 
-	@Override
 	public void write(String word) throws Exception {
 		out.println(word);
 		out.flush();
 	}
 
-	@Override
 	public String sendCmd(String command, String nexttoken) throws Exception {
 		write( command );
 		return waitfor( nexttoken );
 
 	}
 
-	@Override
 	public void disconnect() {
 		try{
 			channel.disconnect();
@@ -162,13 +159,11 @@ public class ConnectSSH extends TelnetDevice {
 		return sb.toString();
 	}
 
-	@Override
 	public String applyCommands(String commands) throws Exception {
 		return applyCommands(commands, null);
 
 	}
 
-	@Override
 	public String applyCommands(String commands, String endTag) throws Exception {
 		if("cisco".equals(this.vendor) || "alu".equals(this.vendor)){
 			endTag = "#";
@@ -182,17 +177,15 @@ public class ConnectSSH extends TelnetDevice {
 
 	}
 
-	@Override
 	public String getOutput() {
 		return outstream.toString();
 	}
 
-	@Override
-	public void prepareForCommands(String vendor, String devicetype, String suffix) throws Exception {
+	public void prepareForCommands(String vendor) throws Exception {
 		String line;
 		String[] columns;
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+"."+devicetype.toLowerCase()+".ssh"+suffix)));
+		BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device." + vendor.toLowerCase())));
 
 		this.vendor = vendor.toLowerCase();
 		boolean flag = false;
@@ -227,7 +220,7 @@ public class ConnectSSH extends TelnetDevice {
 		in = channel.getInputStream();
 		out = new PrintStream(channel.getOutputStream());
 
-		BufferedReader brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+"."+devicetype.toLowerCase()+".ssh"+suffix)));
+		BufferedReader brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device." + vendor.toLowerCase())));
 
 		counter = 0;
 		String lineConf;
@@ -251,7 +244,6 @@ public class ConnectSSH extends TelnetDevice {
 		}
 	}
 
-	@Override
 	public String sendBREAK(String nexttoken) throws Exception {
 		out.write((char)26);
 		out.flush();
@@ -259,32 +251,85 @@ public class ConnectSSH extends TelnetDevice {
 
 	}
 
-	@Override
 	public void setWaitForTimeDetails(int maxRunTime, int sleepInterval, int sleepCountMax) {
 		waitForMaximumRunTime = maxRunTime;
 		waitForSleepInterval = sleepInterval;
 		waitForSleepCountMax = sleepCountMax;
 	}
 
-	/*public static void  main(String args[]) {
-		long t0 = System.currentTimeMillis();
-		long t1 = t0;
-		String output = "";
-		try {
-			ConnectSSH telnetdev = new ConnectSSH();
-			telnetdev.connect("10.91.141.76", 1000);
-			telnetdev.prepareForCommands("huawei","cpe", "routertools");
-			output = telnetdev.applyCommands("display arp", ">");
-			//telnetdev.prepareForCommands("cisco","cpe", "routertools");
-			//output = telnetdev.applyCommands("show arp", "#");
-			System.out.println("Command Response :: " + output);
-			telnetdev.disconnect();
-		}
-		catch (Exception e) {
-			System.out.println("Excepetion occured "+e.getMessage());
-		}
-	}*/
-
+//	public static void main(String args[]) {
+//		String output = "";
+//		try {
+//			ConnectSSH telnetdev = new ConnectSSH();
+//			telnetdev.connect("192.168.0.5", 1000);
+//			telnetdev.prepareForCommands("juniper");
+//			output = telnetdev.applyCommands("show system uptime", ">");
+//			String[] array = output.split("\r\n");
+//			if(array != null && array.length > 0) {
+//				List<String> values = null;
+//				for(String line : array) {
+//					if(line.contains("up") && line.contains("day")) {
+//						line = line.trim();
+//						String[] lineArray = line.split(" ");
+//						values = new ArrayList<String>();
+//						for(String l : lineArray) {
+//							if(!" ".equals(l) && !"".equals(l)) {
+//								values.add(l.trim());
+//							}
+//						}
+//						if(!values.isEmpty()) {
+//							String day = "";
+//							String hour = "";
+//							String minute = "";
+//							if(values.get(4) != null && values.get(4).contains(":") && values.get(4).contains(",")) {
+//								String aux = values.get(4).replace(",", "");
+//								String[] hourMinute = aux.split(":");
+//								if(hourMinute != null && hourMinute.length > 1) {
+//									int hourNumber = 0;
+//									if(hourMinute[0] != null && !"".equals(hourMinute[0])) {
+//										hourNumber = Integer.valueOf(hourMinute[0]);
+//										if(hourNumber != 1) {
+//											hour = hourNumber + " hours ";
+//										} else {
+//											hour = hourNumber + " hour ";
+//										}
+//									}
+//									int minuteNumber = 0;
+//									if(hourMinute[1] != null && !"".equals(hourMinute[1])) {
+//										minuteNumber = Integer.valueOf(hourMinute[1]);
+//										if(minuteNumber != 1) {
+//											minute = minuteNumber + " minutes";
+//										} else {
+//											minute = minuteNumber + " minute";
+//										}
+//									}
+//									
+//								}
+//							}
+//							int dayNumber = 0;
+//							if(values.get(2) != null) {
+//								dayNumber = Integer.valueOf(values.get(2));
+//								if(dayNumber != 1) {
+//									day = dayNumber + " days ";
+//								} else {
+//									day = dayNumber + " day ";
+//								}
+//							}
+//							
+//							String result = day + hour + minute;
+//							break;
+//						}
+//					}
+//				}
+//			}
+//			
+//			System.out.println("Command Response :: " + output);
+//			telnetdev.disconnect();
+//		}
+//		catch (Exception e) {
+//			System.out.println("Excepetion occured "+e.getMessage());
+//		}
+//	}
 
 }
 

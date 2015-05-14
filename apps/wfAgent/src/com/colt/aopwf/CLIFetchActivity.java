@@ -7,7 +7,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.colt.adapters.Adapter;
 import com.colt.adapters.FactoryAdapter;
+import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
+import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class CLIFetchActivity implements IWorkflowProcessActivity {
 
@@ -15,15 +17,17 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 
 	public String[] process(Map<String,Object> input)  {
 		String[] resp = null;
-		if(input != null && input.containsKey("vendor") && input.containsKey("os") && input.containsKey("deviceDetails")) {
+		if(input != null && input.containsKey("vendor") && input.containsKey("os") && input.containsKey("l3DeviceDetails") && input.containsKey("deviceDetails")) {
+			L3DeviceDetailsResponse l3DeviceDetails = (L3DeviceDetailsResponse) input.get("l3DeviceDetails");
 			DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 			String vendor = (String) input.get("vendor");
 			String os = (String) input.get("os");
 			FactoryAdapter factoryAdapter = new FactoryAdapter();
 			Adapter adapter = factoryAdapter.getAdapter(vendor, os);
-			if(adapter != null) {
+			if(adapter != null && l3DeviceDetails != null && deviceDetails.getIp() != null && deviceDetails != null) {
 				try {
-					adapter.fetch(deviceDetails.getIp());
+					DeviceDetail devDetail = adapter.fetch(deviceDetails.getCircuitID(), deviceDetails.getIp());
+					l3DeviceDetails.setDeviceDetails(devDetail);
 					resp = new String[] {"SENDRESPONSE"};
 				} catch (Exception e) {
 					log.error(e,e);

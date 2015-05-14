@@ -6,9 +6,13 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,39 +40,46 @@ public class AgentUtil {
 		return resp;
 	}
 
-	public static void main(String[] args) {
-		parseXML("/home/daniel/workspace/sst/apps/aopworkflow/src/com/colt/util/agentValidators.xml", "Cisco");
-	}
+//	public static void main(String[] args) {
+//		validateVendorModel("/home/daniel/workspace/sst/apps/wfAgent/src/com/colt/util/agentValidators.xml", "Cisco", "2901");
+//	}
 
-	public static List<String> parseXML(String xmlPath, String value) {
-		List<String> resp = null;
+	public static String validateVendorModel(String xmlPath, String vendor, String model) {
+		String resp = null;
 		try {
-			if(xmlPath != null && !"".equals(xmlPath) && value != null && !"".equals(value)) {
+			if(xmlPath != null && !"".equals(xmlPath) && vendor != null && !"".equals(vendor) && model != null && !"".equals(model)) {
 				File file = new File(xmlPath);
 				if(file != null && file.isFile()) {
 					DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 					DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 					Document doc = dBuilder.parse(file);
 					doc.getDocumentElement().normalize();
-					String vendorsAttrib = doc.getDocumentElement().getAttribute("vendors");
-					vendorsAttrib = vendorsAttrib.trim();
-					if(vendorsAttrib != null && !"".equals(vendorsAttrib)) {
-						String[] vendorsAttributes = vendorsAttrib.split(",");
-						StringBuffer xmlVendorFound = new StringBuffer();
-						if(vendorsAttributes != null && vendorsAttributes.length > 0 && verifyItemInList(vendorsAttributes, value, xmlVendorFound)) {
-							if(xmlVendorFound.length() > 0) {
-								NodeList nodeVendorList = doc.getElementsByTagName(xmlVendorFound.toString());
-								List<String> modelFileListByVendor = find(nodeVendorList);
-								if(!modelFileListByVendor.isEmpty()) {
-									resp = new ArrayList<String>();
-									for(String fileName : modelFileListByVendor) {
-										String pathFile = AgentConfig.getDefaultInstance().getProperty("modelPath").trim();
-										try {
-											resp.addAll(retriveModelListByFile(pathFile, fileName));
-										} catch (Exception e) {
-										}
-									}
+					XPathFactory factory = XPathFactory.newInstance();
+					XPath xpath = factory.newXPath();
+
+					String[] expression = null;
+					if("Cisco".equalsIgnoreCase(vendor)) {
+						expression = new String[] {"L3Devices/Cisco/IOSRouters/IOSDevice", "L3Devices/Cisco/IOSRouters/XEDevice", "L3Devices/Cisco/IOSRouters/XRDevice"};
+					} else if("Juniper".equalsIgnoreCase(vendor)) {
+						expression = new String[] {"L3Devices/Juniper/JunOSRouter"};
+					} else if("Huawei".equalsIgnoreCase(vendor)) {
+						resp = "huaweios";
+					}
+
+					Node node = null;
+					if(expression != null && expression.length > 0) {
+						for(String e : expression) {
+							node = (Node) xpath.compile(e).evaluate(doc, XPathConstants.NODE);
+							String fileName = node.getTextContent();
+							String pathFile = AgentConfig.getDefaultInstance().getProperty("pathFile").trim();
+							if(findOSByFile(pathFile, fileName, model)) {
+								if("Device".contains(node.getNodeName())) {
+									resp = node.getNodeName().replace("Device", "").toLowerCase();
+								} else if("Router".contains(node.getNodeName())) {
+									resp = node.getNodeName().replace("Router", "").toLowerCase();
 								}
+								resp = node.getNodeName();
+								break;
 							}
 						}
 					}
@@ -84,46 +95,30 @@ public class AgentUtil {
 	 * 
 	 * @param pathFile
 	 * @param fileName
-	 * @return model list of all Vendor files
+	 * @param model
+	 * @return
 	 */
-	private static List<String> retriveModelListByFile(String pathFile, String fileName) {
-		List<String> resp = null;
-		if(pathFile != null && !"".equals(pathFile) && fileName != null && !"".equals(fileName)) {
+	private static boolean findOSByFile(String pathFile, String fileName, String model) {
+		boolean found = false;
+		if(pathFile != null && !"".equals(pathFile) && fileName != null && !"".equals(fileName) && model != null && !"".equals(model)) {
 			try {
 				File file = new File(pathFile, fileName);
 				if(file != null && file.isFile()) {
-					resp = new ArrayList<String>();
 					BufferedReader reader = new BufferedReader( new FileReader (file));
 					String line = null;
 					while((line = reader.readLine()) != null) {
-						resp.add(line);
+						line = line.trim();
+						if(model.equalsIgnoreCase(line)) {
+							found = true;
+							break;
+						}
 					}
 				}
 			} catch (Exception e) {
 				log.error(e,e);
 			}
 		}
-		return resp;
-	}
-
-	/**
-	 * 
-	 * @param nodeList
-	 * @return file List by vendor
-	 */
-	private static List<String> find(NodeList nodeList) {
-		List<String> resp = new ArrayList<String>();
-		if(nodeList != null && nodeList.getLength() > 0) {
-			for (int i = 0; i < nodeList.getLength(); i++) {
-				Node node = nodeList.item(i);
-				if(node.hasChildNodes()) {
-					resp.addAll(find(node.getChildNodes()));
-				} else {
-					resp.add(node.getTextContent());
-				}
-			}
-		}
-		return resp;
+		return found;
 	}
 
 	public static List<String> runLocalCommand(String cmd) throws Exception {

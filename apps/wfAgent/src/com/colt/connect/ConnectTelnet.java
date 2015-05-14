@@ -17,7 +17,7 @@ import org.apache.commons.net.telnet.TelnetClient;
  * @author Aricent
  * Class to connect through telnet
  */
-public class ConnectTelnet extends TelnetDevice {
+public class ConnectTelnet {
 	protected Log log;
 	protected TelnetClient telnet;
 	protected InputStream in;
@@ -41,7 +41,6 @@ public class ConnectTelnet extends TelnetDevice {
 		telnet.setConnectTimeout(CONNECTTIMEOUT*1000);
 	}
 
-	@Override
 	public void connect(String server, int _timeout) throws Exception {
 		try {
 			telnet.connect(server, 23);
@@ -57,7 +56,6 @@ public class ConnectTelnet extends TelnetDevice {
 
 	}
 
-	@Override
 	public String waitfor(String pattern) throws Exception {
 		System.out.println("Patter passed is : " + pattern);
 		if (pattern==null || "".equals(pattern)) {
@@ -100,19 +98,16 @@ public class ConnectTelnet extends TelnetDevice {
 		}
 	}
 
-	@Override
 	public void write(String word) throws Exception {
 		out.println(word);
 		out.flush();
 	}
 
-	@Override
 	public String sendCmd(String command, String nexttoken) throws Exception {
 		write( command );
 		return waitfor( nexttoken );
 	}
 
-	@Override
 	public void disconnect() {
 		try {
 			telnet.disconnect();
@@ -165,12 +160,10 @@ public class ConnectTelnet extends TelnetDevice {
 		return sb.toString();
 	}
 
-	@Override
 	public String applyCommands(String commands) throws Exception {
 		return applyCommands(commands, null);
 	}
 
-	@Override
 	public String applyCommands(String commands, String endTag) throws Exception {
 		String line;
 		BufferedReader br = new BufferedReader(new StringReader(commands));
@@ -187,16 +180,14 @@ public class ConnectTelnet extends TelnetDevice {
 
 	}
 
-	@Override
 	public String getOutput() {
 		return outstream.toString();
 	}
 
-	@Override
-	public void prepareForCommands(String vendor, String devicetype, String suffix) throws Exception {
+	public void prepareForCommands(String vendor) throws Exception {
 		String line;
 		String[] columns;
-		BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+"."+devicetype.toLowerCase()+"."+suffix)));
+		BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
 
 		while ((line = br.readLine()) != null) {
 			if (!line.trim().equals("")) {
@@ -215,7 +206,6 @@ public class ConnectTelnet extends TelnetDevice {
 		}
 	}
 
-	@Override
 	public String sendBREAK(String nexttoken) throws Exception {
 		out.write((char)26);
 		out.flush();
@@ -223,7 +213,6 @@ public class ConnectTelnet extends TelnetDevice {
 
 	}
 
-	@Override
 	public void setWaitForTimeDetails(int maxRunTime, int sleepInterval, int sleepCountMax) {
 		waitForMaximumRunTime = maxRunTime;
 		waitForSleepInterval = sleepInterval;

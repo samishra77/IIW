@@ -65,6 +65,7 @@
 				<include name="jackson-annotations-2.5.2.jar"/>
 				<include name="jackson-core-2.5.2.jar"/>
 				<include name="jackson-databind-2.5.2.jar"/>
+				<include name="commons-net-3.3.jar"/>
 			</fileset>
 		</copy>
 
