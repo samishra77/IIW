@@ -21,7 +21,7 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				if (DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType())) {
-					String pathFile = AgentConfig.getDefaultInstance().getProperty("pathFile").trim();
+					String pathFile = AgentConfig.getDefaultInstance().getProperty("agentValidators.pathFile").trim();
 					String os = AgentUtil.validateVendorModel(pathFile+"agentValidators.xml", deviceDetails.getDeviceType().getVendor(), deviceDetails.getDeviceType().getModel());
 					input.put("vendor", deviceDetails.getDeviceType().getVendor());
 					input.put("os", os);

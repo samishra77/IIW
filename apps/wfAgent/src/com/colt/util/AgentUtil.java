@@ -71,7 +71,7 @@ public class AgentUtil {
 						for(String e : expression) {
 							node = (Node) xpath.compile(e).evaluate(doc, XPathConstants.NODE);
 							String fileName = node.getTextContent();
-							String pathFile = AgentConfig.getDefaultInstance().getProperty("pathFile").trim();
+							String pathFile = AgentConfig.getDefaultInstance().getProperty("agentValidators.pathFile").trim();
 							if(findOSByFile(pathFile, fileName, model)) {
 								if("Device".contains(node.getNodeName())) {
 									resp = node.getNodeName().replace("Device", "").toLowerCase();
@@ -79,6 +79,13 @@ public class AgentUtil {
 									resp = node.getNodeName().replace("Router", "").toLowerCase();
 								}
 								resp = node.getNodeName();
+								if ("IOSDevice".equals(resp)) {
+									resp = "ios";
+								} else if ("XEDevice".equals(resp) || "XRDevice".equals(resp)) {
+									resp = "xr";
+								} else if ("JunOSRouter".equals(resp)) {
+									resp = "junos";
+								}
 								break;
 							}
 						}

@@ -80,6 +80,7 @@
 				<include name="**/*.properties"/>
 				<include name="**/*.xml"/>
 				<include name="**/*.MF"/>
+				<include name="**/prepare-device.*"/>
 			</fileset>
 		</copy>
 	</target>
