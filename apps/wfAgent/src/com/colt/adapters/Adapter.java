@@ -17,24 +17,11 @@ public abstract class Adapter {
 	public abstract DeviceDetail fetch(String circuitID, String ipAddress) throws Exception;
 
 	protected void retrieveLastStatusChange(String circuitID, String ipAddress, DeviceDetail deviceDetail) throws Exception {
-		String community = DeviceCommand.getDefaultInstance().getProperty("community").trim();
-		String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("snmpwalk").trim(), community, ipAddress, "ifAlias");
-		List<String> outputList = AgentUtil.runLocalCommand(command);
-		if(outputList != null && !outputList.isEmpty()) {
-			Map<String, Interface> ifAliasMap = new HashMap<String, Interface>();
-			String l3CircuitParam = "L3Circuit["+circuitID+"]";
-			String sidParam = "Cct["+circuitID+"]";
-			for(String line : outputList) {
-				if(line.contains(l3CircuitParam) || line.contains(sidParam)) {
-					String ifAlias = getIfAlias(line);
-					if(ifAlias != null && !"".equals(ifAlias)) {
-						ifAliasMap.put(ifAlias, new Interface());
-					}
-				}
-			}
+		Map<String, Interface> ifAliasMap = retrieveIfAlias(circuitID, ipAddress);
+		if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
+			retrieveSNMPInterfaceName(ifAliasMap, ipAddress);
+			retrieveSNMPInterfaceLastStatusChange(ifAliasMap, ipAddress);
 
-			retrieveSNMPInterfaceName(ifAliasMap, ipAddress, community);
-			retrieveSNMPInterfaceLastStatusChange(ifAliasMap, ipAddress, community);
 			List<Interface> snmpInterfaces = new ArrayList<Interface>();
 			if(!ifAliasMap.isEmpty()) {
 				for(String key : ifAliasMap.keySet()) {
@@ -54,12 +41,34 @@ public abstract class Adapter {
 		}
 	}
 
-	private void retrieveSNMPInterfaceName(Map<String, Interface> ifAliasMap, String deviceIP, String community) throws Exception {
+	protected Map<String, Interface> retrieveIfAlias(String circuitID, String ipAddress) throws Exception {
+		Map<String, Interface> ifAliasMap = null;
+		String community = DeviceCommand.getDefaultInstance().getProperty("community").trim();
+		String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("snmpwalk").trim(), community, ipAddress, "ifAlias");
+		List<String> outputList = AgentUtil.runLocalCommand(command);
+		if(outputList != null && !outputList.isEmpty()) {
+			String l3CircuitParam = "L3Circuit["+circuitID+"]";
+			String sidParam = "Cct["+circuitID+"]";
+			ifAliasMap = new HashMap<String, Interface>();
+			for(String line : outputList) {
+				if(line.contains(l3CircuitParam) || line.contains(sidParam)) {
+					String ifAlias = getIfAlias(line);
+					if(ifAlias != null && !"".equals(ifAlias)) {
+						ifAliasMap.put(ifAlias, new Interface());
+					}
+				}
+			}
+		}
+		return ifAliasMap;
+	}
+
+	protected void retrieveSNMPInterfaceName(Map<String, Interface> ifAliasMap, String deviceIP) throws Exception {
 		if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
 			String arg = "";
 			for(String ifAlias : ifAliasMap.keySet()) {
 				arg+= "ifDescr." + ifAlias + " ";
 			}
+			String community = DeviceCommand.getDefaultInstance().getProperty("community").trim();
 			String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("snmpget").trim(), community, deviceIP, arg);
 			List<String> outputList = AgentUtil.runLocalCommand(command);
 			if(outputList != null && !outputList.isEmpty()) {
@@ -76,12 +85,13 @@ public abstract class Adapter {
 		}
 	}
 
-	private void retrieveSNMPInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, String community) throws Exception {
+	protected void retrieveSNMPInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP) throws Exception {
 		if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
 			String arg = "";
 			for(String ifAlias : ifAliasMap.keySet()) {
 				arg+= "ifLastChange." + ifAlias + " ";
 			}
+			String community = DeviceCommand.getDefaultInstance().getProperty("community").trim();
 			String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("snmpget").trim(), community, deviceIP, arg);
 			List<String> outputList = AgentUtil.runLocalCommand(command);
 			if(outputList != null && !outputList.isEmpty()) {
@@ -102,7 +112,80 @@ public abstract class Adapter {
 		}
 	}
 
-	private String getIfAlias(String line) {
+	protected void retrieveInterfaceIpAddress(Map<String, Interface> ifAliasMap, String deviceIP) throws Exception  {
+		if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
+			String arg = "";
+			for(String ifAlias : ifAliasMap.keySet()) {
+				arg+= "ifPhysAddress." + ifAlias + " ";
+			}
+			String community = DeviceCommand.getDefaultInstance().getProperty("community").trim();
+			String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("snmpget").trim(), community, deviceIP, arg);
+			List<String> outputList = AgentUtil.runLocalCommand(command);
+			if(outputList != null && !outputList.isEmpty()) {
+				for(String line : outputList) {
+					String ifAlias = getIfAlias(line);
+					if(ifAliasMap.containsKey(ifAlias)) {
+						String ifIpAddress = getIfValue(line);
+						if(ifIpAddress != null) {
+							ifAliasMap.get(ifAlias).setIpaddress(ifIpAddress);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	protected void retrieveInterfaceOperStatus(Map<String, Interface> ifAliasMap, String deviceIP) throws Exception  {
+		if(ifAliasMap != null && !ifAliasMap.isEmpty() && deviceIP != null && !"".equals(deviceIP)) {
+			String arg = "";
+			for(String ifAlias : ifAliasMap.keySet()) {
+				arg+= "ifOperStatus." + ifAlias + " ";
+			}
+			String community = DeviceCommand.getDefaultInstance().getProperty("community").trim();
+			String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("snmpget").trim(), community, deviceIP, arg);
+			List<String> outputList = AgentUtil.runLocalCommand(command);
+			if(outputList != null && !outputList.isEmpty()) {
+				for(String line : outputList) {
+					String ifAlias = getIfAlias(line);
+					if(ifAliasMap.containsKey(ifAlias)) {
+						String ifOperStatus = getIfValue(line);
+						if(ifOperStatus != null) {
+							if(ifOperStatus.contains("up")) {
+								ifAliasMap.get(ifAlias).setStatus(AgentUtil.UP);
+							} else {
+								ifAliasMap.get(ifAlias).setStatus(AgentUtil.DOWN);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	protected String retrieveInterfaceSysUpTime(String deviceIP) throws Exception  {
+		String sysUpTime = null;
+		if(deviceIP != null && !"".equals(deviceIP)) {
+			String community = DeviceCommand.getDefaultInstance().getProperty("community").trim();
+			String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("snmpwalk").trim(), community, deviceIP, "sysUpTime");
+			List<String> outputList = AgentUtil.runLocalCommand(command);
+			if(outputList != null && !outputList.isEmpty()) {
+				for(String line : outputList) {
+					sysUpTime = getIfValue(line);
+					if(sysUpTime != null && !"".equals(sysUpTime)) {
+						if(sysUpTime.contains("days,")) {
+							sysUpTime = sysUpTime.replace("days,", "d");
+						} else if(sysUpTime.contains("day,")) {
+							sysUpTime = sysUpTime.replace("day,", "d");
+						}
+						return sysUpTime;
+					}
+				}
+			}
+		}
+		return sysUpTime;
+	}
+
+	protected String getIfAlias(String line) {
 		String resp = "";
 		if(line != null && (line.contains("= Timeticks:") || line.contains("= STRING:") ||  line.contains("= INTEGER:")) ) {
 			String[] split = line.split("=");
@@ -117,7 +200,7 @@ public abstract class Adapter {
 		return resp;
 	}
 
-	private String getIfValue(String line) {
+	protected String getIfValue(String line) {
 		String splitRegex = "";
 		if(line != null) {
 			if(line.contains("= Timeticks:")) {

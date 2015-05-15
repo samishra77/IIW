@@ -49,7 +49,6 @@ public class CiscoIOSAdapter extends Adapter {
 		} else if(sshdev != null) {
 			sshdev.disconnect();
 		}
-
 		retrieveLastStatusChange(circuitID, ipAddress, deviceDetail);
 	}
 
@@ -64,15 +63,11 @@ public class CiscoIOSAdapter extends Adapter {
 			}
 			if(output != null && !"".equals(output)) {
 				String[] array = null;
-				if(output.indexOf("\n") > -1) {
-					array = output.split("\n");
-				} else if(output.indexOf("\r\n") > -1) {
+				if(output.indexOf("\r\n") > -1) {
 					array = output.split("\r\n");
 				} else {
 					array = new String[] {output};
 				}
-				
-				array = output.split("\r\n");
 				if(array != null && array.length > 0) {
 					for(String a : array) {
 						if(a.contains("uptime is")) {
@@ -121,9 +116,7 @@ public class CiscoIOSAdapter extends Adapter {
 			Interface interf = null;
 			//split each line
 			String[] outputArray = null;
-			if(output.indexOf("\n") > -1) {
-				outputArray = output.split("\n");
-			} else if(output.indexOf("\r\n") > -1) {
+			if(output.indexOf("\r\n") > -1) {
 				outputArray = output.split("\r\n");
 			} else {
 				outputArray = new String[] {output};
@@ -185,7 +178,12 @@ public class CiscoIOSAdapter extends Adapter {
 		if(output != null && !"".equals(output)) {
 			List<Interface> interfaceList = new ArrayList<Interface>();
 			Interface interf = null;
-			String[] array = output.split("\r\n");
+			String[] array = null;
+			if(output.indexOf("\r\n") > -1) {
+				array = output.split("\r\n");
+			} else {
+				array = new String[] {output};
+			}
 			if(array != null && array.length > 0) {
 				List<String> values = null;
 				for(String line : array) {

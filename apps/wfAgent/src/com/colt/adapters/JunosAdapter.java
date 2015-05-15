@@ -1,12 +1,15 @@
 package com.colt.adapters;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.colt.connect.ConnectSSH;
 import com.colt.connect.ConnectTelnet;
+import com.colt.util.AgentUtil;
 import com.colt.util.DeviceCommand;
 import com.colt.ws.biz.DeviceDetail;
+import com.colt.ws.biz.Interface;
 
 public class JunosAdapter extends Adapter {
 
@@ -35,17 +38,18 @@ public class JunosAdapter extends Adapter {
 
 	private void executeCommands(ConnectTelnet telnetdev, ConnectSSH sshdev, String ipAddress, String circuitID, DeviceDetail deviceDetail) throws Exception {
 		retrieveDeviceUpTime(telnetdev, sshdev, deviceDetail);
-//		if(ipAddress != null && !"".equals(ipAddress)) {
-//			retrieveWanInterface(telnetdev, sshdev, ipAddress, deviceDetail);
-//		}
-//		if(circuitID != null && !"".equals(circuitID)) {
-//			retrieveCircuitInterface(telnetdev, sshdev, circuitID, deviceDetail);
-//		}
-//		if(telnetdev != null) {
-//			telnetdev.disconnect();
-//		} else if(sshdev != null) {
-//			sshdev.disconnect();
-//		}
+		if(ipAddress != null && !"".equals(ipAddress)) {
+			retrieveWanInterface(telnetdev, sshdev, ipAddress, deviceDetail);
+		}
+		if(circuitID != null && !"".equals(circuitID)) {
+			retrieveCircuitInterface(telnetdev, sshdev, circuitID, deviceDetail);
+		}
+		if(telnetdev != null) {
+			telnetdev.disconnect();
+		} else if(sshdev != null) {
+			sshdev.disconnect();
+		}
+		retrieveLastStatusChange(circuitID, ipAddress, deviceDetail);
 	}
 
 	private void retrieveDeviceUpTime(ConnectTelnet telnetdev, ConnectSSH sshdev, DeviceDetail deviceDetail) throws Exception {
@@ -123,6 +127,117 @@ public class JunosAdapter extends Adapter {
 						}
 					}
 				}
+			}
+		}
+	}
+
+	private void retrieveWanInterface(ConnectTelnet telnetdev, ConnectSSH sshdev, String ipAddress, DeviceDetail deviceDetail) throws Exception {
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), ipAddress);
+		String output = "";
+		if(telnetdev != null) {
+			output = telnetdev.applyCommands(command);
+		} else if(sshdev != null) {
+			output = sshdev.applyCommands(command);
+		}
+
+		if(output != null && !"".equals(output)) {
+			List<Interface> interfaceList = new ArrayList<Interface>();
+			Interface interf = null;
+			//split each line
+			String[] outputArray = null;
+			 if(output.indexOf("\r\n") > -1) {
+				outputArray = output.split("\r\n");
+			} else {
+				outputArray = new String[] {output};
+			}
+
+			//process data
+			if(outputArray != null && outputArray.length > 1) {
+				List<String> values = null;
+				String line = outputArray[1].trim();
+				String[] lineArray = line.split(" ");
+				values = new ArrayList<String>();
+				for(String l : lineArray) {
+					if(!" ".equals(l) && !"".equals(l)) {
+						values.add(l);
+					}
+				}
+				interf = new Interface();
+				interf.setIpaddress("192.168.0.5");
+				String[] interfaceData = values.toArray(new String[values.size()]);
+				if(interfaceData.length > 0) {
+					for (int i = 0; i < interfaceData.length; i++) {
+						if(i == 0) {
+							interf.setName(interfaceData[i]);
+						}
+						if(i == 1) {
+							if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+								interf.setStatus(AgentUtil.UP);
+							} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+								interf.setStatus(AgentUtil.DOWN);
+							}
+						}
+					}
+				}
+				interfaceList.add(interf);
+
+			}
+			if(!interfaceList.isEmpty()) {
+				deviceDetail.getInterfaces().addAll(interfaceList);
+			}
+		}
+	}
+
+	private void retrieveCircuitInterface(ConnectTelnet telnetdev, ConnectSSH sshdev, String circuitID, DeviceDetail deviceDetail) throws Exception {
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
+		String output = "";
+		if(telnetdev != null) {
+			output = telnetdev.applyCommands(command);
+		} else if(sshdev != null) {
+			output = sshdev.applyCommands(command);
+		}
+
+		if(output != null && !"".equals(output)) {
+			List<Interface> interfaceList = new ArrayList<Interface>();
+			Interface interf = null;
+			String[] array = output.split("\r\n");
+			if(array != null && array.length > 0) {
+				List<String> values = null;
+				for(String line : array) {
+					if(line.contains("L3Circuit[FRA/FRA/IA-127158]")) {
+						line = line.trim();
+						String[] lineArray = line.split(" ");
+						values = new ArrayList<String>();
+						for(String l : lineArray) {
+							if(!" ".equals(l) && !"".equals(l)) {
+								values.add(l.trim());
+							}
+						}
+						if(!values.isEmpty()) {
+							interf = new Interface();
+							String[] interfaceData = values.toArray(new String[values.size()]);
+							if(interfaceData.length > 0) {
+								for (int i = 0; i < interfaceData.length; i++) {
+									if(i == 0) {
+										interf.setName(interfaceData[i]);
+									}
+									if(i == 1) {
+										if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+											interf.setStatus(AgentUtil.UP);
+										} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+											interf.setStatus(AgentUtil.DOWN);
+										}
+									}
+								}
+							}
+							interfaceList.add(interf);
+							break;
+						}
+					}
+				}
+			}
+			if(!interfaceList.isEmpty()) {
+				deviceDetail.getInterfaces().addAll(interfaceList);
 			}
 		}
 	}
