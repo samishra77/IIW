@@ -81,6 +81,7 @@
 				<include name="**/*.xml"/>
 				<include name="**/*.MF"/>
 				<include name="**/prepare-device.*"/>
+				<include name="**/*.txt"/>
 			</fileset>
 		</copy>
 	</target>

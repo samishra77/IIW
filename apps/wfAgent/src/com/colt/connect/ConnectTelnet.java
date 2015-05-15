@@ -17,7 +17,7 @@ import org.apache.commons.net.telnet.TelnetClient;
  * @author Aricent
  * Class to connect through telnet
  */
-public class ConnectTelnet {
+public class ConnectTelnet extends ConnectDevice {
 	protected Log log;
 	protected TelnetClient telnet;
 	protected InputStream in;
@@ -41,7 +41,8 @@ public class ConnectTelnet {
 		telnet.setConnectTimeout(CONNECTTIMEOUT*1000);
 	}
 
-	public void connect(String server, int _timeout) throws Exception {
+	@Override
+	public void connect(String server, int _timeout, String connectProtocol) throws Exception {
 		try {
 			telnet.connect(server, 23);
 			int auxtimeout = (_timeout > IDLETIMEOUT) ? _timeout:IDLETIMEOUT;

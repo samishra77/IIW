@@ -26,8 +26,12 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 			Adapter adapter = factoryAdapter.getAdapter(vendor, os);
 			if(adapter != null && l3DeviceDetails != null && deviceDetails.getIp() != null && deviceDetails != null) {
 				try {
-					DeviceDetail devDetail = adapter.fetch(deviceDetails.getCircuitID(), deviceDetails.getIp());
-					l3DeviceDetails.setDeviceDetails(devDetail);
+					Integer snmpVersion = (Integer) input.get("snmpVersion");
+					DeviceDetail devDetail = adapter.fetch(deviceDetails.getCircuitID(), deviceDetails.getIp(), snmpVersion.intValue());
+					if(devDetail != null && l3DeviceDetails.getDeviceDetails() != null) {
+						l3DeviceDetails.getDeviceDetails().setTime(devDetail.getTime());
+						l3DeviceDetails.getDeviceDetails().getInterfaces().addAll(devDetail.getInterfaces());
+					}
 					resp = new String[] {"SENDRESPONSE"};
 				} catch (Exception e) {
 					log.error(e,e);

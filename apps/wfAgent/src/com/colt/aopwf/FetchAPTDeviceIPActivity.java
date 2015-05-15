@@ -23,9 +23,9 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				if(deviceDetails != null && deviceDetails.getName() != null) {
-					String baseUrl = AgentConfig.getDefaultInstance().getProperty("baseUrl");
-					String userName = AgentConfig.getDefaultInstance().getProperty("userName");
-					String userPass = AgentConfig.getDefaultInstance().getProperty("userPass");
+					String baseUrl = AgentConfig.getDefaultInstance().getProperty("apt.baseUrl");
+					String userName = AgentConfig.getDefaultInstance().getProperty("apt.userName");
+					String userPass = AgentConfig.getDefaultInstance().getProperty("apt.userPass");
 					User user = new User();
 					user.setUsername(userName);
 					user.setPassword(userPass);

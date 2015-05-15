@@ -21,7 +21,7 @@ import com.jcraft.jsch.Session;
  * @author Intelinet
  */
 
-public class ConnectSSH {
+public class ConnectSSH  extends ConnectDevice {
 	protected Log log;
 	protected JSch jsch;
 	protected SSHTools ssh;
@@ -52,7 +52,7 @@ public class ConnectSSH {
 		jsch = new JSch();
 	}
 
-	public void connect(String server, int _timeout) throws Exception {
+	public void connect(String server, int _timeout, String connectProtocol) throws Exception {
 		try {
 			this.server = server;
 			this._timeout = _timeout;

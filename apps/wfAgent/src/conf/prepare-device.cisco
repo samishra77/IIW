@@ -3,3 +3,5 @@ write,sstoolid
 waitfor,word:
 write,L@svegas!23
 waitfor,#
+sendCmd,term len 0,#
+sendCmd,term width 250,#

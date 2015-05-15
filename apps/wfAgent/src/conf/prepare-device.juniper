@@ -3,3 +3,5 @@ write,sstoolid
 waitfor,word:
 write,L@svegas!23
 waitfor,>
+sendCmd,set cli screen-length 0,>
+sendCmd,set cli screen-width 250,> 

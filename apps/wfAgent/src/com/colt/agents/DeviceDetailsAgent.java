@@ -11,6 +11,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.colt.aopwf.DeviceDetailsProcess;
 import com.colt.aopwf.IWorkflowProcess;
 import com.colt.ws.biz.DeviceDetailsRequest;
+import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class DeviceDetailsAgent {
@@ -20,8 +21,8 @@ public class DeviceDetailsAgent {
 	private ApplicationContext ac;
 	private static Object lock = new Object();
 
-	public L3DeviceDetailsResponse execute(DeviceDetailsRequest deviceDetail) throws Exception {
-		L3DeviceDetailsResponse l3DeviceDetails = null;
+	public IDeviceDetailsResponse execute(DeviceDetailsRequest deviceDetail) throws Exception {
+		IDeviceDetailsResponse deviceDetailsResponse = null;
 		IWorkflowProcess process = getProcess();
 
 		Map<String,Object> input = new HashMap<String,Object>();
@@ -35,17 +36,17 @@ public class DeviceDetailsAgent {
 
 		// Generate the response string
 		if(input.containsKey("l3DeviceDetails")) {
-			l3DeviceDetails = (L3DeviceDetailsResponse) input.get("l3DeviceDetails");
+			deviceDetailsResponse = (L3DeviceDetailsResponse) input.get("l3DeviceDetails");
 		}
 
 		if(input.containsKey("exception")) {
-			if (l3DeviceDetails != null) {
-				l3DeviceDetails.getErrorResponse().setCode(CODE_UNKKONWN);
-				l3DeviceDetails.getErrorResponse().setMessage(((Exception) input.get("exception")).toString());
+			if (deviceDetailsResponse != null) {
+				deviceDetailsResponse.getErrorResponse().setCode(CODE_UNKKONWN);
+				deviceDetailsResponse.getErrorResponse().setMessage(((Exception) input.get("exception")).toString());
 			}
 		}
 
-		return l3DeviceDetails;
+		return deviceDetailsResponse;
 	}
 
 	private IWorkflowProcess getProcess() {

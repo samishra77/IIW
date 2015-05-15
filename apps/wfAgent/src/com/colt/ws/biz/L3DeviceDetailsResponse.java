@@ -1,6 +1,6 @@
 package com.colt.ws.biz;
 
-public class L3DeviceDetailsResponse {
+public class L3DeviceDetailsResponse implements IDeviceDetailsResponse {
 
 	private String responseID;
 	private String wanIP;

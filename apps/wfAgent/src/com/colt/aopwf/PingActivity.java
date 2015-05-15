@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.colt.util.AgentConfig;
 import com.colt.ws.biz.DeviceDetailsRequest;
 
 public class PingActivity implements IWorkflowProcessActivity {
@@ -66,8 +67,10 @@ public class PingActivity implements IWorkflowProcessActivity {
 	private boolean isReachable(String hostname) {
 		boolean status = false;
 		try {
+			String pingTimeout = AgentConfig.getDefaultInstance().getProperty("ping.timeout").trim();
+			int timeout = Integer.valueOf(pingTimeout);
 			InetAddress addr = InetAddress.getByName(hostname);
-			status = addr.isReachable(3000);
+			status = addr.isReachable(timeout);
 		} catch (Exception e) {
 			log.error(e,e);
 		}
