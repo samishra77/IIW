@@ -19,7 +19,7 @@ public class DeviceDetail {
 
 	private Log log = LogFactory.getLog(DeviceDetail.class);
 
-	@RequestMapping(value = "/getDeviceDetails", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/getDeviceDetails", method = RequestMethod.POST, headers = "Accept=application/json")
 	public Object getDeviceDetails(@RequestBody DeviceDetailsRequest deviceDetail) {
 		log.info("[" + deviceDetail.getSeibelUserID() + "] Entering method getDeviceDetails()");
 		IDeviceDetailsResponse deviceDetailsResponse = null;

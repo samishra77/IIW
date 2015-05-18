@@ -8,8 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.colt.connect.ConnectDevice;
-import com.colt.connect.ConnectSSH;
-import com.colt.connect.ConnectTelnet;
 import com.colt.util.AgentUtil;
 import com.colt.util.DeviceCommand;
 import com.colt.util.SNMPUtil;
@@ -36,7 +34,7 @@ public class JunosAdapter extends Adapter {
 					throw e2;
 				}
 			}
-			connectDevice.prepareForCommands(FactoryAdapter.VENDOR_CISCO);
+			connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
 			executeCommands(connectDevice, ipAddress, circuitID, deviceDetail, snmpVersion);
 		}
 		return deviceDetail;
@@ -59,7 +57,7 @@ public class JunosAdapter extends Adapter {
 		try {
 			String command = DeviceCommand.getDefaultInstance().getProperty("junos.showDeviceUptime").trim();
 			if(command != null && !"".equals(command)) {
-				String output = connectDevice.applyCommands(command, "#");
+				String output = connectDevice.applyCommands(command, ">");
 				if(output != null && !"".equals(output)) {
 					String[] array = null;
 					if(output.indexOf("\n") > -1) {
@@ -136,7 +134,7 @@ public class JunosAdapter extends Adapter {
 	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, DeviceDetail deviceDetail) {
 		try {
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), ipAddress);
-			String output = connectDevice.applyCommands(command, "#");
+			String output = connectDevice.applyCommands(command, ">");
 			if(output != null && !"".equals(output)) {
 				List<Interface> interfaceList = new ArrayList<Interface>();
 				Interface interf = null;
@@ -160,7 +158,7 @@ public class JunosAdapter extends Adapter {
 						}
 					}
 					interf = new Interface();
-					interf.setIpaddress("192.168.0.5");
+					interf.setIpaddress(ipAddress);
 					String[] interfaceData = values.toArray(new String[values.size()]);
 					if(interfaceData.length > 0) {
 						for (int i = 0; i < interfaceData.length; i++) {
@@ -191,7 +189,7 @@ public class JunosAdapter extends Adapter {
 	private void retrieveCircuitInterface(ConnectDevice connectDevice, String circuitID, DeviceDetail deviceDetail) {
 		try {
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
-			String output = connectDevice.applyCommands(command, "#");
+			String output = connectDevice.applyCommands(command, ">");
 			if(output != null && !"".equals(output)) {
 				List<Interface> interfaceList = new ArrayList<Interface>();
 				Interface interf = null;
@@ -199,7 +197,7 @@ public class JunosAdapter extends Adapter {
 				if(array != null && array.length > 0) {
 					List<String> values = null;
 					for(String line : array) {
-						if(line.contains("L3Circuit[FRA/FRA/IA-127158]")) {
+						if(line.contains("L3Circuit[" + circuitID + "]")) {
 							line = line.trim();
 							String[] lineArray = line.split(" ");
 							values = new ArrayList<String>();

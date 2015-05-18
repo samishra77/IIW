@@ -104,7 +104,7 @@ public class CiscoIOSAdapter extends Adapter {
 
 	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, DeviceDetail deviceDetail) {
 		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.ios.showIpInterface").trim(), ipAddress);
+			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.ios.showIpInterfaces").trim(), ipAddress);
 			if(command != null && !"".equals(command)) {
 				String output = connectDevice.applyCommands(command, "#");
 				if(output != null && !"".equals(output)) {

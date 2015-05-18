@@ -102,7 +102,7 @@ public class AgentUtil {
 			try {
 				InputStream inputStreamFile = null;
 				if(pathFile == null || "".equals(pathFile) || " ".equals(pathFile)) {
-					inputStreamFile = AgentUtil.class.getClass().getResourceAsStream("/conf/" + fileName);
+					inputStreamFile = AgentUtil.class.getResourceAsStream("/conf/" + fileName);
 				} else {
 					File file = new File(pathFile, fileName);
 					if(file != null && file.isFile()) {

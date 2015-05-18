@@ -22,7 +22,6 @@ public class ConnectTelnet extends ConnectDevice {
 	protected TelnetClient telnet;
 	protected InputStream in;
 	protected PrintStream out;
-	@SuppressWarnings("unused")
 	private final int CONNECTTIMEOUT = 15; // *1000 = 15 seconds
 	protected final int IDLETIMEOUT = 15; // default/mininum
 	protected ByteArrayOutputStream outstream = new ByteArrayOutputStream();
@@ -54,7 +53,6 @@ public class ConnectTelnet extends ConnectDevice {
 			log.error(server + ": " + e.getMessage(), e);
 			throw e;
 		}
-
 	}
 
 	public String waitfor(String pattern) throws Exception {
@@ -77,7 +75,7 @@ public class ConnectTelnet extends ConnectDevice {
 			if (in.available() > 0) {
 				sleepCount = 0;
 				ch = (char)in.read();
-				log.debug("char received: "+ch+"      (in.available():"+in.available());
+				//log.debug("char received: "+ch+"      (in.available():"+in.available());
 				outstream.write(ch);
 				sb.append( ch );
 			}
@@ -135,7 +133,7 @@ public class ConnectTelnet extends ConnectDevice {
 			if (in.available() > 0) {
 				sleepCount = 0;
 				ch = (char)in.read();
-				log.debug(ch);
+				//log.debug(ch);
 				outstream.write(ch);
 				sb.append( ch );
 			}
@@ -154,11 +152,15 @@ public class ConnectTelnet extends ConnectDevice {
 			//			}
 			if (endTag!=null && !"".equals(endTag)) {
 				if ( ( k = sb.indexOf(endTag)) >= 0 ) {
-					return (sb.substring(0,k));
+					String result = sb.substring(0,k);
+					log.debug(result);
+					return result;
 				}
 			}
 		}
-		return sb.toString();
+		String result = sb.toString();
+		log.debug(result);
+		return result;
 	}
 
 	public String applyCommands(String commands) throws Exception {
@@ -173,12 +175,11 @@ public class ConnectTelnet extends ConnectDevice {
 			this.write(line);
 			Thread.sleep(70);
 		}
-		if (endTag!=null && !"".equals(endTag)) {
-			this.write("\n"+endTag);
-		}
+		//if (endTag!=null && !"".equals(endTag)) {
+		//	this.write("\n"+endTag);
+		//}
 		Thread.sleep(500);
 		return this.readBuffer(endTag);
-
 	}
 
 	public String getOutput() {

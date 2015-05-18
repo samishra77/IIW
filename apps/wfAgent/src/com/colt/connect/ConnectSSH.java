@@ -5,8 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,7 +78,7 @@ public class ConnectSSH  extends ConnectDevice {
 			if (in.available() > 0) {
 				sleepCount = 0;
 				ch = (char)in.read();
-				log.debug("char received: "+ch+"      (in.available():"+in.available());
+				//log.debug("char received: "+ch+"      (in.available():"+in.available());
 				outstream.write(ch);
 				sb.append( ch );
 			}
@@ -97,7 +95,9 @@ public class ConnectSSH  extends ConnectDevice {
 			}
 			m = p.matcher(sb.toString());
 			if( m.find() ) {
-				return sb.toString();
+				String result = sb.toString();
+				log.debug(result);
+				return result;
 			}
 		}
 	}
@@ -136,7 +136,7 @@ public class ConnectSSH  extends ConnectDevice {
 			if (in.available() > 0) {
 				sleepCount = 0;
 				ch = (char)in.read();
-				log.debug(ch);
+				//log.debug(ch);
 				outstream.write(ch);
 				sb.append( ch );
 			}
@@ -155,13 +155,13 @@ public class ConnectSSH  extends ConnectDevice {
 				}
 			}
 		}
-		System.out.println(sb.toString());
-		return sb.toString();
+		String result = sb.toString();
+		log.debug(result);
+		return result;
 	}
 
 	public String applyCommands(String commands) throws Exception {
 		return applyCommands(commands, null);
-
 	}
 
 	public String applyCommands(String commands, String endTag) throws Exception {

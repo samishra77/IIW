@@ -42,9 +42,7 @@ public class SNMPUtil {
 						for(String line : outputList) {
 							if(line.contains("= STRING:")) {
 								if(this.version == null) {
-									if(version != null) {
-										this.version = 2;
-									}
+									this.version = 2;
 								}
 								if(model != null && line.contains(model)) {
 									isSameModel = true;
@@ -61,11 +59,7 @@ public class SNMPUtil {
 						if(outputList != null && !outputList.isEmpty()) {
 							for(String line : outputList) {
 								if(line.contains("= STRING:")) {
-									if(this.version == null) {
-										if(version != null) {
-											this.version = 3;
-										}
-									}
+									this.version = 3;
 									if(model != null && line.contains(model)) {
 										isSameModel = true;
 									}
