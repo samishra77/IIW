@@ -2,6 +2,7 @@ package com.colt.controller;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -77,6 +78,15 @@ public class SearchService {
 			if (circuit.getCircPathInstID() != null) {
 				usageTracking.setResultsFetched(1);
 				usageTracking.setParams("[service:" + circuit.getCircuitID() + "]");
+			}
+			if(circuit.getRelatedOrderNumber() != null && !"".equals((circuit.getRelatedOrderNumber()))) {
+				if(circuit.getRelatedOrderNumber().contains("\n")) {
+					circuit.setRelatedOrderNumber(circuit.getRelatedOrderNumber().replaceAll("\n", " "));
+				}
+				StringTokenizer st = new StringTokenizer(circuit.getRelatedOrderNumber(), ";,& ");
+				while(st.hasMoreTokens()) {
+					circuit.getRelatedOrderNumberList().add(st.nextToken());
+				}
 			}
 		} catch (Exception e) {
 			log.error("[" + username + "] " + e, e);

@@ -93,7 +93,9 @@
 					<tr>
 						<td class="font-strong"><spring:message code="serviceData.relatedOrderNumber"></spring:message>:</td>
 						<td>
-							<a href="" ng-click="doRelatedOrderNumber()">{{circuit.relatedOrderNumber}}</a>
+							<label ng-repeat="relatedOrderNumber in circuit.relatedOrderNumberList" style="font-weight: normal;">
+								<a href="" ng-click="doRelatedOrderNumber(relatedOrderNumber)">{{relatedOrderNumber}}</a><label ng-if="!$last" style="font-weight: normal;">,</label>
+							</label>
 						</td>		
 						<td class="font-strong"><spring:message code="serviceData.resilienceType"></spring:message>:</td>
 						<td>{{circuit.resilienceType}}</td>

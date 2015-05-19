@@ -121,8 +121,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			$scope.showSideLoading = false;
 		});
 	}
-	$scope.doRelatedOrderNumber = function doRelatedOrderNumber() {
-		var URL = contextPath + "/popUp.jsp?username=" + username + "&orderNumber=" + encodeURIComponent($scope.circuit.relatedOrderNumber) + '#/ServiceData/' + $scope.circuit.circPathInstID;
+	$scope.doRelatedOrderNumber = function doRelatedOrderNumber(relatedOrderNumber) {
+		var URL = contextPath + "/popUp.jsp?username=" + username + "&orderNumber=" + encodeURIComponent(relatedOrderNumber) + '#/ServiceData/' + $scope.circuit.circPathInstID;
 		window.open(URL, "_blank");
 	}
 

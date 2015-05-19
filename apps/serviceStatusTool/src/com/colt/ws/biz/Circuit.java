@@ -1,5 +1,6 @@
 package com.colt.ws.biz;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Circuit {
@@ -29,6 +30,17 @@ public class Circuit {
 	private List<Ticket> tickets;
 	private String resilienceType;
 	private String serviceId;
+	private List<String> relatedOrderNumberList;
+
+	/**
+	 * @return the relatedOrderNumberList
+	 */
+	public List<String> getRelatedOrderNumberList() {
+		if(relatedOrderNumberList == null) {
+			relatedOrderNumberList = new ArrayList<String>();
+		}
+		return relatedOrderNumberList;
+	}
 
 	/**
 	 * @return the osmOrderNO
