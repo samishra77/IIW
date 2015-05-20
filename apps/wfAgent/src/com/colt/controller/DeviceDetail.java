@@ -34,6 +34,8 @@ public class DeviceDetail {
 					//deviceDetailsResponse = new L2DeviceDetailsResponse();
 				}
 			}
+			deviceDetailsResponse.setResponseID(deviceDetail.getRequestID());
+			deviceDetailsResponse.setCircuitID(deviceDetail.getCircuitID());
 		} catch (Exception e) {
 			log.error("[" + deviceDetail.getSeibelUserID() + "] " + e, e);
 		}

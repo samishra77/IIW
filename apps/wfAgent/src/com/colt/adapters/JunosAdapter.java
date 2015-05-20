@@ -188,7 +188,7 @@ public class JunosAdapter extends Adapter {
 
 	private void retrieveCircuitInterface(ConnectDevice connectDevice, String circuitID, DeviceDetail deviceDetail) {
 		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
+			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), circuitID);
 			String output = connectDevice.applyCommands(command, ">");
 			if(output != null && !"".equals(output)) {
 				List<Interface> interfaceList = new ArrayList<Interface>();

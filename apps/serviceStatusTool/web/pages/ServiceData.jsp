@@ -227,12 +227,8 @@
 					<td class="msg-red" >{{deviceMessageASideError}}</td>
 				</tr>
 				<tr>
-					<td ng-if="showButtonRefreshASide">
-						<button class="button button-primary" ng-click="doDeviceRefresh('aside')"><spring:message code="global.refresh"></spring:message></button>
-					</td>
-				</tr>
-				<tr>
-					<td>
+					<td style="padding: 8px;">
+						<button class="button button-primary" ng-click="doDeviceRefresh('aside')" ng-if="showButtonRefreshASide"><spring:message code="global.refresh"></spring:message></button>
 						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showRefreshASideLoading"/ >
 					</td>
 				</tr>
@@ -311,12 +307,8 @@
 					<td class="msg-red">{{deviceMessageZSideError}}</td>
 				</tr>
 				<tr>
-					<td ng-if="showButtonRefreshZSide">
-						<button class="button button-primary" ng-click="doDeviceRefresh('zside')"><spring:message code="global.refresh"></spring:message></button>
-					</td>
-				</tr>
-				<tr>
-					<td>
+					<td style="padding: 8px;">
+						<button class="button button-primary" ng-click="doDeviceRefresh('zside')" ng-if="showButtonRefreshZSide"><spring:message code="global.refresh"></spring:message></button>
 						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showRefreshZSideLoading" />
 					</td>
 				</tr>
