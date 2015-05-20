@@ -117,43 +117,38 @@ public class CiscoIOSAdapter extends Adapter {
 					} else {
 						outputArray = new String[] {output};
 					}
-					//remove headers
-					List<String> outputResultList = new ArrayList<String>();
-					for (int i = 0; i < outputArray.length; i++) {
-						if(i > 6) {
-							outputResultList.add(outputArray[i]);
-						}
-					}
 					//process data
-					if(!outputResultList.isEmpty()) {
+					if(outputArray != null && outputArray.length > 0) {
 						List<String> values = null;
-						for(String line : outputResultList) {
-							line = line.trim();
-							String[] lineArray = line.split(" ");
-							values = new ArrayList<String>();
-							for(String l : lineArray) {
-								if(!" ".equals(l) && !"".equals(l)) {
-									values.add(l);
-								}
-							}
-							interf = new Interface();
-							interf.setIpaddress(ipAddress);
-							String[] interfaceData = values.toArray(new String[values.size()]);
-							if(interfaceData.length > 0) {
-								for (int i = 0; i < interfaceData.length; i++) {
-									if(i == 0) {
-										interf.setName(interfaceData[i]);
+						for(String line : outputArray) {
+							if(line.contains("down") || line.contains("up")) {
+								line = line.trim();
+								String[] lineArray = line.split(" ");
+								values = new ArrayList<String>();
+								for(String l : lineArray) {
+									if(!" ".equals(l) && !"".equals(l)) {
+										values.add(l);
 									}
-									if(i == 1) {
-										if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-											interf.setStatus(AgentUtil.UP);
-										} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-											interf.setStatus(AgentUtil.DOWN);
+								}
+								interf = new Interface();
+								interf.setIpaddress(ipAddress);
+								String[] interfaceData = values.toArray(new String[values.size()]);
+								if(interfaceData.length > 0) {
+									for (int i = 0; i < interfaceData.length; i++) {
+										if(i == 0) {
+											interf.setName(interfaceData[i]);
+										}
+										if(i == 1) {
+											if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+												interf.setStatus(AgentUtil.UP);
+											} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+												interf.setStatus(AgentUtil.DOWN);
+											}
 										}
 									}
 								}
+								interfaceList.add(interf);
 							}
-							interfaceList.add(interf);
 						}
 					}
 					if(!interfaceList.isEmpty()) {
@@ -183,7 +178,7 @@ public class CiscoIOSAdapter extends Adapter {
 					if(array != null && array.length > 0) {
 						List<String> values = null;
 						for(String line : array) {
-							if(line.contains("SID["+circuitID+"]")) {
+							if(line.contains(circuitID) && (line.contains("down") || line.contains("up"))) {
 								line = line.trim();
 								String[] lineArray = line.split(" ");
 								values = new ArrayList<String>();
@@ -198,7 +193,7 @@ public class CiscoIOSAdapter extends Adapter {
 									if(interfaceData.length > 0) {
 										for (int i = 0; i < interfaceData.length; i++) {
 											if(i == 0) {
-												interf.setName(interfaceData[i].substring(1, interfaceData[i].length()));
+												interf.setName(interfaceData[i].substring(0, interfaceData[i].length()));
 											}
 											if(i == 1) {
 												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
@@ -210,7 +205,6 @@ public class CiscoIOSAdapter extends Adapter {
 										}
 									}
 									interfaceList.add(interf);
-									break;
 								}
 							}
 						}

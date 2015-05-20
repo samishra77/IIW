@@ -60,9 +60,7 @@ public class JunosAdapter extends Adapter {
 				String output = connectDevice.applyCommands(command, ">");
 				if(output != null && !"".equals(output)) {
 					String[] array = null;
-					if(output.indexOf("\n") > -1) {
-						array = output.split("\n");
-					} else if(output.indexOf("\r\n") > -1) {
+					if(output.indexOf("\r\n") > -1) {
 						array = output.split("\r\n");
 					} else {
 						array = new String[] {output};
@@ -134,80 +132,34 @@ public class JunosAdapter extends Adapter {
 	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, DeviceDetail deviceDetail) {
 		try {
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), ipAddress);
-			String output = connectDevice.applyCommands(command, ">");
-			if(output != null && !"".equals(output)) {
-				List<Interface> interfaceList = new ArrayList<Interface>();
-				Interface interf = null;
-				//split each line
-				String[] outputArray = null;
-				if(output.indexOf("\r\n") > -1) {
-					outputArray = output.split("\r\n");
-				} else {
-					outputArray = new String[] {output};
-				}
-
-				//process data
-				if(outputArray != null && outputArray.length > 1) {
-					List<String> values = null;
-					String line = outputArray[1].trim();
-					String[] lineArray = line.split(" ");
-					values = new ArrayList<String>();
-					for(String l : lineArray) {
-						if(!" ".equals(l) && !"".equals(l)) {
-							values.add(l);
-						}
+			if(command != null && !"".equals(command)) {
+				String output = connectDevice.applyCommands(command, ">");
+				if(output != null && !"".equals(output)) {
+					List<Interface> interfaceList = new ArrayList<Interface>();
+					Interface interf = null;
+					//split each line
+					String[] outputArray = null;
+					if(output.indexOf("\r\n") > -1) {
+						outputArray = output.split("\r\n");
+					} else {
+						outputArray = new String[] {output};
 					}
-					interf = new Interface();
-					interf.setIpaddress(ipAddress);
-					String[] interfaceData = values.toArray(new String[values.size()]);
-					if(interfaceData.length > 0) {
-						for (int i = 0; i < interfaceData.length; i++) {
-							if(i == 0) {
-								interf.setName(interfaceData[i]);
-							}
-							if(i == 1) {
-								if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-									interf.setStatus(AgentUtil.UP);
-								} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-									interf.setStatus(AgentUtil.DOWN);
-								}
-							}
-						}
-					}
-					interfaceList.add(interf);
 
-				}
-				if(!interfaceList.isEmpty()) {
-					deviceDetail.getInterfaces().addAll(interfaceList);
-				}
-			}
-		} catch (Exception e) {
-			log.error(e,e);
-		}
-	}
-
-	private void retrieveCircuitInterface(ConnectDevice connectDevice, String circuitID, DeviceDetail deviceDetail) {
-		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), circuitID);
-			String output = connectDevice.applyCommands(command, ">");
-			if(output != null && !"".equals(output)) {
-				List<Interface> interfaceList = new ArrayList<Interface>();
-				Interface interf = null;
-				String[] array = output.split("\r\n");
-				if(array != null && array.length > 0) {
-					List<String> values = null;
-					for(String line : array) {
-						if(line.contains("L3Circuit[" + circuitID + "]")) {
-							line = line.trim();
-							String[] lineArray = line.split(" ");
-							values = new ArrayList<String>();
-							for(String l : lineArray) {
-								if(!" ".equals(l) && !"".equals(l)) {
-									values.add(l.trim());
+					//process data
+					if(outputArray != null && outputArray.length > 1) {
+						List<String> values = null;
+						for(String line : outputArray) {
+							if(line.contains("down") || line.contains("up")) {
+								line = line.trim();
+								String[] lineArray = line.split(" ");
+								values = new ArrayList<String>();
+								for(String l : lineArray) {
+									if(!" ".equals(l) && !"".equals(l)) {
+										values.add(l);
+									}
 								}
-							}
-							if(!values.isEmpty()) {
 								interf = new Interface();
+								interf.setIpaddress(ipAddress);
 								String[] interfaceData = values.toArray(new String[values.size()]);
 								if(interfaceData.length > 0) {
 									for (int i = 0; i < interfaceData.length; i++) {
@@ -224,13 +176,70 @@ public class JunosAdapter extends Adapter {
 									}
 								}
 								interfaceList.add(interf);
-								break;
 							}
 						}
 					}
+					if(!interfaceList.isEmpty()) {
+						deviceDetail.getInterfaces().addAll(interfaceList);
+					}
 				}
-				if(!interfaceList.isEmpty()) {
-					deviceDetail.getInterfaces().addAll(interfaceList);
+			}
+		} catch (Exception e) {
+			log.error(e,e);
+		}
+	}
+
+	private void retrieveCircuitInterface(ConnectDevice connectDevice, String circuitID, DeviceDetail deviceDetail) {
+		try {
+			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), circuitID);
+			if(command != null && !"".equals(command)) {
+				String output = connectDevice.applyCommands(command, ">");
+				if(output != null && !"".equals(output)) {
+					List<Interface> interfaceList = new ArrayList<Interface>();
+					Interface interf = null;
+					String[] array = null;
+					if(output.indexOf("\r\n") > -1) {
+						array = output.split("\r\n");
+					} else {
+						array = new String[] {output};
+					}
+					if(array != null && array.length > 0) {
+						List<String> values = null;
+						for(String line : array) {
+							if(line.contains(circuitID) && (line.contains("down") || line.contains("up"))) {
+								line = line.trim();
+								String[] lineArray = line.split(" ");
+								values = new ArrayList<String>();
+								for(String l : lineArray) {
+									if(!" ".equals(l) && !"".equals(l)) {
+										values.add(l.trim());
+									}
+								}
+								if(!values.isEmpty()) {
+									interf = new Interface();
+									String[] interfaceData = values.toArray(new String[values.size()]);
+									if(interfaceData.length > 0) {
+										for (int i = 0; i < interfaceData.length; i++) {
+											if(i == 0) {
+												interf.setName(interfaceData[i]);
+											}
+											if(i == 1) {
+												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+													interf.setStatus(AgentUtil.UP);
+												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+													interf.setStatus(AgentUtil.DOWN);
+												}
+											}
+										}
+									}
+									interfaceList.add(interf);
+								}
+							}
+						}
+					}
+					if(!interfaceList.isEmpty()) {
+						deviceDetail.getInterfaces().addAll(interfaceList);
+					}
 				}
 			}
 		} catch (Exception e) {
