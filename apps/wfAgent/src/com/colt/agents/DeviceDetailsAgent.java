@@ -16,8 +16,6 @@ import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class DeviceDetailsAgent {
 
-	public static final int CODE_UNKKONWN = 0;
-
 	private ApplicationContext ac;
 	private static Object lock = new Object();
 

@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.colt.util.AgentConfig;
 import com.colt.util.AgentUtil;
+import com.colt.util.MessagesErrors;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
@@ -35,16 +36,16 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				//test Model, find version
 				SNMPUtil snmp = new SNMPUtil();
-				snmp.discoverModel(deviceDetails.getIp(), deviceDetails.getDeviceType().getModel());
+				snmp.discoverModel(deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor());
 				if(snmp.getVersion() != null) {
 					input.put("snmpVersion", snmp.getVersion());
 				} else {
 					if(deviceDetailsResponse.getErrorResponse() == null) {
 						deviceDetailsResponse.setErrorResponse(new ErrorResponse());
 						deviceDetailsResponse.getErrorResponse().setCode(ErrorResponse.CODE_UNKNOWN);
-						deviceDetailsResponse.getErrorResponse().setMessage("SNMP query to device failed");
+						deviceDetailsResponse.getErrorResponse().setMessage(MessagesErrors.getDefaultInstance().getProperty("snmp.queryFailed"));
 					}
-					deviceDetailsResponse.getErrorResponse().getFailedSnmp().add(deviceDetailsResponse.getWanIP());
+					deviceDetailsResponse.getErrorResponse().getFailedSnmp().add(deviceDetails.getIp());
 					log.debug("SNMP query to device failed: " + deviceDetails.getIp());
 				}
 				InputStream inputStreamFile = null;
@@ -67,13 +68,20 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 					} else {
 						resp = new String[] {"SNMPFETCH"};
 					}
+				} else {
+					if(deviceDetailsResponse.getErrorResponse() == null) {
+						ErrorResponse errorResponse = new ErrorResponse();
+						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelFile"));
+						errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+						deviceDetailsResponse.setErrorResponse(errorResponse);
+					}
 				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);
 			if(deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
-				errorResponse.setMessage("Populate Network Layer failed.");
+				errorResponse.setMessage(e.toString());
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}

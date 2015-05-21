@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.colt.adapters.Adapter;
 import com.colt.adapters.FactoryAdapter;
+import com.colt.util.AgentUtil;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
@@ -30,14 +31,11 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 			String os = (String) input.get("os");
 			FactoryAdapter factoryAdapter = new FactoryAdapter();
 			Adapter adapter = factoryAdapter.getAdapter(vendor, os);
-			if(adapter != null && deviceDetailsResponse.getWanIP() != null) {
+			String wanIP = AgentUtil.calculateWanIp(deviceDetailsResponse.getDeviceIP());
+			if(adapter != null) {
 				try {
 					Integer snmpVersion = (Integer) input.get("snmpVersion");
-					int snmpv = 2;
-					if (snmpVersion != null) {
-						snmpv = snmpVersion;
-					}
-					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getWanIP(), snmpv);
+					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP);
 					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());

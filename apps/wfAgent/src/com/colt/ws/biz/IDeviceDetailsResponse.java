@@ -3,6 +3,15 @@ package com.colt.ws.biz;
 public interface IDeviceDetailsResponse {
 
 	/**
+	 * @return the deviceIP
+	 */
+	public String getDeviceIP();
+	/**
+	 * @param deviceIP the deviceIP to set
+	 */
+	public void setDeviceIP(String deviceIP);
+
+	/**
 	 * @return the circuitID
 	 */
 	public String getCircuitID();
@@ -26,14 +35,6 @@ public interface IDeviceDetailsResponse {
 	 * @param responseID the responseID to set
 	 */
 	public void setResponseID(String responseID) ;
-	/**
-	 * @return the wanIP
-	 */
-	public String getWanIP();
-	/**
-	 * @param wanIP the wanIP to set
-	 */
-	public void setWanIP(String wanIP);
 	/**
 	 * @return the errorResponse
 	 */

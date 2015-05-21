@@ -9,6 +9,7 @@ import com.colt.apt.business.Device;
 import com.colt.apt.business.User;
 import com.colt.common.aptcache.IDeviceDAO;
 import com.colt.util.AgentConfig;
+import com.colt.util.MessagesErrors;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
@@ -37,37 +38,17 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 					IDeviceDAO deviceDAO = (IDeviceDAO) Registry.bind(baseUrl+"/aptCache/services/DeviceDAO.wsdl",IDeviceDAO.class);
 					Device[] deviceArray = deviceDAO.retrieveDevicesByName(user, deviceDetails.getName());
 					if(deviceArray != null && deviceArray.length == 1 && deviceArray[0].getAddress() != null && !"".equals(deviceArray[0].getAddress())) {
-						int index = deviceArray[0].getAddress().lastIndexOf(".");
-						if(index > -1) {
-							String lastOctet = deviceArray[0].getAddress().substring(index+1, deviceArray[0].getAddress().length());
-							String partialAddress = deviceArray[0].getAddress().substring(0, deviceArray[0].getAddress().lastIndexOf(".")+1);
-							int octet = 0;
-							try {
-								octet = Integer.valueOf(lastOctet);
-								if(octet > 0) {
-									octet = octet - 1;
-								}
-								partialAddress+= octet;
-								deviceDetails.setIp(partialAddress);
-								resp = new String[] {"FETCH_DEVICE_DONE"};
-							}catch (Exception e) {
-								log.error(e,e);
-								IDeviceDetailsResponse deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
-								DeviceDetail dd = new DeviceDetail();
-								ErrorResponse errorResponse = new ErrorResponse();
-								errorResponse.setMessage(e.toString());
-								errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-								if(input != null && input.containsKey("deviceDetails")) {
-									DeviceDetailsRequest ddr = (DeviceDetailsRequest) input.get("deviceDetails");
-									deviceDetailsResponse.setWanIP(ddr.getIp());
-									deviceDetailsResponse.setCircuitID(ddr.getCircuitID());
-									deviceDetailsResponse.setResponseID(ddr.getRequestID());
-								}
-								deviceDetailsResponse.setErrorResponse(errorResponse);
-								deviceDetailsResponse.setDeviceDetails(dd);
-								input.put("deviceDetailsResponse", deviceDetailsResponse);
-							}
-						}
+						deviceDetails.setIp(deviceArray[0].getAddress());
+						resp = new String[] {"FETCH_DEVICE_DONE"};
+					} else {
+						IDeviceDetailsResponse deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
+						DeviceDetail dd = new DeviceDetail();
+						ErrorResponse errorResponse = new ErrorResponse();
+						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("apt.mgmtIPNotFound"));
+						errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+						deviceDetailsResponse.setErrorResponse(errorResponse);
+						deviceDetailsResponse.setDeviceDetails(dd);
+						input.put("deviceDetailsResponse", deviceDetailsResponse);
 					}
 				}
 			}
@@ -78,12 +59,6 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 			ErrorResponse errorResponse = new ErrorResponse();
 			errorResponse.setMessage(e.toString());
 			errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-			if(input != null && input.containsKey("deviceDetails")) {
-				DeviceDetailsRequest ddr = (DeviceDetailsRequest) input.get("deviceDetails");
-				deviceDetailsResponse.setWanIP(ddr.getIp());
-				deviceDetailsResponse.setCircuitID(ddr.getCircuitID());
-				deviceDetailsResponse.setResponseID(ddr.getRequestID());
-			}
 			deviceDetailsResponse.setErrorResponse(errorResponse);
 			deviceDetailsResponse.setDeviceDetails(dd);
 			input.put("deviceDetailsResponse", deviceDetailsResponse);

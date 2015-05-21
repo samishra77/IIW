@@ -32,7 +32,7 @@ public class SNMPUtil {
 		return version;
 	}
 
-	public boolean discoverModel(String ipAddress, String model) {
+	public boolean discoverModel(String ipAddress, String model, String vendor) {
 		boolean isSameModel = false;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
@@ -46,7 +46,7 @@ public class SNMPUtil {
 								if(this.version == null) {
 									this.version = 2;
 								}
-								if(model != null && line.contains(model)) {
+								if(model != null && vendor != null && line.toUpperCase().contains(model.toUpperCase()) && line.toUpperCase().contains(vendor.toUpperCase())) {
 									isSameModel = true;
 								}
 								break;
@@ -62,7 +62,7 @@ public class SNMPUtil {
 							for(String line : outputList) {
 								if(line.contains("= STRING:")) {
 									this.version = 3;
-									if(model != null && line.contains(model)) {
+									if(model != null && vendor != null && line.toUpperCase().contains(model.toUpperCase()) && line.toUpperCase().contains(vendor.toUpperCase())) {
 										isSameModel = true;
 									}
 									break;

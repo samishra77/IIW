@@ -27,12 +27,12 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 			Integer snmpVersion = (Integer) input.get("snmpVersion");
 			if (snmpVersion != null) {
 				SNMPUtil snmp = new SNMPUtil(snmpVersion);
-				Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getWanIP(), deviceDetailsResponse);
-				snmp.retrieveInterfaceName(ifAliasMap,deviceDetailsResponse.getWanIP(), deviceDetailsResponse);
-				snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getWanIP(), deviceDetailsResponse);
-				snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceDetailsResponse.getWanIP(), deviceDetailsResponse);
-				snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceDetailsResponse.getWanIP(), deviceDetailsResponse);
-				String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceDetailsResponse.getWanIP(), deviceDetailsResponse);
+				Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+				snmp.retrieveInterfaceName(ifAliasMap,deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+				snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+				snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+				snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+				String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				if(sysUpTime != null && !"".equals(sysUpTime)) {
 					deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
 				}

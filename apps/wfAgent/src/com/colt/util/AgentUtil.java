@@ -150,5 +150,27 @@ public class AgentUtil {
 		}
 		return output;
 	}
+
+	public static String calculateWanIp(String ip) {
+		String partialAddress = "";
+		try {
+			if(ip != null && !"".equals(ip)) {
+				int index = ip.lastIndexOf(".");
+				if(index > -1) {
+					String lastOctet = ip.substring(index+1, ip.length());
+					partialAddress = ip.substring(0, ip.lastIndexOf(".")+1);
+					int octet = 0;
+					octet = Integer.valueOf(lastOctet);
+					if(octet > 0) {
+						octet = octet - 1;
+					}
+					partialAddress+= octet;
+				}
+			}
+		} catch (Exception e) {
+			log.error(e,e);
+		}
+		return partialAddress;
+	}
 }
 

@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.colt.connect.ConnectDevice;
 import com.colt.util.AgentUtil;
 import com.colt.util.DeviceCommand;
+import com.colt.util.MessagesErrors;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.ErrorResponse;
@@ -22,49 +23,49 @@ public class CiscoXRAdapter extends Adapter {
 	private Log log = LogFactory.getLog(CiscoIOSAdapter.class);
 
 	@Override
-	public IDeviceDetailsResponse fetch(String circuitID, String ipAddress, int snmpVersion) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
 		DeviceDetail deviceDetail = new DeviceDetail();
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);
-		if(ipAddress != null && !"".equals(ipAddress) && circuitID != null && !"".equals(circuitID)) {
+		if(deviceIP != null && !"".equals(deviceIP) && circuitID != null && !"".equals(circuitID)) {
 			ConnectDevice connectDevice = null;
 			try {
 				connectDevice = new ConnectDevice();
-				connectDevice.connect(ipAddress, 15, "telnet");
+				connectDevice.connect(deviceIP, 15, "telnet");
 			} catch (Exception e) {
 				try {
 					connectDevice = new ConnectDevice();
-					connectDevice.connect(ipAddress, 15, "ssh");
+					connectDevice.connect(deviceIP, 15, "ssh");
 				} catch (Exception e2) {
 					throw e2;
 				}
 			}
 			try {
 				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_CISCO);
-				executeCommands(connectDevice, ipAddress, circuitID, snmpVersion, deviceDetailsResponse);
+				executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse);
 			} catch (Exception e) {
 				log.error(e,e);
 				if(deviceDetailsResponse.getErrorResponse() == null) {
 					ErrorResponse errorResponse = new ErrorResponse();
-					errorResponse.setMessage("Telnet and SSH to device failed.");
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("connection.failed"));
 					errorResponse.setCode(ErrorResponse.CONNECTION_FAILED);
 					deviceDetailsResponse.setErrorResponse(errorResponse);
 				}
+				deviceDetailsResponse.getErrorResponse().getFailedConn().add(deviceIP);
 			}
 		}
 		return deviceDetailsResponse;
 	}
-	private void executeCommands(ConnectDevice connectDevice, String ipAddress, String circuitID, int snmpVersion, IDeviceDetailsResponse deviceDetailsResponse) {
-		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
-		if(ipAddress != null && !"".equals(ipAddress)) {
-			retrieveWanInterface(connectDevice, ipAddress, deviceDetailsResponse);
-		}
-		if(circuitID != null && !"".equals(circuitID)) {
-			retrieveCircuitInterface(connectDevice, circuitID, deviceDetailsResponse);
-		}
 
-		SNMPUtil snmp = new SNMPUtil(snmpVersion);
-		snmp.retrieveLastStatusChange(ipAddress, deviceDetailsResponse);
+	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse) {
+		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
+		retrieveWanInterface(connectDevice, wanIP, deviceDetailsResponse);
+		retrieveCircuitInterface(connectDevice, circuitID, deviceDetailsResponse);
+
+		if(snmpVersion != null) {
+			SNMPUtil snmp = new SNMPUtil(snmpVersion);
+			snmp.retrieveLastStatusChange(deviceIP, deviceDetailsResponse);
+		}
 	}
 
 	private void retrieveDeviceUpTime(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse) {
@@ -124,56 +125,67 @@ public class CiscoXRAdapter extends Adapter {
 
 	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
 		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.xr.showIpInterfaces").trim(), ipAddress);
-			if(command != null && !"".equals(command)) {
-				String output = connectDevice.applyCommands(command, "#");
-				if(output != null && !"".equals(output)) {
-					List<Interface> interfaceList = new ArrayList<Interface>();
-					Interface interf = null;
-					//split each line
-					String[] outputArray = null;
-					if(output.indexOf("\r\n") > -1) {
-						outputArray = output.split("\r\n");
-					} else {
-						outputArray = new String[] {output};
-					}
-					//process data
-					if(outputArray != null && outputArray.length > 0) {
-						List<String> values = null;
-						for(String line : outputArray) {
-							if(line.contains("down") || line.contains("up")) {
-								line = line.trim();
-								String[] lineArray = line.split(" ");
-								values = new ArrayList<String>();
-								for(String l : lineArray) {
-									if(!" ".equals(l) && !"".equals(l)) {
-										values.add(l);
-									}
-								}
-								interf = new Interface();
-								interf.setIpaddress(ipAddress);
-								String[] interfaceData = values.toArray(new String[values.size()]);
-								if(interfaceData.length > 0) {
-									for (int i = 0; i < interfaceData.length; i++) {
-										if(i == 0) {
-											interf.setName(interfaceData[i]);
+			if(ipAddress != null && !"".equals(ipAddress)) {
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.xr.showIpInterfaces").trim(), ipAddress);
+				if(command != null && !"".equals(command)) {
+					String output = connectDevice.applyCommands(command, "#");
+					if(output != null && !"".equals(output)) {
+						List<Interface> interfaceList = new ArrayList<Interface>();
+						Interface interf = null;
+						//split each line
+						String[] outputArray = null;
+						if(output.indexOf("\r\n") > -1) {
+							outputArray = output.split("\r\n");
+						} else {
+							outputArray = new String[] {output};
+						}
+						//process data
+						if(outputArray != null && outputArray.length > 0) {
+							List<String> values = null;
+							for(String line : outputArray) {
+								if(line.contains("down") || line.contains("up")) {
+									line = line.trim();
+									String[] lineArray = line.split(" ");
+									values = new ArrayList<String>();
+									for(String l : lineArray) {
+										if(!" ".equals(l) && !"".equals(l)) {
+											values.add(l);
 										}
-										if(i == 1) {
-											if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-												interf.setStatus(AgentUtil.UP);
-											} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-												interf.setStatus(AgentUtil.DOWN);
+									}
+									interf = new Interface();
+									interf.setIpaddress(ipAddress);
+									String[] interfaceData = values.toArray(new String[values.size()]);
+									if(interfaceData.length > 0) {
+										for (int i = 0; i < interfaceData.length; i++) {
+											if(i == 0) {
+												interf.setName(interfaceData[i]);
+											}
+											if(i == 1) {
+												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+													interf.setStatus(AgentUtil.UP);
+												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+													interf.setStatus(AgentUtil.DOWN);
+												}
 											}
 										}
 									}
+									interfaceList.add(interf);
 								}
-								interfaceList.add(interf);
 							}
 						}
+						if(!interfaceList.isEmpty()) {
+							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+						} else {
+							deviceDetailsResponse.getDeviceDetails().getInterfaces().add(new Interface());
+						}
 					}
-					if(!interfaceList.isEmpty()) {
-						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
-					}
+				}
+			} else {
+				if (deviceDetailsResponse.getErrorResponse() == null) {
+					ErrorResponse errorResponse = new ErrorResponse();
+					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("wanIP.calculetError"));
+					deviceDetailsResponse.setErrorResponse(errorResponse);
 				}
 			}
 		} catch (Exception e) {
