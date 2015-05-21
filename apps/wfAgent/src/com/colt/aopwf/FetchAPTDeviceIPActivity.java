@@ -9,7 +9,10 @@ import com.colt.apt.business.Device;
 import com.colt.apt.business.User;
 import com.colt.common.aptcache.IDeviceDAO;
 import com.colt.util.AgentConfig;
+import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
+import com.colt.ws.biz.ErrorResponse;
+import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 import electric.registry.Registry;
 
@@ -47,6 +50,20 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 								deviceDetails.setIp(partialAddress);
 							}catch (Exception e) {
 								log.error(e,e);
+								L3DeviceDetailsResponse l3DeviceDetails = new L3DeviceDetailsResponse();
+								DeviceDetail dd = new DeviceDetail();
+								ErrorResponse errorResponse = new ErrorResponse();
+								errorResponse.setMessage(e.toString());
+								errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+								if(input != null && input.containsKey("deviceDetails")) {
+									DeviceDetailsRequest ddr = (DeviceDetailsRequest) input.get("deviceDetails");
+									l3DeviceDetails.setWanIP(ddr.getIp());
+									l3DeviceDetails.setCircuitID(ddr.getCircuitID());
+									l3DeviceDetails.setResponseID(ddr.getRequestID());
+								}
+								l3DeviceDetails.setErrorResponse(errorResponse);
+								l3DeviceDetails.setDeviceDetails(dd);
+								input.put("l3DeviceDetails", l3DeviceDetails);
 							}
 						}
 						resp = new String[] {"FETCH_DEVICE_DONE"};
@@ -55,6 +72,20 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 			}
 		} catch (Exception e) {
 			log.error(e,e);
+			L3DeviceDetailsResponse l3DeviceDetails = new L3DeviceDetailsResponse();
+			DeviceDetail dd = new DeviceDetail();
+			ErrorResponse errorResponse = new ErrorResponse();
+			errorResponse.setMessage(e.toString());
+			errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+			if(input != null && input.containsKey("deviceDetails")) {
+				DeviceDetailsRequest ddr = (DeviceDetailsRequest) input.get("deviceDetails");
+				l3DeviceDetails.setWanIP(ddr.getIp());
+				l3DeviceDetails.setCircuitID(ddr.getCircuitID());
+				l3DeviceDetails.setResponseID(ddr.getRequestID());
+			}
+			l3DeviceDetails.setErrorResponse(errorResponse);
+			l3DeviceDetails.setDeviceDetails(dd);
+			input.put("l3DeviceDetails", l3DeviceDetails);
 		}
 		return resp;
 	}

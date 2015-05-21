@@ -27,6 +27,8 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 				snmp.discoverModel(deviceDetails.getIp(), deviceDetails.getDeviceType().getModel());
 				if(snmp.getVersion() != null) {
 					input.put("snmpVersion", snmp.getVersion());
+				} else {
+					input.put("exception", "Error snmp conn");
 				}
 				InputStream inputStreamFile = null;
 				String pathFile = AgentConfig.getDefaultInstance().getProperty("agentValidators.pathFile").trim();

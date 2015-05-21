@@ -7,9 +7,10 @@ import org.apache.commons.logging.LogFactory;
 
 import com.colt.adapters.Adapter;
 import com.colt.adapters.FactoryAdapter;
-import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
+import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
+import com.jcraft.jsch.JSchException;
 
 public class CLIFetchActivity implements IWorkflowProcessActivity {
 
@@ -31,14 +32,18 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 					if (snmpVersion != null) {
 						snmpv = snmpVersion;
 					}
-					DeviceDetail devDetail = adapter.fetch(deviceDetails.getCircuitID(), deviceDetails.getIp(), snmpv);
-					if(devDetail != null && l3DeviceDetails.getDeviceDetails() != null) {
-						l3DeviceDetails.getDeviceDetails().setTime(devDetail.getTime());
-						l3DeviceDetails.getDeviceDetails().getInterfaces().addAll(devDetail.getInterfaces());
+					IDeviceDetailsResponse deviceDetailsResponse = adapter.fetch(deviceDetails.getCircuitID(), deviceDetails.getIp(), snmpv);
+					if(deviceDetailsResponse != null && deviceDetailsResponse.getDeviceDetails() != null && l3DeviceDetails.getDeviceDetails() != null) {
+						l3DeviceDetails.getDeviceDetails().setTime(deviceDetailsResponse.getDeviceDetails().getTime());
+						l3DeviceDetails.getDeviceDetails().getInterfaces().addAll(deviceDetailsResponse.getDeviceDetails().getInterfaces());
 					}
 					resp = new String[] {"SENDRESPONSE"};
+				} catch (JSchException je) {
+					log.error(je,je);
+					input.put("exception", "Connect Exception");
 				} catch (Exception e) {
 					log.error(e,e);
+					input.put("exception", e);
 				}
 			}
 		}

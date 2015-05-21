@@ -12,15 +12,18 @@ import com.colt.util.AgentUtil;
 import com.colt.util.DeviceCommand;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetail;
+import com.colt.ws.biz.ErrorResponse;
+import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.Interface;
+import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class JunosAdapter extends Adapter {
 
 	private Log log = LogFactory.getLog(CiscoIOSAdapter.class);
 
 	@Override
-	public DeviceDetail fetch(String circuitID, String ipAddress, int snmpVersion) throws Exception {
-		DeviceDetail deviceDetail = new DeviceDetail();
+	public IDeviceDetailsResponse fetch(String circuitID, String ipAddress, int snmpVersion) throws Exception {
+		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
 		if(ipAddress != null && !"".equals(ipAddress) && circuitID != null && !"".equals(circuitID)) {
 			ConnectDevice connectDevice = null;
 			try {
@@ -35,25 +38,27 @@ public class JunosAdapter extends Adapter {
 				}
 			}
 			connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
-			executeCommands(connectDevice, ipAddress, circuitID, deviceDetail, snmpVersion);
+			executeCommands(connectDevice, ipAddress, circuitID, snmpVersion, deviceDetailsResponse);
 		}
-		return deviceDetail;
+		return deviceDetailsResponse;
 	}
 
-	private void executeCommands(ConnectDevice connectDevice, String ipAddress, String circuitID, DeviceDetail deviceDetail, int snmpVersion) {
-		retrieveDeviceUpTime(connectDevice, deviceDetail);
+	private void executeCommands(ConnectDevice connectDevice, String ipAddress, String circuitID, int snmpVersion, IDeviceDetailsResponse deviceDetailsResponse) {
+		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
 		if(ipAddress != null && !"".equals(ipAddress)) {
-			retrieveWanInterface(connectDevice, ipAddress, deviceDetail);
+			retrieveWanInterface(connectDevice, ipAddress, deviceDetailsResponse);
 		}
 		if(circuitID != null && !"".equals(circuitID)) {
-			retrieveCircuitInterface(connectDevice, circuitID, deviceDetail);
+			retrieveCircuitInterface(connectDevice, circuitID, deviceDetailsResponse);
 		}
 
 		SNMPUtil snmp = new SNMPUtil(snmpVersion);
-		snmp.retrieveLastStatusChange(circuitID, ipAddress, deviceDetail);
+		snmp.retrieveLastStatusChange(ipAddress, deviceDetailsResponse);
 	}
 
-	private void retrieveDeviceUpTime(ConnectDevice connectDevice, DeviceDetail deviceDetail) {
+	private void retrieveDeviceUpTime(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse) {
+		DeviceDetail deviceDetail = new DeviceDetail();
+		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 		try {
 			String command = DeviceCommand.getDefaultInstance().getProperty("junos.showDeviceUptime").trim();
 			if(command != null && !"".equals(command)) {
@@ -126,10 +131,17 @@ public class JunosAdapter extends Adapter {
 			}
 		} catch (Exception e) {
 			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				errorResponse.setMessage(e.toString());
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
 		}
+		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 	}
 
-	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, DeviceDetail deviceDetail) {
+	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
 		try {
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), ipAddress);
 			if(command != null && !"".equals(command)) {
@@ -180,16 +192,22 @@ public class JunosAdapter extends Adapter {
 						}
 					}
 					if(!interfaceList.isEmpty()) {
-						deviceDetail.getInterfaces().addAll(interfaceList);
+						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 					}
 				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				errorResponse.setMessage(e.toString());
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
 		}
 	}
 
-	private void retrieveCircuitInterface(ConnectDevice connectDevice, String circuitID, DeviceDetail deviceDetail) {
+	private void retrieveCircuitInterface(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse) {
 		try {
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), circuitID);
 			if(command != null && !"".equals(command)) {
@@ -238,12 +256,18 @@ public class JunosAdapter extends Adapter {
 						}
 					}
 					if(!interfaceList.isEmpty()) {
-						deviceDetail.getInterfaces().addAll(interfaceList);
+						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 					}
 				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				errorResponse.setMessage(e.toString());
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
 		}
 	}
 }

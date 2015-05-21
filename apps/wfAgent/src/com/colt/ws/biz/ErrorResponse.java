@@ -11,6 +11,8 @@ public class ErrorResponse {
 	private List<String> failedSnmp;
 	private List<String> failedConn;
 
+	public static final int CODE_UNKNOWN = 0;
+
 	/**
 	 * @return the code
 	 */

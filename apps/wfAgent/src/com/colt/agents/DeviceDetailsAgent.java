@@ -11,6 +11,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.colt.aopwf.DeviceDetailsProcess;
 import com.colt.aopwf.IWorkflowProcess;
 import com.colt.ws.biz.DeviceDetailsRequest;
+import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
@@ -41,8 +42,36 @@ public class DeviceDetailsAgent {
 
 		if(input.containsKey("exception")) {
 			if (deviceDetailsResponse != null) {
-				deviceDetailsResponse.getErrorResponse().setCode(CODE_UNKKONWN);
-				deviceDetailsResponse.getErrorResponse().setMessage(((Exception) input.get("exception")).toString());
+				if (deviceDetailsResponse.getErrorResponse() == null) {
+					deviceDetailsResponse.setErrorResponse(new ErrorResponse());
+					deviceDetailsResponse.getErrorResponse().setCode(CODE_UNKKONWN);
+					if (input.get("exception") instanceof Exception) {
+						deviceDetailsResponse.getErrorResponse().setMessage(((Exception) input.get("exception")).toString());
+					}
+					if (input.get("exception") instanceof String) {
+						String exception  = ((String) input.get("exception")).toString();
+						if (deviceDetailsResponse.getErrorResponse().getMessage() == null || "".equals(deviceDetailsResponse.getErrorResponse().getMessage())) {
+							deviceDetailsResponse.getErrorResponse().setMessage(exception);
+						}
+						if (exception.equalsIgnoreCase("Error snmp connection")) {
+							deviceDetailsResponse.getErrorResponse().getFailedSnmp().add(deviceDetailsResponse.getWanIP());
+						} else if (exception.equalsIgnoreCase("Connect Exception")) {
+							deviceDetailsResponse.getErrorResponse().getFailedConn().add(deviceDetailsResponse.getWanIP());
+						}
+					}
+				} else {
+					if (input.get("exception") instanceof String) {
+						String exception  = ((String) input.get("exception")).toString();
+						if (deviceDetailsResponse.getErrorResponse().getMessage() == null || "".equals(deviceDetailsResponse.getErrorResponse().getMessage())) {
+							deviceDetailsResponse.getErrorResponse().setMessage(exception);
+						}
+						if (exception.equalsIgnoreCase("Error snmp connection")) {
+							deviceDetailsResponse.getErrorResponse().getFailedSnmp().add(deviceDetailsResponse.getWanIP());
+						} else if (exception.equalsIgnoreCase("Connect Exception")) {
+							deviceDetailsResponse.getErrorResponse().getFailedConn().add(deviceDetailsResponse.getWanIP());
+						}
+					}
+				}
 			}
 		}
 
