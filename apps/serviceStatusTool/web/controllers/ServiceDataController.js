@@ -289,9 +289,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			if ($scope.sideInformation) {
 				if (type == "aside") {
 					$scope.showDeviceErrorASide = false;
-					if ($scope.sideInformation.aSideManagementIPAddress) {
+					if ($scope.aSideManagementIPAddress) {
 						deviceDetails = new Object();
-						deviceDetails.ip = $scope.sideInformation.aSideManagementIPAddress;
+						deviceDetails.ip = $scope.aSideManagementIPAddress;
 					} else if ($scope.sideInformation.aSideInformation.deviceName) {
 						deviceDetails = new Object();
 						deviceDetails.name = $scope.sideInformation.aSideInformation.deviceName;
@@ -307,9 +307,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					}
 				} else if (type == "zside") {
 					$scope.showDeviceErrorZSide = false;
-					if ($scope.sideInformation.zSideManagementIPAddress) {
+					if ($scope.zSideManagementIPAddress) {
 						deviceDetails = new Object();
-						deviceDetails.ip = $scope.sideInformation.zSideManagementIPAddress;
+						deviceDetails.ip = $scope.zSideManagementIPAddress;
 					} else if ($scope.sideInformation.zSideInformation.xngDeviceName) {
 						deviceDetails = new Object();
 						deviceDetails.name = $scope.sideInformation.zSideInformation.xngDeviceName;

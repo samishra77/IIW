@@ -20,7 +20,7 @@ import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class CiscoXRAdapter extends Adapter {
 
-	private Log log = LogFactory.getLog(CiscoIOSAdapter.class);
+	private Log log = LogFactory.getLog(CiscoXRAdapter.class);
 
 	@Override
 	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP) throws Exception {

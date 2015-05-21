@@ -20,7 +20,7 @@ import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class JunosAdapter extends Adapter {
 
-	private Log log = LogFactory.getLog(CiscoIOSAdapter.class);
+	private Log log = LogFactory.getLog(JunosAdapter.class);
 
 	@Override
 	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP) throws Exception {

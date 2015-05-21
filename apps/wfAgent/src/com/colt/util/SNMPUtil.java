@@ -48,6 +48,8 @@ public class SNMPUtil {
 								}
 								if(model != null && vendor != null && line.toUpperCase().contains(model.toUpperCase()) && line.toUpperCase().contains(vendor.toUpperCase())) {
 									isSameModel = true;
+								} else {
+									log.debug("Vendor model didn't match for: " + vendor + "/" + model);
 								}
 								break;
 							}
@@ -64,6 +66,8 @@ public class SNMPUtil {
 									this.version = 3;
 									if(model != null && vendor != null && line.toUpperCase().contains(model.toUpperCase()) && line.toUpperCase().contains(vendor.toUpperCase())) {
 										isSameModel = true;
+									} else {
+										log.debug("Vendor model didn't match for: " + vendor + "/" + model);
 									}
 									break;
 								}
