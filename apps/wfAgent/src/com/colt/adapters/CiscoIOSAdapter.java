@@ -24,6 +24,8 @@ public class CiscoIOSAdapter extends Adapter {
 	@Override
 	public IDeviceDetailsResponse fetch(String circuitID, String ipAddress, int snmpVersion) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
+		DeviceDetail deviceDetail = new DeviceDetail();
+		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 		if(ipAddress != null && !"".equals(ipAddress) && circuitID != null && !"".equals(circuitID)) {
 			ConnectDevice connectDevice = null;
 			try {
@@ -37,8 +39,18 @@ public class CiscoIOSAdapter extends Adapter {
 					throw e2;
 				}
 			}
-			connectDevice.prepareForCommands(FactoryAdapter.VENDOR_CISCO);
-			executeCommands(connectDevice, ipAddress, circuitID, snmpVersion, deviceDetailsResponse);
+			try {
+				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_CISCO);
+				executeCommands(connectDevice, ipAddress, circuitID, snmpVersion, deviceDetailsResponse);
+			} catch (Exception e) {
+				log.error(e,e);
+				if(deviceDetailsResponse.getErrorResponse() == null) {
+					ErrorResponse errorResponse = new ErrorResponse();
+					errorResponse.setMessage("Telnet and SSH to device failed.");
+					errorResponse.setCode(ErrorResponse.CONNECTION_FAILED);
+					deviceDetailsResponse.setErrorResponse(errorResponse);
+				}
+			}
 		}
 		return deviceDetailsResponse;
 	}
@@ -57,7 +69,6 @@ public class CiscoIOSAdapter extends Adapter {
 	}
 
 	private void retrieveDeviceUpTime(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse) {
-		DeviceDetail deviceDetail = new DeviceDetail();
 		try {
 			String command = DeviceCommand.getDefaultInstance().getProperty("cisco.showDeviceUptime").trim();
 			if(command != null && !"".equals(command)) {
@@ -90,7 +101,7 @@ public class CiscoIOSAdapter extends Adapter {
 												} else {
 													sysUpTime = totalDay + " day" + uptime[2] + uptime[3];
 												}
-												deviceDetail.setTime(sysUpTime);
+												deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
 												break;
 											}
 										}
@@ -110,7 +121,6 @@ public class CiscoIOSAdapter extends Adapter {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
-		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 	}
 
 	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {

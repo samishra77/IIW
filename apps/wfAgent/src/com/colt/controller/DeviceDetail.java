@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.colt.agents.DeviceDetailsAgent;
-import com.colt.util.AgentUtil;
 import com.colt.ws.biz.DeviceDetailsRequest;
-import com.colt.ws.biz.DeviceType;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 

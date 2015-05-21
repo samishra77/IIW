@@ -145,12 +145,8 @@ public class SNMPUtil {
 				}
 			} catch (Exception e) {
 				log.error(e,e);
-				ErrorResponse errorResponse = null;
 				if (deviceDetailsResponse.getErrorResponse() == null) {
-					errorResponse = new ErrorResponse();
-					if (errorResponse.getFailedSnmp().size() == 0) {
-						errorResponse.getFailedSnmp().add(ipAddress);
-					}
+					ErrorResponse errorResponse = new ErrorResponse();
 					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 					errorResponse.setMessage(e.toString());
 					deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -191,9 +187,6 @@ public class SNMPUtil {
 			ErrorResponse errorResponse = null;
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				errorResponse = new ErrorResponse();
-				if (errorResponse.getFailedSnmp().size() == 0) {
-					errorResponse.getFailedSnmp().add(ipAddress);
-				}
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				errorResponse.setMessage(e.toString());
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -236,9 +229,6 @@ public class SNMPUtil {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
-				if (errorResponse.getFailedSnmp().size() == 0) {
-					errorResponse.getFailedSnmp().add(deviceIP);
-				}
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				errorResponse.setMessage(e.toString());
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -284,9 +274,6 @@ public class SNMPUtil {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
-				if (errorResponse.getFailedSnmp().size() == 0) {
-					errorResponse.getFailedSnmp().add(deviceIP);
-				}
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				errorResponse.setMessage(e.toString());
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -328,9 +315,6 @@ public class SNMPUtil {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
-				if (errorResponse.getFailedSnmp().size() == 0) {
-					errorResponse.getFailedSnmp().add(deviceIP);
-				}
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				errorResponse.setMessage(e.toString());
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -376,9 +360,6 @@ public class SNMPUtil {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
-				if (errorResponse.getFailedSnmp().size() == 0) {
-					errorResponse.getFailedSnmp().add(deviceIP);
-				}
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				errorResponse.setMessage(e.toString());
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -425,9 +406,6 @@ public class SNMPUtil {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
-				if (errorResponse.getFailedSnmp().size() == 0) {
-					errorResponse.getFailedSnmp().add(deviceIP);
-				}
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				errorResponse.setMessage(e.toString());
 				deviceDetailsResponse.setErrorResponse(errorResponse);

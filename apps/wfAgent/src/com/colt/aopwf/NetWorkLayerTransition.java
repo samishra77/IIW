@@ -10,6 +10,7 @@ import com.colt.util.AgentUtil;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
+import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class NetWorkLayerTransition implements IWorkflowProcessActivity {
@@ -19,28 +20,35 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 	@Override
 	public String[] process(Map<String, Object> input) {
 		String[] resp = null;
+		IDeviceDetailsResponse deviceDetailsResponse = null;
 		try {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				if( deviceDetails.getType() != null && 
 						(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType()) || DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetails.getType())) ) {
-					L3DeviceDetailsResponse l3DeviceDetails = new L3DeviceDetailsResponse();
-					l3DeviceDetails.setDeviceDetails(new DeviceDetail());
-					l3DeviceDetails.setWanIP(deviceDetails.getIp());
-					l3DeviceDetails.setCircuitID(deviceDetails.getCircuitID());
-					l3DeviceDetails.setResponseID(deviceDetails.getRequestID());
-					if (((List<String>) input.get("WORKFLOW-STATE")).contains("PING_FAIL")) {
-						l3DeviceDetails.getDeviceDetails().setStatus(AgentUtil.DOWN);
-					} else {
-						l3DeviceDetails.getDeviceDetails().setStatus(AgentUtil.UP);
-					}
-					input.put("l3DeviceDetails", l3DeviceDetails);
+					deviceDetailsResponse = new L3DeviceDetailsResponse();
 					resp = new String[] {"L3DEVICE"};
+				} else {
+					//l2
+				}
+				if(deviceDetailsResponse != null) {
+					deviceDetailsResponse.setDeviceDetails(new DeviceDetail());
+					deviceDetailsResponse.setWanIP(deviceDetails.getIp());
+					deviceDetailsResponse.setCircuitID(deviceDetails.getCircuitID());
+					deviceDetailsResponse.setResponseID(deviceDetails.getRequestID());
+					if (((List<String>) input.get("WORKFLOW-STATE")).contains("PING_FAIL")) {
+						deviceDetailsResponse.getDeviceDetails().setStatus(AgentUtil.DOWN);
+					} else {
+						deviceDetailsResponse.getDeviceDetails().setStatus(AgentUtil.UP);
+					}
+					input.put("deviceDetailsResponse", deviceDetailsResponse);
 				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);
-			L3DeviceDetailsResponse l3DeviceDetails = new L3DeviceDetailsResponse();
+			if(deviceDetailsResponse == null) {
+				deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
+			}
 			DeviceDetail deviceDetails = new DeviceDetail();
 			ErrorResponse errorResponse = new ErrorResponse();
 			errorResponse.setMessage("Populate Network Layer failed.");
@@ -48,15 +56,14 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 			if (input != null) {
 				DeviceDetailsRequest ddr = (DeviceDetailsRequest) input.get("deviceDetails");
 				if (ddr != null) {
-					errorResponse.getFailedConn().add(ddr.getIp());
-					l3DeviceDetails.setWanIP(ddr.getIp());
-					l3DeviceDetails.setCircuitID(ddr.getCircuitID());
-					l3DeviceDetails.setResponseID(ddr.getRequestID());
+					deviceDetailsResponse.setWanIP(ddr.getIp());
+					deviceDetailsResponse.setCircuitID(ddr.getCircuitID());
+					deviceDetailsResponse.setResponseID(ddr.getRequestID());
 				}
 			}
-			l3DeviceDetails.setErrorResponse(errorResponse);
-			l3DeviceDetails.setDeviceDetails(deviceDetails);
-			input.put("l3DeviceDetails", l3DeviceDetails);
+			deviceDetailsResponse.setErrorResponse(errorResponse);
+			deviceDetailsResponse.setDeviceDetails(deviceDetails);
+			input.put("deviceDetailsResponse", deviceDetailsResponse);
 		}
 		return resp;
 	}

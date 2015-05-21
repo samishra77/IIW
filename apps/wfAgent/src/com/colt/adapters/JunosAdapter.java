@@ -24,6 +24,8 @@ public class JunosAdapter extends Adapter {
 	@Override
 	public IDeviceDetailsResponse fetch(String circuitID, String ipAddress, int snmpVersion) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
+		DeviceDetail deviceDetail = new DeviceDetail();
+		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 		if(ipAddress != null && !"".equals(ipAddress) && circuitID != null && !"".equals(circuitID)) {
 			ConnectDevice connectDevice = null;
 			try {
@@ -37,8 +39,18 @@ public class JunosAdapter extends Adapter {
 					throw e2;
 				}
 			}
-			connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
-			executeCommands(connectDevice, ipAddress, circuitID, snmpVersion, deviceDetailsResponse);
+			try {
+				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
+				executeCommands(connectDevice, ipAddress, circuitID, snmpVersion, deviceDetailsResponse);
+			} catch (Exception e) {
+				log.error(e,e);
+				if(deviceDetailsResponse.getErrorResponse() == null) {
+					ErrorResponse errorResponse = new ErrorResponse();
+					errorResponse.setMessage("Telnet and SSH to device failed.");
+					errorResponse.setCode(ErrorResponse.CONNECTION_FAILED);
+					deviceDetailsResponse.setErrorResponse(errorResponse);
+				}
+			}
 		}
 		return deviceDetailsResponse;
 	}
@@ -57,8 +69,6 @@ public class JunosAdapter extends Adapter {
 	}
 
 	private void retrieveDeviceUpTime(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse) {
-		DeviceDetail deviceDetail = new DeviceDetail();
-		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 		try {
 			String command = DeviceCommand.getDefaultInstance().getProperty("junos.showDeviceUptime").trim();
 			if(command != null && !"".equals(command)) {
@@ -121,7 +131,7 @@ public class JunosAdapter extends Adapter {
 											day = dayNumber + " day ";
 										}
 									}
-									deviceDetail.setTime(day + hour + minute);
+									deviceDetailsResponse.getDeviceDetails().setTime(day + hour + minute);
 									break;
 								}
 							}
@@ -138,7 +148,6 @@ public class JunosAdapter extends Adapter {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
-		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 	}
 
 	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {

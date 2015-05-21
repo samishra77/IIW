@@ -25,8 +25,10 @@ public class HuaweiAdapter extends Adapter {
 			if(sysUpTime != null && !"".equals(sysUpTime)) {
 				deviceDetail.setTime(sysUpTime);
 			}
-			for(String key : ifAliasMap.keySet()) {
-				deviceDetail.getInterfaces().add(ifAliasMap.get(key));
+			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
+				for(String key : ifAliasMap.keySet()) {
+					deviceDetail.getInterfaces().add(ifAliasMap.get(key));
+				}
 			}
 		}
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);

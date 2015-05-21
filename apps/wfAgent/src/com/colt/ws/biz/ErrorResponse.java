@@ -12,6 +12,8 @@ public class ErrorResponse {
 	private List<String> failedConn;
 
 	public static final int CODE_UNKNOWN = 0;
+	public static final int CONNECTION_FAILED  = 1;
+	
 
 	/**
 	 * @return the code
