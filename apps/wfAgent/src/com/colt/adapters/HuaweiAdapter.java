@@ -59,8 +59,6 @@ public class HuaweiAdapter extends Adapter {
 
 			if(!wanInterfaceList.isEmpty()) {
 				respList.addAll(wanInterfaceList);
-			} else {
-				respList.add(new Interface());
 			}
 
 			if(!deviceIpInterfaceList.isEmpty()) {

@@ -342,10 +342,10 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td>{{zSideInterfaceLogical.name}}</td>
-									<td>{{zSideInterfaceLogical.status}}</td>
-									<td>{{zSideInterfaceLogical.lastChgTime}}</td>
+								<tr ng-repeat="interf in zSideInterfaceLogicals" >
+									<td>{{interf.name}}</td>
+									<td>{{interf.status}}</td>
+									<td>{{interf.lastChgTime}}</td>
 								</tr>
 							</tbody>
 						</table>

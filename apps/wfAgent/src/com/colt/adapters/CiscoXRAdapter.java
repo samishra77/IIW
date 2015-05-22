@@ -175,8 +175,6 @@ public class CiscoXRAdapter extends Adapter {
 						}
 						if(!interfaceList.isEmpty()) {
 							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
-						} else {
-							deviceDetailsResponse.getDeviceDetails().getInterfaces().add(new Interface());
 						}
 					}
 				}
@@ -216,7 +214,8 @@ public class CiscoXRAdapter extends Adapter {
 					if(array != null && array.length > 0) {
 						List<String> values = null;
 						for(String line : array) {
-							if(line.contains(circuitID) && (line.contains("down") || line.contains("up"))) {
+							if( ( line.contains("L3Circuit[" + circuitID + "]") || line.contains("Cct[" + circuitID + "]") ) 
+									&& (line.contains("down") || line.contains("up")) ) {
 								line = line.trim();
 								String[] lineArray = line.split(" ");
 								values = new ArrayList<String>();
