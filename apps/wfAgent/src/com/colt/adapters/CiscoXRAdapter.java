@@ -87,24 +87,40 @@ public class CiscoXRAdapter extends Adapter {
 								if(uptime != null && uptime.length > 1) {
 									uptime[1] = uptime[1].trim();
 									uptime = uptime[1].split(",");
-									if(uptime != null && uptime.length > 2) {
-										if(uptime[0].contains("week") && uptime[1].contains("day")) {
-											String[] weekArray = uptime[0].split(" ");
-											String[] dayArray = uptime[1].split(" ");
-											if(weekArray != null && weekArray.length > 0 && dayArray != null && dayArray.length > 1) {
-												int parseWeek = Integer.valueOf(uptime[0].split(" ")[0]) * 7;
-												int parseDay = Integer.valueOf(uptime[1].split(" ")[1]);
-												int totalDay = parseWeek + parseDay;
-												String sysUpTime = "";
-												if(totalDay != 1) {
-													sysUpTime = totalDay + " days" + uptime[2] + uptime[3];
-												} else {
-													sysUpTime = totalDay + " day" + uptime[2] + uptime[3];
+									if(uptime != null && uptime.length > 0) {
+										int parseWeek = 0;
+										int parseDay = 0;
+										String hour = "";
+										String min = "";
+										for (String line : uptime) {
+											if(line.contains("week")) {
+												String[] weekArray = line.split(" ");
+												if(weekArray != null && weekArray.length > 0) {
+													parseWeek = Integer.valueOf(line.split(" ")[0]) * 7;
 												}
-												deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
-												break;
+											}
+											if(line.contains("day")) {
+												String[] dayArray = line.split(" ");
+												if(dayArray != null && dayArray.length > 0) {
+													parseDay = Integer.valueOf(line.split(" ")[1]);
+												}
+											}
+											if(line.contains("hour")) {
+												hour = line;
+											}
+											if(line.contains("min")) {
+												min = line;
 											}
 										}
+										int totalDay = parseWeek + parseDay;
+										String sysUpTime = "";
+										if(totalDay != 1) {
+											sysUpTime = totalDay + " days" + hour + min;
+										} else {
+											sysUpTime = totalDay + " day" + hour + min;
+										}
+										deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
+										break;
 									}
 								}
 							}
