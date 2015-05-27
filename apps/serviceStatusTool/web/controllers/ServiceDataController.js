@@ -116,12 +116,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				$scope.sideInformationErrorMessage = data.errorMsg;
 			} else {
 				$scope.sideInformation = data.result;
-				if ($scope.sideInformation != null && $scope.sideInformation.aSideInformation != null && $scope.sideInformation.zSideInformation) {
-					sideInformationFromDevice();
-				} else {
+				if ( ($scope.sideInformation == null) || ($scope.sideInformation.aSideInformation == null && $scope.sideInformation.zSideInformation == null) ) {
 					$scope.viewSideInformation = false;
 					$scope.sideInformationError = true;
 					$scope.sideInformationErrorMessage = "Status Information not found.";
+				} else {
+					sideInformationFromDevice();
 				}
 			}
 			$scope.showSideLoading = false;
@@ -163,100 +163,111 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		var errorMsg = "Error receiving device details.";
 		if (workFlowAgentUrlBase) {
 			if ($scope.sideInformation) {
-				if ($scope.sideInformation.aSideInformation.deviceName) {
-					callASideCount++;
-					var deviceDetailsAside = {
-							'requestID'	: callASideCount,
-							'seibelUserID'	: username,
-							'name'       	: $scope.sideInformation.aSideInformation.deviceName,
-							'deviceType'	: {
-								'vendor'	: $scope.sideInformation.aSideInformation.vendor,
-								'model'  	: $scope.sideInformation.aSideInformation.model
-							},
-							'type': 'CPE',
-							'circuitID': $scope.circuit.circuitID
-					};
-					var respAgentASide = $http({
-						method  : 'POST',
-						url     : urlWorkFlow + '/getDeviceDetails',
-						data    : deviceDetailsAside,
-						headers : { 'Content-Type': 'application/json' }
-					});
-					respAgentASide.success(function(data) {
-						var l3DeviceDetails = data;
-						if (l3DeviceDetails) {
-							if (l3DeviceDetails.responseID == callASideCount) {
-								if (l3DeviceDetails.deviceDetails) {
-									$scope.aSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
-									$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
-									$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
-								} else {
-									$scope.showDeviceErrorASide = true;
-									$scope.deviceMessageASideError = errorMsg;
+				if ($scope.sideInformation.aSideInformation) {
+					if ($scope.sideInformation.aSideInformation.deviceName) {
+						callASideCount++;
+						var deviceDetailsAside = {
+								'requestID'	: callASideCount,
+								'seibelUserID'	: username,
+								'name'       	: $scope.sideInformation.aSideInformation.deviceName,
+								'serviceType' : $scope.circuit.productType,
+								'deviceType'	: {
+									'vendor'	: $scope.sideInformation.aSideInformation.vendor,
+									'model'  	: $scope.sideInformation.aSideInformation.model
+								},
+								'type': 'CPE',
+								'circuitID': $scope.circuit.circuitID
+						};
+						var respAgentASide = $http({
+							method  : 'POST',
+							url     : urlWorkFlow + '/getDeviceDetails',
+							data    : deviceDetailsAside,
+							headers : { 'Content-Type': 'application/json' }
+						});
+						respAgentASide.success(function(data) {
+							var l3DeviceDetails = data;
+							if (l3DeviceDetails) {
+								if (l3DeviceDetails.responseID == callASideCount) {
+									if (l3DeviceDetails.deviceDetails) {
+										$scope.aSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+										$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+										$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+									} else {
+										$scope.showDeviceErrorASide = true;
+										$scope.deviceMessageASideError = errorMsg;
+									}
+									if(l3DeviceDetails.errorResponse) {
+										$scope.showDeviceErrorASide = true;
+										$scope.deviceMessageASideError = l3DeviceDetails.errorResponse.message;
+									}
+									$scope.aSideManagementIPAddress = l3DeviceDetails.deviceIP;
 								}
-								if(l3DeviceDetails.errorResponse) {
-									$scope.showDeviceErrorASide = true;
-									$scope.deviceMessageASideError = l3DeviceDetails.errorResponse.message;
-								}
-								$scope.aSideManagementIPAddress = l3DeviceDetails.deviceIP;
+							} else {
+								$scope.showDeviceErrorASide = true;
+								$scope.deviceMessageASideError = errorMsg;
 							}
-						} else {
-							$scope.showDeviceErrorASide = true;
-							$scope.deviceMessageASideError = errorMsg;
-						}
+							$scope.showButtonRefreshASide = true;
+							$scope.showRefreshASideLoading = false;
+						});
+					} else {
 						$scope.showButtonRefreshASide = true;
 						$scope.showRefreshASideLoading = false;
-					});
+					}
 				} else {
 					$scope.showButtonRefreshASide = true;
 					$scope.showRefreshASideLoading = false;
 				}
-				if ($scope.sideInformation.zSideInformation.deviceName) {
-					callZSideCount++;
-					var deviceDetailsZside = {
-							'requestID'	: callZSideCount,
-							'seibelUserID'	: username,
-							'name'       	:  $scope.sideInformation.zSideInformation.deviceName,
-							'deviceType'	: {
-								'vendor'	: $scope.sideInformation.zSideInformation.vendor,
-								'model'  	: $scope.sideInformation.zSideInformation.model
-							},
-							'type': 'PE',
-							'circuitID': $scope.circuit.circuitID
-					};
-					var respAgentZSide = $http({
-						method  : 'POST',
-						url     : urlWorkFlow + '/getDeviceDetails',
-						data    : deviceDetailsZside,
-						headers : { 'Content-Type': 'application/json' }
-					});
-					respAgentZSide.success(function(data) {
-						var l3DeviceDetails = data;
-						if (l3DeviceDetails) {
-							if (l3DeviceDetails.responseID == callZSideCount) {
-								$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
-								if (l3DeviceDetails.deviceDetails) {
-									if (l3DeviceDetails.deviceDetails.interfaces) {
-										$scope.zSideInterfaceLogicals = l3DeviceDetails.deviceDetails.interfaces;
+				if ($scope.sideInformation.zSideInformation) {
+					if ($scope.sideInformation.zSideInformation.deviceName) {
+						callZSideCount++;
+						var deviceDetailsZside = {
+								'requestID'	: callZSideCount,
+								'seibelUserID'	: username,
+								'name'       	:  $scope.sideInformation.zSideInformation.deviceName,
+								'deviceType'	: {
+									'vendor'	: $scope.sideInformation.zSideInformation.vendor,
+									'model'  	: $scope.sideInformation.zSideInformation.model
+								},
+								'type': 'PE',
+								'circuitID': $scope.circuit.circuitID
+						};
+						var respAgentZSide = $http({
+							method  : 'POST',
+							url     : urlWorkFlow + '/getDeviceDetails',
+							data    : deviceDetailsZside,
+							headers : { 'Content-Type': 'application/json' }
+						});
+						respAgentZSide.success(function(data) {
+							var l3DeviceDetails = data;
+							if (l3DeviceDetails) {
+								if (l3DeviceDetails.responseID == callZSideCount) {
+									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
+									if (l3DeviceDetails.deviceDetails) {
+										if (l3DeviceDetails.deviceDetails.interfaces) {
+											$scope.zSideInterfaceLogicals = l3DeviceDetails.deviceDetails.interfaces;
+										}
+										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+										$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+									} else {
+										$scope.showDeviceErrorZSide = true;
+										$scope.deviceMessageZSideError = errorMsg;
 									}
-									$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
-									$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
-								} else {
-									$scope.showDeviceErrorZSide = true;
-									$scope.deviceMessageZSideError = errorMsg;
+									if (l3DeviceDetails.errorResponse) {
+										$scope.showDeviceErrorZSide = true;
+										$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
+									}
 								}
-								if (l3DeviceDetails.errorResponse) {
-									$scope.showDeviceErrorZSide = true;
-									$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
-								}
+							} else {
+								$scope.showDeviceErrorZSide = true;
+								$scope.deviceMessageZSideError = errorMsg;
 							}
-						} else {
-							$scope.showDeviceErrorZSide = true;
-							$scope.deviceMessageZSideError = errorMsg;
-						}
+							$scope.showButtonRefreshZSide = true;
+							$scope.showRefreshZSideLoading = false;
+						});
+					} else {
 						$scope.showButtonRefreshZSide = true;
 						$scope.showRefreshZSideLoading = false;
-					});
+					}
 				} else {
 					$scope.showButtonRefreshZSide = true;
 					$scope.showRefreshZSideLoading = false;
@@ -284,39 +295,51 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			if ($scope.sideInformation) {
 				if (type == "aside") {
 					$scope.showDeviceErrorASide = false;
-					if ($scope.aSideManagementIPAddress) {
-						deviceDetails = new Object();
-						deviceDetails.ip = $scope.aSideManagementIPAddress;
-					} else if ($scope.sideInformation.aSideInformation.deviceName) {
-						deviceDetails = new Object();
-						deviceDetails.name = $scope.sideInformation.aSideInformation.deviceName;
-					}
-					if (deviceDetails) {
-						deviceDetails.requestID = callRefreshCount;
-						deviceDetails.seibelUserID = username;
-						deviceDetails.deviceType = new Object();
-						deviceDetails.deviceType.vendor = $scope.sideInformation.aSideInformation.vendor;
-						deviceDetails.deviceType.model = $scope.sideInformation.aSideInformation.model;
-						deviceDetails.type = 'CPE';
-						deviceDetails.circuitID = $scope.circuit.circuitID;
+					if ($scope.sideInformation.aSideInformation) {
+						if ($scope.aSideManagementIPAddress) {
+							deviceDetails = new Object();
+							deviceDetails.ip = $scope.aSideManagementIPAddress;
+						} else if ($scope.sideInformation.aSideInformation.deviceName) {
+							deviceDetails = new Object();
+							deviceDetails.name = $scope.sideInformation.aSideInformation.deviceName;
+						}
+						if (deviceDetails) {
+							deviceDetails.requestID = callRefreshCount;
+							deviceDetails.seibelUserID = username;
+							deviceDetails.serviceType = $scope.circuit.productType; 
+							deviceDetails.deviceType = new Object();
+							deviceDetails.deviceType.vendor = $scope.sideInformation.aSideInformation.vendor;
+							deviceDetails.deviceType.model = $scope.sideInformation.aSideInformation.model;
+							deviceDetails.type = 'CPE';
+							deviceDetails.circuitID = $scope.circuit.circuitID;
+						}
+					} else {
+						$scope.showRefreshASideLoading = false;
+						resetASideOrZSideInformation("aside");
 					}
 				} else if (type == "zside") {
 					$scope.showDeviceErrorZSide = false;
-					if ($scope.zSideManagementIPAddress) {
-						deviceDetails = new Object();
-						deviceDetails.ip = $scope.zSideManagementIPAddress;
-					} else if ($scope.sideInformation.zSideInformation.deviceName) {
-						deviceDetails = new Object();
-						deviceDetails.name = $scope.sideInformation.zSideInformation.deviceName;
-					}
-					if (deviceDetails) {
-						deviceDetails.requestID = callRefreshCount;
-						deviceDetails.seibelUserID = username;
-						deviceDetails.deviceType = new Object();
-						deviceDetails.deviceType.vendor = $scope.sideInformation.zSideInformation.vendor;
-						deviceDetails.deviceType.model = $scope.sideInformation.zSideInformation.model;
-						deviceDetails.type = 'PE';
-						deviceDetails.circuitID = $scope.circuit.circuitID;
+					if ($scope.sideInformation.zSideInformation) {
+						if ($scope.zSideManagementIPAddress) {
+							deviceDetails = new Object();
+							deviceDetails.ip = $scope.zSideManagementIPAddress;
+						} else if ($scope.sideInformation.zSideInformation.deviceName) {
+							deviceDetails = new Object();
+							deviceDetails.name = $scope.sideInformation.zSideInformation.deviceName;
+						}
+						if (deviceDetails) {
+							deviceDetails.requestID = callRefreshCount;
+							deviceDetails.seibelUserID = username;
+							deviceDetails.serviceType = $scope.circuit.productType;
+							deviceDetails.deviceType = new Object();
+							deviceDetails.deviceType.vendor = $scope.sideInformation.zSideInformation.vendor;
+							deviceDetails.deviceType.model = $scope.sideInformation.zSideInformation.model;
+							deviceDetails.type = 'PE';
+							deviceDetails.circuitID = $scope.circuit.circuitID;
+						}
+					} else {
+						$scope.showRefreshZSideLoading = false;
+						resetASideOrZSideInformation("zside");
 					}
 				}
 				if (deviceDetails) {
