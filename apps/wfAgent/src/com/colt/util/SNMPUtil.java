@@ -46,10 +46,10 @@ public class SNMPUtil {
 								if(this.version == null) {
 									this.version = 2;
 								}
-								if(model != null && vendor != null && line.toUpperCase().contains(model.toUpperCase()) && line.toUpperCase().contains(vendor.toUpperCase())) {
+								if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
 									isSameModel = true;
 								} else {
-									log.debug("Vendor model didn't match for: " + vendor + "/" + model);
+									log.debug("Vendor didn't match for: " + vendor);
 								}
 								break;
 							}
@@ -64,10 +64,10 @@ public class SNMPUtil {
 							for(String line : outputList) {
 								if(line.contains("= STRING:")) {
 									this.version = 3;
-									if(model != null && vendor != null && line.toUpperCase().contains(model.toUpperCase()) && line.toUpperCase().contains(vendor.toUpperCase())) {
+									if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
 										isSameModel = true;
 									} else {
-										log.debug("Vendor model didn't match for: " + vendor + "/" + model);
+										log.debug("Vendor didn't match for: " + vendor);
 									}
 									break;
 								}
