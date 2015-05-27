@@ -211,12 +211,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					$scope.showButtonRefreshASide = true;
 					$scope.showRefreshASideLoading = false;
 				}
-				if ($scope.sideInformation.zSideInformation.xngDeviceName) {
+				if ($scope.sideInformation.zSideInformation.deviceName) {
 					callZSideCount++;
 					var deviceDetailsZside = {
 							'requestID'	: callZSideCount,
 							'seibelUserID'	: username,
-							'name'       	:  $scope.sideInformation.zSideInformation.xngDeviceName,
+							'name'       	:  $scope.sideInformation.zSideInformation.deviceName,
 							'deviceType'	: {
 								'vendor'	: $scope.sideInformation.zSideInformation.vendor,
 								'model'  	: $scope.sideInformation.zSideInformation.model
@@ -305,9 +305,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					if ($scope.zSideManagementIPAddress) {
 						deviceDetails = new Object();
 						deviceDetails.ip = $scope.zSideManagementIPAddress;
-					} else if ($scope.sideInformation.zSideInformation.xngDeviceName) {
+					} else if ($scope.sideInformation.zSideInformation.deviceName) {
 						deviceDetails = new Object();
-						deviceDetails.name = $scope.sideInformation.zSideInformation.xngDeviceName;
+						deviceDetails.name = $scope.sideInformation.zSideInformation.deviceName;
 					}
 					if (deviceDetails) {
 						deviceDetails.requestID = callRefreshCount;

@@ -152,6 +152,7 @@ public class SearchService {
 				usageTracking.setResultsFetched(1);
 			}
 			response = processDevNameASideInformation(response, circuit, username);
+			response = processDevNameZSideInformation(response, circuit, username);
 		} catch (Exception e) {
 			log.error("[" + username + "] " + e, e);
 			response = new Response();
@@ -191,6 +192,27 @@ public class SearchService {
 			if (deviceName != null && !"".equals(deviceName)) {
 				if (si != null && si.getaSideInformation() != null) {
 					si.getaSideInformation().setDeviceName(deviceName);
+				}
+				response.setResult(si);
+			}
+		}
+		return response;
+	}
+
+	private Response processDevNameZSideInformation(Response response,Circuit circuit, String username) {
+		if (response != null) {
+			String deviceName = "";
+			SideInformation si = (SideInformation) response.getResult();
+			String routerId = "";
+			if (si != null && si.getzSideInformation() != null) {
+				routerId = si.getzSideInformation().getXngDeviceName();
+			}
+			if (routerId != null && !"".equals(routerId)) {
+					deviceName = "lo0-" + routerId + ".router.colt.net";
+			}
+			if (deviceName != null && !"".equals(deviceName)) {
+				if (si != null && si.getzSideInformation() != null) {
+					si.getzSideInformation().setDeviceName(deviceName);
 				}
 				response.setResult(si);
 			}
