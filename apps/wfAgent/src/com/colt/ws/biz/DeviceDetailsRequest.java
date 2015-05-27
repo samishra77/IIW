@@ -11,6 +11,7 @@ public class DeviceDetailsRequest {
 	private String circuitID;
 	private String ip;
 	private String type;
+	private String associatedDevice;
 
 	/**
 	 * @return the type
@@ -95,5 +96,11 @@ public class DeviceDetailsRequest {
 	 */
 	public void setIp(String ip) {
 		this.ip = ip;
+	}
+	public String getAssociatedDevice() {
+		return associatedDevice;
+	}
+	public void setAssociatedDevice(String associatedDevice) {
+		this.associatedDevice = associatedDevice;
 	}
 }
