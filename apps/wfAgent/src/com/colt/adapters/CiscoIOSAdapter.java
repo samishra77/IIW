@@ -3,6 +3,7 @@ package com.colt.adapters;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,8 +60,13 @@ public class CiscoIOSAdapter extends Adapter {
 
 	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse) {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
-		retrieveWanInterface(connectDevice, wanIP, deviceDetailsResponse);
-		retrieveCircuitInterface(connectDevice, circuitID, deviceDetailsResponse);
+		String logicalInterfaceName = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
+		String physicalInterfaceName = null;
+		if(logicalInterfaceName.indexOf(".") > -1) {
+			physicalInterfaceName = logicalInterfaceName.substring(0, logicalInterfaceName.indexOf("."));
+		}
+		retrievePhysicalInterface(connectDevice, physicalInterfaceName, deviceDetailsResponse);
+		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, logicalInterfaceName, wanIP);
 
 		if(snmpVersion != null) {
 			SNMPUtil snmp = new SNMPUtil(snmpVersion);
@@ -139,15 +145,14 @@ public class CiscoIOSAdapter extends Adapter {
 		}
 	}
 
-	private void retrieveWanInterface(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
+	private String retrieveInterfaceByWanIp(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
+		String logicalInterfaceName = null;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
 				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.ios.showIpInterfaces").trim(), ipAddress);
 				if(command != null && !"".equals(command)) {
 					String output = connectDevice.applyCommands(command, "#");
 					if(output != null && !"".equals(output)) {
-						List<Interface> interfaceList = new ArrayList<Interface>();
-						Interface interf = null;
 						//split each line
 						String[] outputArray = null;
 						if(output.indexOf("\r\n") > -1) {
@@ -155,11 +160,12 @@ public class CiscoIOSAdapter extends Adapter {
 						} else {
 							outputArray = new String[] {output};
 						}
+
 						//process data
-						if(outputArray != null && outputArray.length > 0) {
+						if(outputArray != null && outputArray.length > 1) {
 							List<String> values = null;
 							for(String line : outputArray) {
-								if(line.contains("down") || line.contains("up")) {
+								if((line.contains("down") || line.contains("up")) && line.contains(" " + ipAddress + " ")) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -168,29 +174,13 @@ public class CiscoIOSAdapter extends Adapter {
 											values.add(l);
 										}
 									}
-									interf = new Interface();
-									interf.setIpaddress(ipAddress);
 									String[] interfaceData = values.toArray(new String[values.size()]);
 									if(interfaceData.length > 0) {
-										for (int i = 0; i < interfaceData.length; i++) {
-											if(i == 0) {
-												interf.setName(interfaceData[i]);
-											}
-											if(i == 1) {
-												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.UP);
-												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.DOWN);
-												}
-											}
-										}
+										logicalInterfaceName = interfaceData[0];
+										break;
 									}
-									interfaceList.add(interf);
 								}
 							}
-						}
-						if(!interfaceList.isEmpty()) {
-							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 						}
 					}
 				}
@@ -211,16 +201,89 @@ public class CiscoIOSAdapter extends Adapter {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
+		return logicalInterfaceName;
 	}
 
-	private void retrieveCircuitInterface(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse) {
+	private void retrievePhysicalInterface(ConnectDevice connectDevice, String physicalInterfaceName, IDeviceDetailsResponse deviceDetailsResponse) {
+		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
+			if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.ios.showIpInterfaces").trim(), physicalInterfaceName);
+				if(command != null && !"".equals(command)) {
+					String output = connectDevice.applyCommands(command, "#");
+					if(output != null && !"".equals(output)) {
+						Interface interf = null;
+						//split each line
+						String[] outputArray = null;
+						if(output.indexOf("\r\n") > -1) {
+							outputArray = output.split("\r\n");
+						} else {
+							outputArray = new String[] {output};
+						}
+
+						//process data
+						if(outputArray != null && outputArray.length > 1) {
+							List<String> values = null;
+							for(String line : outputArray) {
+								if((line.contains("down") || line.contains("up")) && line.contains(" " + physicalInterfaceName + " ")) {
+									line = line.trim();
+									String[] lineArray = line.split(" ");
+									values = new ArrayList<String>();
+									for(String l : lineArray) {
+										if(!" ".equals(l) && !"".equals(l)) {
+											values.add(l);
+										}
+									}
+									if(!values.isEmpty()) {
+										interf = new Interface();
+										String[] interfaceData = values.toArray(new String[values.size()]);
+										if(interfaceData.length > 0) {
+											for (int i = 0; i < interfaceData.length; i++) {
+												if(i == 0) {
+													interf.setName(interfaceData[i]);
+												}
+												if(i == 1) {
+													if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+														interf.setStatus(AgentUtil.UP);
+													} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+														interf.setStatus(AgentUtil.DOWN);
+													}
+												}
+											}
+											interfaceList.add(interf);
+											break;
+										}
+									}
+								}
+							}
+						}
+						if(!interfaceList.isEmpty()) {
+							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				errorResponse.setMessage(e.toString());
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
+		}
+	}
+
+	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, String logicalInterfaceName, String wanIP) {
+		List<Interface> interfaceList = new ArrayList<Interface>();
+		String sidArg = null;
+		String sidParam = null;
+		try {
+			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), logicalInterfaceName);
 			if(command != null && !"".equals(command)) {
 				String output = connectDevice.applyCommands(command, "#");
 				if(output != null && !"".equals(output)) {
-					List<Interface> interfaceList = new ArrayList<Interface>();
-					Interface interf = null;
+					
 					String[] array = null;
 					if(output.indexOf("\r\n") > -1) {
 						array = output.split("\r\n");
@@ -230,7 +293,7 @@ public class CiscoIOSAdapter extends Adapter {
 					if(array != null && array.length > 0) {
 						List<String> values = null;
 						for(String line : array) {
-							if( ( line.contains("L3Circuit[" + circuitID + "]") || line.contains("Cct[" + circuitID + "]") ) 
+							if( line.contains("L1Circuit[" + circuitID + "]") && line.contains(logicalInterfaceName + " ")
 									&& (line.contains("down") || line.contains("up")) ) {
 								line = line.trim();
 								String[] lineArray = line.split(" ");
@@ -241,29 +304,93 @@ public class CiscoIOSAdapter extends Adapter {
 									}
 								}
 								if(!values.isEmpty()) {
-									interf = new Interface();
 									String[] interfaceData = values.toArray(new String[values.size()]);
 									if(interfaceData.length > 0) {
-										for (int i = 0; i < interfaceData.length; i++) {
-											if(i == 0) {
-												interf.setName(interfaceData[i].substring(0, interfaceData[i].length()));
-											}
-											if(i == 1) {
-												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.UP);
-												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.DOWN);
+										for(String data : interfaceData) {
+											if(data.contains("SID") || data.contains("sid")) {
+												List<String> splitSID = new ArrayList<String>();
+												StringTokenizer st = new StringTokenizer(data.trim(), "[]");
+												while(st.hasMoreTokens()) {
+													splitSID.add(st.nextToken());
 												}
+												if(!splitSID.isEmpty() && splitSID.size() == 2) {
+													sidArg = splitSID.get(1);
+													sidParam = data.trim();
+												}
+												break;
 											}
 										}
+										break;
 									}
-									interfaceList.add(interf);
 								}
 							}
 						}
 					}
-					if(!interfaceList.isEmpty()) {
-						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+				}
+			}
+		} catch (Exception e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				errorResponse.setMessage(e.toString());
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
+		}
+
+		try {
+			if(sidArg != null && !"".equals(sidArg) && sidParam != null && !"".equals(sidParam)) {
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), sidArg);
+				if(command != null && !"".equals(command)) {
+					String output = connectDevice.applyCommands(command, "#");
+					if(output != null && !"".equals(output)) {
+						Interface interf = null;
+						String[] array = null;
+						if(output.indexOf("\r\n") > -1) {
+							array = output.split("\r\n");
+						} else {
+							array = new String[] {output};
+						}
+						if(array != null && array.length > 0) {
+							List<String> values = null;
+							for(String line : array) {
+								if(line.contains(sidParam) && (line.contains("down") || line.contains("up")) ) {
+									line = line.trim();
+									String[] lineArray = line.split(" ");
+									values = new ArrayList<String>();
+									for(String l : lineArray) {
+										if(!" ".equals(l) && !"".equals(l)) {
+											values.add(l.trim());
+										}
+									}
+									if(!values.isEmpty()) {
+										interf = new Interface();
+										String[] interfaceData = values.toArray(new String[values.size()]);
+										if(interfaceData.length > 0) {
+											for (int i = 0; i < interfaceData.length; i++) {
+												if(i == 0) {
+													if(logicalInterfaceName.equalsIgnoreCase(interfaceData[i])) {
+														interf.setIpaddress(wanIP);
+													}
+													interf.setName(interfaceData[i]);
+												}
+												if(i == 1) {
+													if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+														interf.setStatus(AgentUtil.UP);
+													} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+														interf.setStatus(AgentUtil.DOWN);
+													}
+												}
+											}
+										}
+										interfaceList.add(interf);
+									}
+								}
+							}
+						}
+						if(!interfaceList.isEmpty()) {
+							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+						}
 					}
 				}
 			}
