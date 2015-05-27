@@ -174,7 +174,7 @@ public class SNMPUtil {
 				List<String> outputList = AgentUtil.runLocalCommand(command);
 				if(outputList != null && !outputList.isEmpty()) {
 					String l3CircuitParam = "L3Circuit["+circuitID+"]";
-					String sidParam = "Cct["+circuitID+"]";
+					String sidParam = "SID["+circuitID+"]";
 					ifAliasMap = new HashMap<String, Interface>();
 					for(String line : outputList) {
 						if(line.contains(l3CircuitParam) || line.contains(sidParam)) {

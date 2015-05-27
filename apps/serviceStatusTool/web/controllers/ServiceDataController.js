@@ -244,7 +244,15 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
 									if (l3DeviceDetails.deviceDetails) {
 										if (l3DeviceDetails.deviceDetails.interfaces) {
-											$scope.zSideInterfaceLogicals = l3DeviceDetails.deviceDetails.interfaces;
+											for (var i = 0; i < l3DeviceDetails.deviceDetails.interfaces.length; i++) {
+												if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") != -1 || l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1) {
+													//logical
+													$scope.zSideInterfaceLogicals.push(l3DeviceDetails.deviceDetails.interfaces[i]);
+												} else {
+													//physical
+													$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);
+												}
+											}
 										}
 										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
 										$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
@@ -366,8 +374,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
 										$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
 									} else if (type == "zside") {
-										if (l3DeviceDetails.deviceDetails.interfaces) {
-											$scope.zSideInterfaceLogicals = l3DeviceDetails.deviceDetails.interfaces;
+										for (var i = 0; i < l3DeviceDetails.deviceDetails.interfaces.length; i++) {
+											if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") != -1 || l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1) {
+												//logical
+												$scope.zSideInterfaceLogicals.push(l3DeviceDetails.deviceDetails.interfaces[i]);
+											} else {
+												//physical
+												$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);
+											}
 										}
 										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
 										$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
@@ -425,8 +439,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			$scope.aSideDeviceUpTime = "";
 			$scope.aSideManagementIPAddress = "";
 		} else if (type == "zside") {
-			$scope.zSideInterfaceLogicals = "";
-			$scope.zSidePhysicalInterfaces = "";
+			$scope.zSideInterfaceLogicals = [];
+			$scope.zSidePhysicalInterfaces = [];
 			$scope.zSideDeviceStatus = "";
 			$scope.zSideDeviceUpTime = "";
 			$scope.zSideManagementIPAddress	= "";
@@ -438,8 +452,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		$scope.aSideDeviceStatus = "";
 		$scope.aSideDeviceUpTime = "";
 		$scope.aSideManagementIPAddress = "";
-		$scope.zSideInterfaceLogicals = "";
-		$scope.zSidePhysicalInterfaces = "";
+		$scope.zSideInterfaceLogicals = [];
+		$scope.zSidePhysicalInterfaces = [];
 		$scope.zSideDeviceStatus = "";
 		$scope.zSideDeviceUpTime = "";
 		$scope.zSideManagementIPAddress	= "";
