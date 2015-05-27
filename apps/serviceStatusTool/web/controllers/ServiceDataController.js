@@ -224,6 +224,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'requestID'	: callZSideCount,
 								'seibelUserID'	: username,
 								'name'       	:  $scope.sideInformation.zSideInformation.deviceName,
+								'serviceType' : $scope.circuit.productType,
 								'deviceType'	: {
 									'vendor'	: $scope.sideInformation.zSideInformation.vendor,
 									'model'  	: $scope.sideInformation.zSideInformation.model

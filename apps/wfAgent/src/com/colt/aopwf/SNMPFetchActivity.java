@@ -3,6 +3,7 @@ package com.colt.aopwf;
 import java.util.Map;
 
 import com.colt.util.SNMPUtil;
+import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.Interface;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
@@ -15,6 +16,7 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 
 	private String[] snmpFetch(Map<String,Object> input) {
 		String[] resp = null;
+		DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 		IDeviceDetailsResponse deviceDetailsResponse = null;
 		if(input.containsKey("deviceDetailsResponse")) {
 			if(input.get("deviceDetailsResponse") instanceof L3DeviceDetailsResponse) {
@@ -26,7 +28,7 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 		if(input != null && input.containsKey("deviceDetails")) {
 			Integer snmpVersion = (Integer) input.get("snmpVersion");
 			if (snmpVersion != null) {
-				SNMPUtil snmp = new SNMPUtil(snmpVersion);
+				SNMPUtil snmp = new SNMPUtil(snmpVersion, "CPE", deviceDetails.getServiceType());
 				Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				snmp.retrieveInterfaceName(ifAliasMap,deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);

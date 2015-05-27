@@ -35,7 +35,12 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				//test Model, find version
-				SNMPUtil snmp = new SNMPUtil();
+				SNMPUtil snmp = null;
+				if (null != deviceDetails.getType() && "PE".equalsIgnoreCase(deviceDetails.getType())) {
+					snmp = new SNMPUtil();
+				} else {
+					snmp = new SNMPUtil(deviceDetails.getType(), deviceDetails.getServiceType());
+				}
 				boolean isSameModel = snmp.discoverModel(deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor());
 				if(snmp.getVersion() != null) {
 					input.put("snmpVersion", snmp.getVersion());
