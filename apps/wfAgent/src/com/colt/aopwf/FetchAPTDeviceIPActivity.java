@@ -24,7 +24,7 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				if(deviceDetails != null && deviceDetails.getName() != null) {
 					AptUtil aptUtil = new AptUtil();
-					String ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getAssociatedDevice());
+					String ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getName());
 					if(ipAddress != null && !"".equals(ipAddress)) {
 						deviceDetails.setIp(ipAddress);
 						resp = new String[] {"FETCH_DEVICE_DONE"};

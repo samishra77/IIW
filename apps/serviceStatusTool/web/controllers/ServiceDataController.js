@@ -232,7 +232,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'type': 'PE',
 								'circuitID': $scope.circuit.circuitID
 						};
-						if ($scope.sideInformation.aSideInformation.deviceName) {
+						if ($scope.sideInformation.aSideInformation && $scope.sideInformation.aSideInformation.deviceName) {
 							deviceDetailsZside.associatedDevice = $scope.sideInformation.aSideInformation.deviceName;
 						}
 						var respAgentZSide = $http({
@@ -346,7 +346,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							deviceDetails.deviceType = new Object();
 							deviceDetails.deviceType.vendor = $scope.sideInformation.zSideInformation.vendor;
 							deviceDetails.deviceType.model = $scope.sideInformation.zSideInformation.model;
-							if ($scope.sideInformation.aSideInformation.deviceName) {
+							if ($scope.sideInformation.aSideInformation && $scope.sideInformation.aSideInformation.deviceName) {
 								deviceDetails.associatedDevice = $scope.sideInformation.aSideInformation.deviceName;
 							}
 							deviceDetails.type = 'PE';

@@ -55,18 +55,37 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 				String wanIP = "";
 				if (cpeMgmtIp != null) { 
 					wanIP = AgentUtil.calculateWanIp(cpeMgmtIp);
+					if (wanIP == null || "".equals(wanIP)) {
+						if (deviceDetailsResponse.getErrorResponse() == null) {
+							ErrorResponse errorResponse = new ErrorResponse();
+							errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+							errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("wanIP.calculetError"));
+							deviceDetailsResponse.setErrorResponse(errorResponse);
+						}
+					}
 				}
 				if(adapter != null) {
-						Integer snmpVersion = (Integer) input.get("snmpVersion");
-						IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP);
-						if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
-							deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
-							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());
-							if(ddr.getErrorResponse() != null) {
+					Integer snmpVersion = (Integer) input.get("snmpVersion");
+					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP);
+					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
+						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
+						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());
+						if(ddr.getErrorResponse() != null) {
+							if (deviceDetailsResponse.getErrorResponse() != null) {
+								ErrorResponse adapterEr = ddr.getErrorResponse();
+								ErrorResponse er = deviceDetailsResponse.getErrorResponse();
+								if (adapterEr.getFailedConn() != null && adapterEr.getFailedConn().size() > 0) {
+									er.getFailedConn().addAll(adapterEr.getFailedConn());
+								}
+								if (adapterEr.getFailedSnmp() != null && adapterEr.getFailedSnmp().size() > 0) {
+									er.getFailedSnmp().addAll(adapterEr.getFailedSnmp());
+								}
+							} else {
 								deviceDetailsResponse.setErrorResponse(ddr.getErrorResponse());
 							}
 						}
-						resp = new String[] {"SENDRESPONSE"};
+					}
+					resp = new String[] {"SENDRESPONSE"};
 				}
 			} catch (Exception e) {
 				log.error(e,e);

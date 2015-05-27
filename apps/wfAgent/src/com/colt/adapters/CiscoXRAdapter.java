@@ -183,13 +183,6 @@ public class CiscoXRAdapter extends Adapter {
 						}
 					}
 				}
-			} else {
-				if (deviceDetailsResponse.getErrorResponse() == null) {
-					ErrorResponse errorResponse = new ErrorResponse();
-					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("wanIP.calculetError"));
-					deviceDetailsResponse.setErrorResponse(errorResponse);
-				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);

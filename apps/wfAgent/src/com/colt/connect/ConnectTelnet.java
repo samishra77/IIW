@@ -84,7 +84,9 @@ public class ConnectTelnet extends ConnectDevice {
 				if ( sleepCount>waitForSleepCountMax ) {
 					throw new Exception("Timeout");
 				}
-				log.debug("waitfor() waiting for data... (sleepCount="+sleepCount+")");
+				if (sleepCount > 50) {
+					log.debug("waitfor() waiting for data... (sleepCount="+sleepCount+")");
+				}
 				Thread.sleep(waitForSleepInterval);
 			}
 			if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {
@@ -143,7 +145,9 @@ public class ConnectTelnet extends ConnectDevice {
 					log.info("readBuffer() exceeded sleepCountMax");
 					break;
 				}
-				log.debug("readBuffer() waiting for data... (sleepCount="+sleepCount+")");
+				if (sleepCount > 50) {
+					log.debug("readBuffer() waiting for data... (sleepCount="+sleepCount+")");
+				}
 				Thread.sleep(waitForSleepInterval);
 			}
 			//			if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {

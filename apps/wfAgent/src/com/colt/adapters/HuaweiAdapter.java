@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.colt.util.MessagesErrors;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetail;
-import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.Interface;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
@@ -30,15 +28,6 @@ public class HuaweiAdapter extends Adapter {
 				deviceDetail.setTime(sysUpTime);
 			}
 			deviceDetail.getInterfaces().addAll(sortInterfaces(ifAliasMap, wanIP));
-
-			if(wanIP == null || "".equals(wanIP)) {
-				if (deviceDetailsResponse.getErrorResponse() == null) {
-					ErrorResponse errorResponse = new ErrorResponse();
-					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("wanIP.calculetError"));
-					deviceDetailsResponse.setErrorResponse(errorResponse);
-				}
-			}
 		}
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 		return deviceDetailsResponse;
