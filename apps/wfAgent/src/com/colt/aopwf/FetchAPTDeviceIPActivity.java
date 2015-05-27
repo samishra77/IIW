@@ -5,18 +5,13 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.colt.apt.business.Device;
-import com.colt.apt.business.User;
-import com.colt.common.aptcache.IDeviceDAO;
-import com.colt.util.AgentConfig;
+import com.colt.util.AptUtil;
 import com.colt.util.MessagesErrors;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
-
-import electric.registry.Registry;
 
 public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 
@@ -28,17 +23,10 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				if(deviceDetails != null && deviceDetails.getName() != null) {
-					String baseUrl = AgentConfig.getDefaultInstance().getProperty("apt.baseUrl");
-					String userName = AgentConfig.getDefaultInstance().getProperty("apt.userName");
-					String userPass = AgentConfig.getDefaultInstance().getProperty("apt.userPass");
-					User user = new User();
-					user.setUsername(userName);
-					user.setPassword(userPass);
-
-					IDeviceDAO deviceDAO = (IDeviceDAO) Registry.bind(baseUrl+"/aptCache/services/DeviceDAO.wsdl",IDeviceDAO.class);
-					Device[] deviceArray = deviceDAO.retrieveDevicesByName(user, deviceDetails.getName());
-					if(deviceArray != null && deviceArray.length == 1 && deviceArray[0].getAddress() != null && !"".equals(deviceArray[0].getAddress())) {
-						deviceDetails.setIp(deviceArray[0].getAddress());
+					AptUtil aptUtil = new AptUtil();
+					String ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getAssociatedDevice());
+					if(ipAddress != null && !"".equals(ipAddress)) {
+						deviceDetails.setIp(ipAddress);
 						resp = new String[] {"FETCH_DEVICE_DONE"};
 					} else {
 						IDeviceDetailsResponse deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
