@@ -1,5 +1,6 @@
 package com.colt.util;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,18 @@ public class SNMPUtil {
 	private String type;
 	private String serviceType;
 	private String community;
+
+	private static final String grepCmd;
+
+	static {
+		// Solaris grep in path doesn't support the same features from Linux grep.
+		File f = new File("/usr/xpg4/bin/grep");
+		if (f.exists()) {
+			grepCmd = "/usr/xpg4/bin/grep";
+		} else {
+			grepCmd = "grep";
+		}
+	}
 
 	public String getCommunity() {
 		return community;
@@ -139,7 +152,7 @@ public class SNMPUtil {
 		if(deviceDetailsResponse != null && deviceDetailsResponse.getDeviceDetails() != null && 
 				deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty() && 
 				ipAddress != null & !"".equals(ipAddress)) {
-			String arg = "ifDescr | grep '";
+			String arg = "ifDescr | " + grepCmd + " -E '";
 			int i = 0;
 			Map<String, Interface> mapIfNameInterface = new HashMap<String, Interface>();
 			for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
@@ -148,7 +161,7 @@ public class SNMPUtil {
 					if(i == 1) {
 						arg+= interf.getName();
 					} else {
-						arg+="\\|" + interf.getName();
+						arg+="|" + interf.getName();
 					}
 					mapIfNameInterface.put(interf.getName(), interf);
 				}

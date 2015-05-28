@@ -3,7 +3,6 @@ package com.colt.adapters;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,12 +62,9 @@ public class CiscoXRAdapter extends Adapter {
 		String wanIPInterfaceName = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
 		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, wanIPInterfaceName, wanIP);
 		String physicalInterfaceName = null;
-		if(!deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
-			for(Interface itf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
-				if(itf.getName() != null && itf.getName().indexOf(".") > -1) {
-					physicalInterfaceName = itf.getName().substring(0, itf.getName().indexOf("."));
-					break;
-				}
+		if(wanIPInterfaceName != null && !"".equals(wanIPInterfaceName)) {
+			if(wanIPInterfaceName.indexOf(".") > -1) {
+				physicalInterfaceName = wanIPInterfaceName.substring(0, wanIPInterfaceName.indexOf("."));
 			}
 		}
 		if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
@@ -304,7 +300,7 @@ public class CiscoXRAdapter extends Adapter {
 							String lineLowerCase = null;
 							for(String line : outputArray) {
 								lineLowerCase = line.toLowerCase();
-								if((lineLowerCase.contains("down") || lineLowerCase.contains("up")) && line.contains(" " + physicalInterfaceName + " ")) {
+								if((lineLowerCase.contains("down") || lineLowerCase.contains("up")) && line.contains(physicalInterfaceName)) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -321,7 +317,7 @@ public class CiscoXRAdapter extends Adapter {
 												if(i == 0) {
 													interf.setName(interfaceData[i]);
 												}
-												if(i == 1) {
+												if(i == 2) {
 													if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
 														interf.setStatus(AgentUtil.UP);
 													} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {

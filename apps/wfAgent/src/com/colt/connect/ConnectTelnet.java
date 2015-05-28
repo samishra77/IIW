@@ -84,7 +84,6 @@ public class ConnectTelnet extends ConnectDevice {
 				else {
 					sleepCount++;
 					if ( sleepCount>waitForSleepCountMax ) {
-						log.debug("Data before timeout: " + sb.toString());
 						throw new Exception("Timeout");
 					}
 					if (sleepCount == waitForSleepCountMax) {
@@ -93,7 +92,6 @@ public class ConnectTelnet extends ConnectDevice {
 					Thread.sleep(waitForSleepInterval);
 				}
 				if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {
-					log.debug("Data before timeout: " + sb.toString());
 					throw new Exception("Timeout");
 				}
 				m = p.matcher(sb.toString());
