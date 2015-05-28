@@ -60,13 +60,20 @@ public class JunosAdapter extends Adapter {
 
 	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse, String community) {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
-		String logicalInterfaceName = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
+		String wanIPInterfaceName = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
+		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, wanIPInterfaceName, wanIP);
 		String physicalInterfaceName = null;
-		if(logicalInterfaceName != null && logicalInterfaceName.indexOf(".") > -1) {
-			physicalInterfaceName = logicalInterfaceName.substring(0, logicalInterfaceName.indexOf("."));
+		if(!deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
+			for(Interface itf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
+				if(itf.getName() != null && itf.getName().indexOf(".") > -1) {
+					physicalInterfaceName = itf.getName().substring(0, itf.getName().indexOf("."));
+					break;
+				}
+			}
+		}
+		if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
 			retrievePhysicalInterface(connectDevice, physicalInterfaceName, deviceDetailsResponse);
 		}
-		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, logicalInterfaceName, wanIP);
 		if(snmpVersion != null) {
 			SNMPUtil snmp = new SNMPUtil(snmpVersion);
 			snmp.setCommunity(community);
@@ -146,78 +153,6 @@ public class JunosAdapter extends Adapter {
 		}
 	}
 
-	private void retrievePhysicalInterface(ConnectDevice connectDevice, String physicalInterfaceName, IDeviceDetailsResponse deviceDetailsResponse) {
-		List<Interface> interfaceList = new ArrayList<Interface>();
-		try {
-			if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), "\"" + physicalInterfaceName + " \"");
-				if(command != null && !"".equals(command)) {
-					String output = connectDevice.applyCommands(command, ">");
-					if(output != null && !"".equals(output)) {
-						Interface interf = null;
-						//split each line
-						String[] outputArray = null;
-						if(output.indexOf("\r\n") > -1) {
-							outputArray = output.split("\r\n");
-						} else {
-							outputArray = new String[] {output};
-						}
-
-						//process data
-						if(outputArray != null && outputArray.length > 1) {
-							List<String> values = null;
-							String lineLowerCase = null;
-							for(String line : outputArray) {
-								lineLowerCase = line.toLowerCase();
-								if(lineLowerCase.contains("down") || lineLowerCase.contains("up")) {
-									line = line.trim();
-									String[] lineArray = line.split(" ");
-									values = new ArrayList<String>();
-									for(String l : lineArray) {
-										if(!" ".equals(l) && !"".equals(l)) {
-											values.add(l);
-										}
-									}
-									if(!values.isEmpty()) {
-										interf = new Interface();
-										String[] interfaceData = values.toArray(new String[values.size()]);
-										if(interfaceData.length > 0) {
-											for (int i = 0; i < interfaceData.length; i++) {
-												if(i == 0) {
-													interf.setName(interfaceData[i]);
-												}
-												if(i == 1) {
-													if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-														interf.setStatus(AgentUtil.UP);
-													} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-														interf.setStatus(AgentUtil.DOWN);
-													}
-												}
-											}
-											interfaceList.add(interf);
-											break;
-										}
-									}
-								}
-							}
-						}
-						if(!interfaceList.isEmpty()) {
-							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			log.error(e,e);
-			if (deviceDetailsResponse.getErrorResponse() == null) {
-				ErrorResponse errorResponse = new ErrorResponse();
-				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
-				deviceDetailsResponse.setErrorResponse(errorResponse);
-			}
-		}
-	}
-
 	private String retrieveInterfaceByWanIp(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
 		String logicalInterfaceName = null;
 		try {
@@ -272,16 +207,14 @@ public class JunosAdapter extends Adapter {
 		return logicalInterfaceName;
 	}
 
-	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, String logicalInterfaceName, String wanIP) {
+	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, String wanIPInterfaceName, String wanIP) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
-		String sidArg = null;
-		String sidParam = null;
 		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"" + circuitID + " \"");
+			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"\\[" + circuitID + "\\]\"");
 			if(command != null && !"".equals(command)) {
 				String output = connectDevice.applyCommands(command, ">");
 				if(output != null && !"".equals(output)) {
-
+					Interface interf = null;
 					String[] array = null;
 					if(output.indexOf("\r\n") > -1) {
 						array = output.split("\r\n");
@@ -293,7 +226,7 @@ public class JunosAdapter extends Adapter {
 						String lineLowerCase = null;
 						for(String line : array) {
 							lineLowerCase = line.toLowerCase();
-							if( line.contains(circuitID)
+							if( line.contains("[" + circuitID + "]") 
 									&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
 								line = line.trim();
 								String[] lineArray = line.split(" ");
@@ -304,29 +237,32 @@ public class JunosAdapter extends Adapter {
 									}
 								}
 								if(!values.isEmpty()) {
+									interf = new Interface();
 									String[] interfaceData = values.toArray(new String[values.size()]);
 									if(interfaceData.length > 0) {
-										String dataLowerCase = null;
-										for(String data : interfaceData) {
-											dataLowerCase = data.toLowerCase();
-											if(dataLowerCase.contains("sid")) {
-												List<String> splitSID = new ArrayList<String>();
-												StringTokenizer st = new StringTokenizer(data.trim(), "[]");
-												while(st.hasMoreTokens()) {
-													splitSID.add(st.nextToken());
+										for (int i = 0; i < interfaceData.length; i++) {
+											if(i == 0) {
+												if(wanIPInterfaceName != null && wanIPInterfaceName.equalsIgnoreCase(interfaceData[i])) {
+													interf.setIpaddress(wanIP);
 												}
-												if(!splitSID.isEmpty() && splitSID.size() == 2) {
-													sidArg = splitSID.get(0) + "\\["+ splitSID.get(1) + "\\]";
-													sidParam = data.trim();
+												interf.setName(interfaceData[i]);
+											}
+											if(i == 1) {
+												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+													interf.setStatus(AgentUtil.UP);
+												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+													interf.setStatus(AgentUtil.DOWN);
 												}
-												break;
 											}
 										}
-										break;
 									}
+									interfaceList.add(interf);
 								}
 							}
 						}
+					}
+					if(!interfaceList.isEmpty()) {
+						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 					}
 				}
 			}
@@ -339,33 +275,38 @@ public class JunosAdapter extends Adapter {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
+	}
 
+	private void retrievePhysicalInterface(ConnectDevice connectDevice, String physicalInterfaceName, IDeviceDetailsResponse deviceDetailsResponse) {
+		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
-			if(sidArg != null && !"".equals(sidArg) && sidParam != null && !"".equals(sidParam)) {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"" + sidArg + " \"");
+			if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), "\"" + physicalInterfaceName + " \"");
 				if(command != null && !"".equals(command)) {
 					String output = connectDevice.applyCommands(command, ">");
 					if(output != null && !"".equals(output)) {
 						Interface interf = null;
-						String[] array = null;
+						//split each line
+						String[] outputArray = null;
 						if(output.indexOf("\r\n") > -1) {
-							array = output.split("\r\n");
+							outputArray = output.split("\r\n");
 						} else {
-							array = new String[] {output};
+							outputArray = new String[] {output};
 						}
-						if(array != null && array.length > 0) {
+
+						//process data
+						if(outputArray != null && outputArray.length > 1) {
 							List<String> values = null;
 							String lineLowerCase = null;
-							for(String line : array) {
+							for(String line : outputArray) {
 								lineLowerCase = line.toLowerCase();
-								if( line.contains(sidParam) 
-										&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
+								if(lineLowerCase.contains("down") || lineLowerCase.contains("up")) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
 									for(String l : lineArray) {
 										if(!" ".equals(l) && !"".equals(l)) {
-											values.add(l.trim());
+											values.add(l);
 										}
 									}
 									if(!values.isEmpty()) {
@@ -374,9 +315,6 @@ public class JunosAdapter extends Adapter {
 										if(interfaceData.length > 0) {
 											for (int i = 0; i < interfaceData.length; i++) {
 												if(i == 0) {
-													if(logicalInterfaceName != null && logicalInterfaceName.equalsIgnoreCase(interfaceData[i])) {
-														interf.setIpaddress(wanIP);
-													}
 													interf.setName(interfaceData[i]);
 												}
 												if(i == 1) {
@@ -387,8 +325,9 @@ public class JunosAdapter extends Adapter {
 													}
 												}
 											}
+											interfaceList.add(interf);
+											break;
 										}
-										interfaceList.add(interf);
 									}
 								}
 							}
