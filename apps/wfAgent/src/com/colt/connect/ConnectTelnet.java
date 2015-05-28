@@ -72,33 +72,38 @@ public class ConnectTelnet extends ConnectDevice {
 		StringBuilder sb = new StringBuilder();
 		char ch;
 
-		while (true) {
-			if (in.available() > 0) {
-				sleepCount = 0;
-				ch = (char)in.read();
-				//log.debug("char received: "+ch+"      (in.available():"+in.available());
-				outstream.write(ch);
-				sb.append( ch );
-			}
-			else {
-				sleepCount++;
-				if ( sleepCount>waitForSleepCountMax ) {
+		try {
+			while (true) {
+				if (in.available() > 0) {
+					sleepCount = 0;
+					ch = (char)in.read();
+					//log.debug("char received: "+ch+"      (in.available():"+in.available());
+					outstream.write(ch);
+					sb.append( ch );
+				}
+				else {
+					sleepCount++;
+					if ( sleepCount>waitForSleepCountMax ) {
+						log.debug("Data before timeout: " + sb.toString());
+						throw new Exception("Timeout");
+					}
+					if (sleepCount == waitForSleepCountMax) {
+						log.debug("waitfor() waiting for data... (sleepCount="+sleepCount+")");
+					}
+					Thread.sleep(waitForSleepInterval);
+				}
+				if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {
 					log.debug("Data before timeout: " + sb.toString());
 					throw new Exception("Timeout");
 				}
-				if (sleepCount == waitForSleepCountMax) {
-					log.debug("waitfor() waiting for data... (sleepCount="+sleepCount+")");
+				m = p.matcher(sb.toString());
+				if( m.find() ) {
+					return sb.toString();
 				}
-				Thread.sleep(waitForSleepInterval);
 			}
-			if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {
-				log.debug("Data before timeout: " + sb.toString());
-				throw new Exception("Timeout");
-			}
-			m = p.matcher(sb.toString());
-			if( m.find() ) {
-				return sb.toString();
-			}
+		} catch(Exception e) {
+			log.debug("Data before exception: " + sb.toString());
+			throw e;
 		}
 	}
 
