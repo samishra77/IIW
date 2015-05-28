@@ -43,6 +43,7 @@ public class ConnectTelnet extends ConnectDevice {
 	@Override
 	public void connect(String server, int _timeout, String connectProtocol) throws Exception {
 		try {
+			log.debug("Telnet connection to " + server);
 			telnet.connect(server, 23);
 			int auxtimeout = (_timeout > IDLETIMEOUT) ? _timeout:IDLETIMEOUT;
 			telnet.setSoTimeout(auxtimeout*1000);
@@ -56,7 +57,7 @@ public class ConnectTelnet extends ConnectDevice {
 	}
 
 	public String waitfor(String pattern) throws Exception {
-		System.out.println("Patter passed is : " + pattern);
+		System.out.println("Pattern passed is : " + pattern);
 		if (pattern==null || "".equals(pattern)) {
 			return null;
 		}
@@ -82,14 +83,16 @@ public class ConnectTelnet extends ConnectDevice {
 			else {
 				sleepCount++;
 				if ( sleepCount>waitForSleepCountMax ) {
+					log.debug("Data before timeout: " + sb.toString());
 					throw new Exception("Timeout");
 				}
-				if (sleepCount > 50) {
+				if (sleepCount == waitForSleepCountMax) {
 					log.debug("waitfor() waiting for data... (sleepCount="+sleepCount+")");
 				}
 				Thread.sleep(waitForSleepInterval);
 			}
 			if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {
+				log.debug("Data before timeout: " + sb.toString());
 				throw new Exception("Timeout");
 			}
 			m = p.matcher(sb.toString());
@@ -145,7 +148,7 @@ public class ConnectTelnet extends ConnectDevice {
 					log.info("readBuffer() exceeded sleepCountMax");
 					break;
 				}
-				if (sleepCount > 50) {
+				if (sleepCount == waitForSleepCountMax) {
 					log.debug("readBuffer() waiting for data... (sleepCount="+sleepCount+")");
 				}
 				Thread.sleep(waitForSleepInterval);
