@@ -218,7 +218,7 @@ public class CiscoIOSAdapter extends Adapter {
 						if(outputArray != null && outputArray.length > 1) {
 							List<String> values = null;
 							for(String line : outputArray) {
-								if((line.contains("down") || line.contains("up")) && line.contains(" " + physicalInterfaceName + " ")) {
+								if((line.contains("Down") || line.contains("Up")) && line.contains(" " + physicalInterfaceName + " ")) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -273,7 +273,7 @@ public class CiscoIOSAdapter extends Adapter {
 		String sidParam = null;
 		if(logicalInterfaceName != null && !"".equals(logicalInterfaceName)) {
 			try {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), logicalInterfaceName);
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
 				if(command != null && !"".equals(command)) {
 					String output = connectDevice.applyCommands(command, "#");
 					if(output != null && !"".equals(output)) {
@@ -287,7 +287,7 @@ public class CiscoIOSAdapter extends Adapter {
 						if(array != null && array.length > 0) {
 							List<String> values = null;
 							for(String line : array) {
-								if( line.contains("L1Circuit[" + circuitID + "]") && line.contains(logicalInterfaceName + " ")
+								if( line.contains(circuitID) 
 										&& (line.contains("down") || line.contains("up")) ) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
