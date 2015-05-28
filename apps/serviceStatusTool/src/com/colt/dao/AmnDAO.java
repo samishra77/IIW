@@ -318,7 +318,8 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	private void fetchFromOHSContractRelatedTables(Circuit circuit) {
+	private void fetchFromOHSContractRelatedTables(Circuit circuit){
+		recapProcessServicesWithoutProduct(circuit);
 		if(circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType()) ) {
 			if(circuit.getProductType().equalsIgnoreCase(ProductType.HSS.value())) {
 				getCircuitHSS(circuit);
@@ -335,6 +336,33 @@ public class AmnDAO extends DAO {
 			getCircuitOthers(circuit);
 		}
 	}
+	
+	/**
+	 * Try to identify the ProductType of services at the beginning lacked ProductType.
+	 * @param HashMap<String ProductType, List<ServiceAttribType>> productServiceList
+	 * @throws Exception
+	 */
+	private void recapProcessServicesWithoutProduct(Circuit circuit){
+		if(circuit != null && (circuit.getProductType() == null || "".equals(circuit.getProductType())) && circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber()) ) {
+			String sql = "select distinct LEGAL_CUSTOMER, PRODUCT_NAME, OCN " +
+					"from AMN.IE_OHS_CONTRACT " +
+					"where CONTRACT_NO = :orderNumber and CIRCUIT_REFERENCE_5D = :circuitID";
+			Query query = em.createNativeQuery(sql);
+			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("orderNumber", circuit.getOrderNumber());
+			List<Object[]> resutlList = query.getResultList();
+			if(resutlList != null && resutlList.size() > 0) {
+				for(Object[] o : resutlList) {
+					circuit.setProductType(new Util().getProductType((String)o[1] != null ? (String)o[1] : ""));
+					circuit.setServiceMenu((String)o[1] != null ? (String)o[1] : "");
+					break;
+				}
+			}
+		}
+
+	}
+	
+
 
 	private void getCircuitHSS(Circuit circuit) {
 		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
