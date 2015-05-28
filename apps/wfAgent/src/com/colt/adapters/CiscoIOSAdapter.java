@@ -24,7 +24,7 @@ public class CiscoIOSAdapter extends Adapter {
 	private Log log = LogFactory.getLog(CiscoIOSAdapter.class);
 
 	@Override
-	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
 		DeviceDetail deviceDetail = new DeviceDetail();
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);
@@ -43,7 +43,7 @@ public class CiscoIOSAdapter extends Adapter {
 			}
 			try {
 				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_CISCO);
-				executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse);
+				executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse, community);
 			} catch (Exception e) {
 				log.error(e,e);
 				if(deviceDetailsResponse.getErrorResponse() == null) {
@@ -58,7 +58,7 @@ public class CiscoIOSAdapter extends Adapter {
 		return deviceDetailsResponse;
 	}
 
-	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse) {
+	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse, String community) {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
 		String logicalInterfaceName = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
 		String physicalInterfaceName = null;
@@ -70,6 +70,7 @@ public class CiscoIOSAdapter extends Adapter {
 
 		if(snmpVersion != null) {
 			SNMPUtil snmp = new SNMPUtil(snmpVersion);
+			snmp.setCommunity(community);
 			snmp.retrieveLastStatusChange(deviceIP, deviceDetailsResponse);
 		}
 	}

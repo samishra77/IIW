@@ -66,7 +66,11 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 				}
 				if(adapter != null) {
 					Integer snmpVersion = (Integer) input.get("snmpVersion");
-					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP);
+					String community = null;
+					if(input.containsKey("community")) {
+						community = (String) input.get("community");
+					}
+					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community);
 					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());

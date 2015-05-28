@@ -21,6 +21,15 @@ public class SNMPUtil {
 	private Integer version;
 	private String type;
 	private String serviceType;
+	private String community;
+
+	public String getCommunity() {
+		return community;
+	}
+
+	public void setCommunity(String community) {
+		this.community = community;
+	}
 
 	public SNMPUtil() {
 		// Empty
@@ -50,21 +59,33 @@ public class SNMPUtil {
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
 				String community = this.snmpCommunity().trim();
-				String command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, ipAddress, "system.sysDescr.0");
-				if(command != null && !"".equals(command)) {
-					List<String> outputList = AgentUtil.runLocalCommand(command);
-					if(outputList != null && !outputList.isEmpty()) {
-						for(String line : outputList) {
-							if(line.contains("= STRING:")) {
-								if(this.version == null) {
-									this.version = 2;
+				String command = null;
+				if(community != null && !"".equals(community)) {
+					List<String> communityList = AgentUtil.splitByDelimiters(community, ",");
+					if(communityList != null && !communityList.isEmpty()) {
+						for(String cmnt : communityList) {
+							command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), cmnt, ipAddress, "system.sysDescr.0");
+							if(command != null && !"".equals(command)) {
+								List<String> outputList = AgentUtil.runLocalCommand(command);
+								if(outputList != null && !outputList.isEmpty()) {
+									for(String line : outputList) {
+										if(line.contains("= STRING:")) {
+											this.setCommunity(cmnt);
+											if(this.version == null) {
+												this.version = 2;
+											}
+											if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
+												isSameModel = true;
+											} else {
+												log.debug("Vendor didn't match for: " + vendor);
+											}
+											break;
+										}
+									}
+									if(this.version != null) {
+										break;
+									}
 								}
-								if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
-									isSameModel = true;
-								} else {
-									log.debug("Vendor didn't match for: " + vendor);
-								}
-								break;
 							}
 						}
 					}
@@ -96,10 +117,10 @@ public class SNMPUtil {
 	}
 
 	public void retrieveLastStatusChange(String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
-			Map<String, Interface> ifAliasMap = retrieveInterfaceIdssByNames(ipAddress, deviceDetailsResponse);
-			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
-				retrieveInterfaceLastStatusChange(ifAliasMap, ipAddress, deviceDetailsResponse);
-			}
+		Map<String, Interface> ifAliasMap = retrieveInterfaceIdssByNames(ipAddress, deviceDetailsResponse);
+		if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
+			retrieveInterfaceLastStatusChange(ifAliasMap, ipAddress, deviceDetailsResponse);
+		}
 	}
 
 	private Interface retrieveInterfaceCLIByName(Map<String, Interface> mapIfNameInterface, String ifName) {
@@ -135,11 +156,10 @@ public class SNMPUtil {
 			arg+="'";
 			try {
 				if(i > 0) { // has interface names in arg
-					String community = this.snmpCommunity().trim();
 					String command = null;
 					if(version != null && version == 3) {
 						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, arg);
-					} else {
+					} else if(community != null && !"".equals(community)) {
 						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, arg);
 					}
 					if(command != null && !"".equals(command)) {
@@ -176,11 +196,10 @@ public class SNMPUtil {
 	public Map<String, Interface> retrieveIfAlias(String circuitID, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
 		Map<String, Interface> ifAliasMap = null;
 		try {
-			String community = this.snmpCommunity().trim();
 			String command = null;
 			if(version != null && version == 3) {
 				command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifAlias");
-			} else {
+			} else if(community != null && !"".equals(community)) {
 				command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifAlias");
 			}
 			if(command != null && !"".equals(command)) {
@@ -222,8 +241,7 @@ public class SNMPUtil {
 				String command = null;
 				if(version != null && version == 3) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
-				} else {
-					String community = this.snmpCommunity().trim();
+				} else if(community != null && !"".equals(community)) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
 				}
 				if(command != null && !"".equals(command)) {
@@ -263,8 +281,7 @@ public class SNMPUtil {
 				String command = null;
 				if(version != null && version == 3) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
-				} else {
-					String community = this.snmpCommunity().trim();
+				} else if(community != null && !"".equals(community)) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
 				}
 				if(command != null && !"".equals(command)) {
@@ -308,8 +325,7 @@ public class SNMPUtil {
 				String command = null;
 				if(version != null && version == 3) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
-				} else {
-					String community = this.snmpCommunity().trim();
+				} else if(community != null && !"".equals(community)) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
 				}
 				if(command != null && !"".equals(command)) {
@@ -349,8 +365,7 @@ public class SNMPUtil {
 				String command = null;
 				if(version != null && version == 3) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
-				} else {
-					String community = this.snmpCommunity().trim();
+				} else if(community != null && !"".equals(community)) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
 				}
 				if(command != null && !"".equals(command)) {
@@ -391,8 +406,7 @@ public class SNMPUtil {
 				String command = null;
 				if(version != null && version == 3) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), deviceIP, "sysUpTime");
-				} else {
-					String community = this.snmpCommunity().trim();
+				} else if(community != null && !"".equals(community)) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, deviceIP, "sysUpTime");
 				}
 				if(command != null && !"".equals(command)) {

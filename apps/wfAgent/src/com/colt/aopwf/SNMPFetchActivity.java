@@ -29,6 +29,9 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 			Integer snmpVersion = (Integer) input.get("snmpVersion");
 			if (snmpVersion != null) {
 				SNMPUtil snmp = new SNMPUtil(snmpVersion, "CPE", deviceDetails.getServiceType());
+				if(input.containsKey("community")) {
+					snmp.setCommunity((String) input.get("community"));
+				}
 				Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				snmp.retrieveInterfaceName(ifAliasMap,deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);

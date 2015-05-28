@@ -63,19 +63,23 @@ public class AdapterWrapper implements IAdapterWrapper {
 			isCliFetch = AgentUtil.verifyItemInList(resp, "CLIFETCH", itemResp);
 		}
 		if(isCliFetch && input.containsKey("snmpVersion") && input.containsKey("vendor") && input.containsKey("os")) {
-			cliFetch((Integer) input.get("snmpVersion"), (String) input.get("os"), (String) input.get("vendor"), deviceDetailsResponse);
+			String community = null;
+			if(input.containsKey("community")) {
+				community = (String) input.get("community");
+			}
+			cliFetch(community, (Integer) input.get("snmpVersion"), (String) input.get("os"), (String) input.get("vendor"), deviceDetailsResponse);
 		}
 		
 		return deviceDetailsResponse;
 	}
 
-	private void cliFetch(Integer snmpVersion, String os, String vendor, DeviceDetailsWSResponse deviceDetailsResponse) {
+	private void cliFetch(String community, Integer snmpVersion, String os, String vendor, DeviceDetailsWSResponse deviceDetailsResponse) {
 		FactoryAdapter factoryAdapter = new FactoryAdapter();
 		Adapter adapter = factoryAdapter.getAdapter(vendor, os);
 		String wanIP = AgentUtil.calculateWanIp(deviceDetailsResponse.getDeviceIP());
 		if(adapter != null) {
 			try {
-				IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP);
+				IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community);
 				if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 					deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 					deviceDetailsResponse.getDeviceDetails().setInterfaces(ddr.getDeviceDetails().getInterfaces());

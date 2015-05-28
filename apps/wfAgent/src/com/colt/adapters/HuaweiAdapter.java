@@ -13,11 +13,12 @@ import com.colt.ws.biz.L3DeviceDetailsResponse;
 public class HuaweiAdapter extends Adapter {
 
 	@Override
-	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
 		DeviceDetail deviceDetail = new DeviceDetail();
 		if(deviceIP != null && !"".equals(deviceIP) && circuitID != null && !"".equals(circuitID) && snmpVersion != null) {
 			SNMPUtil snmp = new SNMPUtil(snmpVersion);
+			snmp.setCommunity(community);
 			Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitID, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceName(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceIP, deviceDetailsResponse);

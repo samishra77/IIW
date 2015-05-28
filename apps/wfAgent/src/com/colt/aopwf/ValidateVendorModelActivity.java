@@ -44,6 +44,7 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 				boolean isSameModel = snmp.discoverModel(deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor());
 				if(snmp.getVersion() != null) {
 					input.put("snmpVersion", snmp.getVersion());
+					input.put("community", snmp.getCommunity());
 					if (isSameModel) {
 						InputStream inputStreamFile = null;
 						String pathFile = AgentConfig.getDefaultInstance().getProperty("agentValidators.pathFile").trim();
