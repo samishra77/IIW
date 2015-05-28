@@ -88,8 +88,10 @@ public class JunosAdapter extends Adapter {
 
 					if(array != null && array.length > 0) {
 						List<String> values = null;
+						String lineLowerCase = null;
 						for(String line : array) {
-							if(line.contains("up") && line.contains("day")) {
+							lineLowerCase = line.toLowerCase();
+							if(lineLowerCase.contains("up") && lineLowerCase.contains("day")) {
 								line = line.trim();
 								String[] lineArray = line.split(" ");
 								values = new ArrayList<String>();
@@ -163,8 +165,10 @@ public class JunosAdapter extends Adapter {
 						//process data
 						if(outputArray != null && outputArray.length > 1) {
 							List<String> values = null;
+							String lineLowerCase = null;
 							for(String line : outputArray) {
-								if(line.contains("Down") || line.contains("Up")) {
+								lineLowerCase = line.toLowerCase();
+								if(lineLowerCase.contains("down") || lineLowerCase.contains("up")) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -232,8 +236,10 @@ public class JunosAdapter extends Adapter {
 						//process data
 						if(outputArray != null && outputArray.length > 1) {
 							List<String> values = null;
+							String lineLowerCase = null;
 							for(String line : outputArray) {
-								if(line.contains("down") || line.contains("up")) {
+								lineLowerCase = line.toLowerCase();
+								if(lineLowerCase.contains("down") || lineLowerCase.contains("up")) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -269,13 +275,77 @@ public class JunosAdapter extends Adapter {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		String sidArg = null;
 		String sidParam = null;
-		if(logicalInterfaceName != null && !"".equals(logicalInterfaceName)) {
-			try {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"" + circuitID + " \"");
+		try {
+			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"" + circuitID + " \"");
+			if(command != null && !"".equals(command)) {
+				String output = connectDevice.applyCommands(command, ">");
+				if(output != null && !"".equals(output)) {
+
+					String[] array = null;
+					if(output.indexOf("\r\n") > -1) {
+						array = output.split("\r\n");
+					} else {
+						array = new String[] {output};
+					}
+					if(array != null && array.length > 0) {
+						List<String> values = null;
+						String lineLowerCase = null;
+						for(String line : array) {
+							lineLowerCase = line.toLowerCase();
+							if( line.contains(circuitID)
+									&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
+								line = line.trim();
+								String[] lineArray = line.split(" ");
+								values = new ArrayList<String>();
+								for(String l : lineArray) {
+									if(!" ".equals(l) && !"".equals(l)) {
+										values.add(l.trim());
+									}
+								}
+								if(!values.isEmpty()) {
+									String[] interfaceData = values.toArray(new String[values.size()]);
+									if(interfaceData.length > 0) {
+										String dataLowerCase = null;
+										for(String data : interfaceData) {
+											dataLowerCase = data.toLowerCase();
+											if(dataLowerCase.contains("sid")) {
+												List<String> splitSID = new ArrayList<String>();
+												StringTokenizer st = new StringTokenizer(data.trim(), "[]");
+												while(st.hasMoreTokens()) {
+													splitSID.add(st.nextToken());
+												}
+												if(!splitSID.isEmpty() && splitSID.size() == 2) {
+													sidArg = splitSID.get(0) + "\\["+ splitSID.get(1) + "\\]";
+													sidParam = data.trim();
+												}
+												break;
+											}
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				errorResponse.setMessage(e.toString());
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
+		}
+
+		try {
+			if(sidArg != null && !"".equals(sidArg) && sidParam != null && !"".equals(sidParam)) {
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"" + sidArg + " \"");
 				if(command != null && !"".equals(command)) {
 					String output = connectDevice.applyCommands(command, ">");
 					if(output != null && !"".equals(output)) {
-
+						Interface interf = null;
 						String[] array = null;
 						if(output.indexOf("\r\n") > -1) {
 							array = output.split("\r\n");
@@ -284,9 +354,11 @@ public class JunosAdapter extends Adapter {
 						}
 						if(array != null && array.length > 0) {
 							List<String> values = null;
+							String lineLowerCase = null;
 							for(String line : array) {
-								if( line.contains(circuitID)
-										&& (line.contains("Down") || line.contains("Up")) ) {
+								lineLowerCase = line.toLowerCase();
+								if( line.contains(sidParam) 
+										&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -296,105 +368,43 @@ public class JunosAdapter extends Adapter {
 										}
 									}
 									if(!values.isEmpty()) {
+										interf = new Interface();
 										String[] interfaceData = values.toArray(new String[values.size()]);
 										if(interfaceData.length > 0) {
-											for(String data : interfaceData) {
-												if(data.contains("SID") || data.contains("sid")) {
-													List<String> splitSID = new ArrayList<String>();
-													StringTokenizer st = new StringTokenizer(data.trim(), "[]");
-													while(st.hasMoreTokens()) {
-														splitSID.add(st.nextToken());
+											for (int i = 0; i < interfaceData.length; i++) {
+												if(i == 0) {
+													if(logicalInterfaceName != null && logicalInterfaceName.equalsIgnoreCase(interfaceData[i])) {
+														interf.setIpaddress(wanIP);
 													}
-													if(!splitSID.isEmpty() && splitSID.size() == 2) {
-														sidArg = splitSID.get(0) + "\\["+ splitSID.get(1) + "\\]";
-														sidParam = data.trim();
+													interf.setName(interfaceData[i]);
+												}
+												if(i == 1) {
+													if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+														interf.setStatus(AgentUtil.UP);
+													} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+														interf.setStatus(AgentUtil.DOWN);
 													}
-													break;
 												}
 											}
-											break;
 										}
+										interfaceList.add(interf);
 									}
 								}
 							}
 						}
+						if(!interfaceList.isEmpty()) {
+							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+						}
 					}
-				}
-			} catch (Exception e) {
-				log.error(e,e);
-				if (deviceDetailsResponse.getErrorResponse() == null) {
-					ErrorResponse errorResponse = new ErrorResponse();
-					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-					errorResponse.setMessage(e.toString());
-					deviceDetailsResponse.setErrorResponse(errorResponse);
 				}
 			}
-
-			try {
-				if(sidArg != null && !"".equals(sidArg) && sidParam != null && !"".equals(sidParam)) {
-					String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"" + sidArg + " \"");
-					if(command != null && !"".equals(command)) {
-						String output = connectDevice.applyCommands(command, ">");
-						if(output != null && !"".equals(output)) {
-							Interface interf = null;
-							String[] array = null;
-							if(output.indexOf("\r\n") > -1) {
-								array = output.split("\r\n");
-							} else {
-								array = new String[] {output};
-							}
-							if(array != null && array.length > 0) {
-								List<String> values = null;
-								for(String line : array) {
-									if( line.contains(sidParam) 
-											&& (line.contains("down") || line.contains("up")) ) {
-										line = line.trim();
-										String[] lineArray = line.split(" ");
-										values = new ArrayList<String>();
-										for(String l : lineArray) {
-											if(!" ".equals(l) && !"".equals(l)) {
-												values.add(l.trim());
-											}
-										}
-										if(!values.isEmpty()) {
-											interf = new Interface();
-											String[] interfaceData = values.toArray(new String[values.size()]);
-											if(interfaceData.length > 0) {
-												for (int i = 0; i < interfaceData.length; i++) {
-													if(i == 0) {
-														if(logicalInterfaceName.equalsIgnoreCase(interfaceData[i])) {
-															interf.setIpaddress(wanIP);
-														}
-														interf.setName(interfaceData[i]);
-													}
-													if(i == 1) {
-														if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-															interf.setStatus(AgentUtil.UP);
-														} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-															interf.setStatus(AgentUtil.DOWN);
-														}
-													}
-												}
-											}
-											interfaceList.add(interf);
-										}
-									}
-								}
-							}
-							if(!interfaceList.isEmpty()) {
-								deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				log.error(e,e);
-				if (deviceDetailsResponse.getErrorResponse() == null) {
-					ErrorResponse errorResponse = new ErrorResponse();
-					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-					errorResponse.setMessage(e.toString());
-					deviceDetailsResponse.setErrorResponse(errorResponse);
-				}
+		} catch (Exception e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				errorResponse.setMessage(e.toString());
+				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
 	}
