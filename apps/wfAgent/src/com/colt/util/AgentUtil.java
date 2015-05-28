@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -171,6 +172,17 @@ public class AgentUtil {
 			log.error(e,e);
 		}
 		return partialAddress;
+	}
+
+	public static List<String> splitByDelimiters(String data, String delimiter) {
+		List<String> splited = new ArrayList<String>();
+		if(data != null && !"".equals(data)) {
+			StringTokenizer st = new StringTokenizer(data.trim(), delimiter);
+			while(st.hasMoreTokens()) {
+				splited.add(st.nextToken().trim());
+			}
+		}
+		return splited;
 	}
 }
 

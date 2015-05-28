@@ -112,19 +112,21 @@ public class CiscoIOSAdapter extends Adapter {
 												}
 											}
 											if(line.contains("hour")) {
-												hour = line;
+												List<String> lineSplited = AgentUtil.splitByDelimiters(line, " ");
+												if(lineSplited != null && lineSplited.size() > 1) {
+													hour = lineSplited.get(0) + "h ";
+												}
 											}
-											if(line.contains("min")) {
-												min = line;
+
+											if(line.contains("minute")) {
+												List<String> lineSplited = AgentUtil.splitByDelimiters(line, " ");
+												if(lineSplited != null && lineSplited.size() > 1) {
+													min = lineSplited.get(0) + "m";
+												}
 											}
 										}
 										int totalDay = parseWeek + parseDay;
-										String sysUpTime = "";
-										if(totalDay != 1) {
-											sysUpTime = totalDay + " days" + hour + min;
-										} else {
-											sysUpTime = totalDay + " day" + hour + min;
-										}
+										String sysUpTime = totalDay + "d " + hour + min;
 										deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
 										break;
 									}

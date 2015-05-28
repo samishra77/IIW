@@ -109,20 +109,12 @@ public class JunosAdapter extends Adapter {
 											int hourNumber = 0;
 											if(hourMinute[0] != null && !"".equals(hourMinute[0])) {
 												hourNumber = Integer.valueOf(hourMinute[0]);
-												if(hourNumber != 1) {
-													hour = hourNumber + " hours ";
-												} else {
-													hour = hourNumber + " hour ";
-												}
+												hour = hourNumber + "h ";
 											}
 											int minuteNumber = 0;
 											if(hourMinute[1] != null && !"".equals(hourMinute[1])) {
 												minuteNumber = Integer.valueOf(hourMinute[1]);
-												if(minuteNumber != 1) {
-													minute = minuteNumber + " minutes";
-												} else {
-													minute = minuteNumber + " minute";
-												}
+												minute = minuteNumber + "m";
 											}
 
 										}
@@ -130,11 +122,7 @@ public class JunosAdapter extends Adapter {
 									int dayNumber = 0;
 									if(values.get(2) != null) {
 										dayNumber = Integer.valueOf(values.get(2));
-										if(dayNumber != 1) {
-											day = dayNumber + " days ";
-										} else {
-											day = dayNumber + " day ";
-										}
+										day = dayNumber + "d ";
 									}
 									deviceDetailsResponse.getDeviceDetails().setTime(day + hour + minute);
 									break;
