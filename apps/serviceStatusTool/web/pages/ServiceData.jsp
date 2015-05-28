@@ -257,6 +257,7 @@
 							<thead>
 								<tr>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.name"></spring:message></td>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.ipAddress"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.status"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange"></spring:message></td>
 								</tr>
@@ -264,6 +265,7 @@
 							<tbody>
 								<tr ng-repeat="asideInferf in aSideInterfaces">
 									<td>{{asideInferf.name}}</td>
+									<td>{{asideInferf.ipaddress}}</td>
 									<td>{{asideInferf.status}}</td>
 									<td>{{asideInferf.lastChgTime}}</td>
 								</tr>
@@ -337,6 +339,7 @@
 							<thead>
 								<tr>
 									<td><spring:message code="serviceData.zSide.customerLogicalInterface.name"></spring:message></td>
+									<td><spring:message code="serviceData.zSide.customerLogicalInterface.ipAddress"></spring:message></td>
 									<td><spring:message code="serviceData.zSide.customerLogicalInterface.status"></spring:message></td>
 									<td><spring:message code="serviceData.zSide.customerLogicalInterface.lastStateChange"></spring:message></td>
 								</tr>
@@ -344,6 +347,7 @@
 							<tbody>
 								<tr ng-repeat="interf in zSideInterfaceLogicals" >
 									<td>{{interf.name}}</td>
+									<td>{{interf.ipaddress}}</td>
 									<td>{{interf.status}}</td>
 									<td>{{interf.lastChgTime}}</td>
 								</tr>
