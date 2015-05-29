@@ -102,23 +102,31 @@ public class CiscoIOSAdapter extends Adapter {
 									if(uptime != null && uptime.length > 0) {
 										int parseWeek = 0;
 										int parseDay = 0;
+										String year = "";
 										String hour = "";
 										String min = "";
 										String lineLowerCase = null;
 										for (String line : uptime) {
 											lineLowerCase = line.toLowerCase();
+											if(lineLowerCase.contains("year")) {
+												List<String> lineSplited = AgentUtil.splitByDelimiters(line, " ");
+												if(lineSplited != null && lineSplited.size() > 1) {
+													year = lineSplited.get(0) + "y ";
+												}
+											}
 											if(lineLowerCase.contains("week")) {
-												String[] weekArray = line.split(" ");
-												if(weekArray != null && weekArray.length > 0) {
-													parseWeek = Integer.valueOf(line.split(" ")[0]) * 7;
+												List<String> weekArray = AgentUtil.splitByDelimiters(line, " ");
+												if(weekArray != null && weekArray.size() > 1) {
+													parseWeek = Integer.valueOf(weekArray.get(0)) * 7;
 												}
 											}
 											if(lineLowerCase.contains("day")) {
-												String[] dayArray = line.split(" ");
-												if(dayArray != null && dayArray.length > 0) {
-													parseDay = Integer.valueOf(line.split(" ")[1]);
+												List<String> dayArray = AgentUtil.splitByDelimiters(line, " ");
+												if(dayArray != null && dayArray.size() > 1) {
+													parseDay = Integer.valueOf(dayArray.get(0));
 												}
 											}
+
 											if(lineLowerCase.contains("hour")) {
 												List<String> lineSplited = AgentUtil.splitByDelimiters(line, " ");
 												if(lineSplited != null && lineSplited.size() > 1) {
@@ -134,7 +142,11 @@ public class CiscoIOSAdapter extends Adapter {
 											}
 										}
 										int totalDay = parseWeek + parseDay;
-										String sysUpTime = totalDay + "d " + hour + min;
+										String day = "";
+										if(totalDay > 0) {
+											day = "" + totalDay + "d ";
+										}
+										String sysUpTime = year + day + hour + min;
 										deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
 										break;
 									}
