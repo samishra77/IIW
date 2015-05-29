@@ -5,9 +5,22 @@ public class L3DeviceDetailsResponse implements IDeviceDetailsResponse {
 	private String responseID;
 	private String deviceIP;
 	private String circuitID;
+	private String associatedDeviceIp;
 	private DeviceDetail deviceDetails;
 	private ErrorResponse errorResponse;
 
+	/**
+	 * @return the associatedDeviceIp
+	 */
+	public String getAssociatedDeviceIp() {
+		return associatedDeviceIp;
+	}
+	/**
+	 * @param associatedDeviceIp the associatedDeviceIp to set
+	 */
+	public void setAssociatedDeviceIp(String associatedDeviceIp) {
+		this.associatedDeviceIp = associatedDeviceIp;
+	}
 	/**
 	 * @return the deviceIP
 	 */

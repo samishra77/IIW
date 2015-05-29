@@ -268,6 +268,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.showDeviceErrorZSide = true;
 										$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
 									}
+									$scope.zSideAssociatedDeviceIp = l3DeviceDetails.associatedDeviceIp;
+
 								}
 							} else {
 								$scope.showDeviceErrorZSide = true;
@@ -349,6 +351,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							if ($scope.sideInformation.aSideInformation && $scope.sideInformation.aSideInformation.deviceName) {
 								deviceDetails.associatedDevice = $scope.sideInformation.aSideInformation.deviceName;
 							}
+							if ($scope.zSideAssociatedDeviceIp) {
+								deviceDetails.associatedDeviceIp = $scope.zSideAssociatedDeviceIp;
+							}
 							deviceDetails.type = 'PE';
 							deviceDetails.circuitID = $scope.circuit.circuitID;
 						}
@@ -374,6 +379,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								} else {
 									resetASideOrZSideInformation("zside");
 									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
+									$scope.zSideAssociatedDeviceIp = l3DeviceDetails.associatedDeviceIp;
 								}
 								if (l3DeviceDetails.deviceDetails) {
 									if (type == "aside") {
@@ -445,12 +451,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			$scope.aSideDeviceStatus = "";
 			$scope.aSideDeviceUpTime = "";
 			$scope.aSideManagementIPAddress = "";
+			
 		} else if (type == "zside") {
 			$scope.zSideInterfaceLogicals = [];
 			$scope.zSidePhysicalInterfaces = [];
 			$scope.zSideDeviceStatus = "";
 			$scope.zSideDeviceUpTime = "";
 			$scope.zSideManagementIPAddress	= "";
+			$scope.zSideAssociatedDeviceIp = "";
 		}
 	}
 	function resetSideInformation() {

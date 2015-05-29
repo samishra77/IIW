@@ -3,6 +3,14 @@ package com.colt.ws.biz;
 public interface IDeviceDetailsResponse {
 
 	/**
+	 * @return the associatedDeviceIp
+	 */
+	public String getAssociatedDeviceIp();
+	/**
+	 * @param associatedDeviceIp the associatedDeviceIp to set
+	 */
+	public void setAssociatedDeviceIp(String associatedDeviceIp);
+	/**
 	 * @return the deviceIP
 	 */
 	public String getDeviceIP();

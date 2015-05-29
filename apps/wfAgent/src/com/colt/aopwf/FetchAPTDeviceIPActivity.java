@@ -22,8 +22,14 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 		try {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
+				String associatedDeviceIp = null;
+				AptUtil aptUtil = new AptUtil();
+				// Find CPE mgmt address in APT
+				if(deviceDetails != null && deviceDetails.getAssociatedDevice() != null && (deviceDetails.getAssociatedDeviceIp() == null || "".equals(deviceDetails.getAssociatedDeviceIp()))) {
+					associatedDeviceIp = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getAssociatedDevice());
+					deviceDetails.setAssociatedDeviceIp(associatedDeviceIp);
+				}
 				if(deviceDetails != null && deviceDetails.getName() != null) {
-					AptUtil aptUtil = new AptUtil();
 					String ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getName());
 					if(ipAddress != null && !"".equals(ipAddress)) {
 						deviceDetails.setIp(ipAddress);

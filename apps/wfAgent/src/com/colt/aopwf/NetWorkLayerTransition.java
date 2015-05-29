@@ -33,6 +33,7 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 					//l2
 				}
 				if(deviceDetailsResponse != null) {
+					deviceDetailsResponse.setAssociatedDeviceIp(deviceDetails.getAssociatedDeviceIp());
 					deviceDetailsResponse.setDeviceIP(deviceDetails.getIp());
 					deviceDetailsResponse.setCircuitID(deviceDetails.getCircuitID());
 					deviceDetailsResponse.setResponseID(deviceDetails.getRequestID());

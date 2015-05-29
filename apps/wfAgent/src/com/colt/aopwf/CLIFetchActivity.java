@@ -30,15 +30,9 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 			}
 		}
 		if(input != null && input.containsKey("vendor") && input.containsKey("os") && deviceDetailsResponse != null) {
-			
-			String cpeMgmtIp = null;
 			try {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
-				// Find CPE mgmt address in APT
-				if(deviceDetails != null && deviceDetails.getAssociatedDevice() != null) {
-					AptUtil aptUtil = new AptUtil();
-					cpeMgmtIp = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getAssociatedDevice());
-				}
+				String cpeMgmtIp = deviceDetails.getAssociatedDeviceIp();
 				if (cpeMgmtIp == null) {
 					if(deviceDetailsResponse.getErrorResponse() == null) {
 						ErrorResponse errorResponse = new ErrorResponse();

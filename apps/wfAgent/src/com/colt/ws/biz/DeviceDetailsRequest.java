@@ -12,8 +12,22 @@ public class DeviceDetailsRequest {
 	private String ip;
 	private String type;
 	private String associatedDevice;
+	private String associatedDeviceIp;
 	private String serviceType;
 
+	
+	/**
+	 * @return the associatedDeviceIp
+	 */
+	public String getAssociatedDeviceIp() {
+		return associatedDeviceIp;
+	}
+	/**
+	 * @param associatedDeviceIp the associatedDeviceIp to set
+	 */
+	public void setAssociatedDeviceIp(String associatedDeviceIp) {
+		this.associatedDeviceIp = associatedDeviceIp;
+	}
 	/**
 	 * @return the type
 	 */
