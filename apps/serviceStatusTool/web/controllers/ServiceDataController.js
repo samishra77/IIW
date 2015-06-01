@@ -120,6 +120,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					$scope.sideInformationError = true;
 					$scope.sideInformationErrorMessage = "Status Information not found.";
 				} else {
+					if ($scope.sideInformation.aSideInformation != null && $scope.sideInformation.zSideInformation == null) {
+						$scope.sideInformationError = true;
+						$scope.sideInformationErrorMessage = "Z Side Status Information not found.";
+					} else if ($scope.sideInformation.aSideInformation == null && $scope.sideInformation.zSideInformation != null) {
+						$scope.sideInformationError = true;
+						$scope.sideInformationErrorMessage = "A Side Status Information not found.";
+					}
 					sideInformationFromDevice();
 				}
 			}
