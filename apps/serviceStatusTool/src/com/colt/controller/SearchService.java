@@ -220,8 +220,8 @@ public class SearchService {
 		return response;
 	}
 
-	@RequestMapping(value = "/getCircuitsByOrderNumber", method = RequestMethod.POST, headers = "Accept=application/json")
-	public Object getCircuitsByOrderNumber(@RequestBody String orderNumber, @RequestParam String username) throws Exception {
+	@RequestMapping(value = "/getCircuitsByOrderNumber", method = RequestMethod.GET, headers = "Accept=application/json")
+	public Object getCircuitsByOrderNumber(@RequestParam String orderNumber, @RequestParam String username) throws Exception {
 		UsageTracking usageTracking = new UsageTracking("circuits-order-number", username, "[OrderNumber:" + orderNumber + "]");
 		log.info("[" + username + "] Entering method getCircuitsByOrderNumber()");
 		Response response = null;

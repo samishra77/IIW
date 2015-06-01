@@ -7,9 +7,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 	if (orderNumber) {
 		$scope.showPopUp = true;
 		var resp = $http({
-			method  : 'POST',
-			url     : urlBase + '/getCircuitsByOrderNumber?username=' + username,
-			data    : orderNumber,
+			method  : 'GET',
+			url     : urlBase + '/getCircuitsByOrderNumber?username=' + username + "&orderNumber=" + orderNumber,
 			headers : { 'Content-Type': 'application/json' }
 		});
 		resp.success(function(data) {
