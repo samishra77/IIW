@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,8 +44,11 @@ public class UsageTracking {
 
 	public synchronized void write() {
 		try {
+			Date date = new Date(start);
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String dateFormated = formatter.format(date);
 			String header = "Date Time,User,Operation,Search Parameters,Response Time(Sec),No Of Records Fetched,Status\n";
-			String logfile = SstConfig.getDefaultInstance().getProperty("usageTracking.logfile");
+			String logfile = MessageFormat.format(SstConfig.getDefaultInstance().getProperty("usageTracking.logfile"), dateFormated);
 			File file = new File(logfile);
 			boolean createHeader = false;
 			if (!file.exists()) {
