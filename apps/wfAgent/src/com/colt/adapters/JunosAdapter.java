@@ -147,7 +147,11 @@ public class JunosAdapter extends Adapter {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.cli.deviceuptime").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -200,7 +204,11 @@ public class JunosAdapter extends Adapter {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.cli.showIpInterfaces").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -271,7 +279,11 @@ public class JunosAdapter extends Adapter {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.cli.showInterfaceDescription").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -343,7 +355,11 @@ public class JunosAdapter extends Adapter {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.cli.physicalInterface").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
