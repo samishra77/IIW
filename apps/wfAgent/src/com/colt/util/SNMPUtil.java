@@ -1,6 +1,7 @@
 package com.colt.util;
 
 import java.io.File;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -293,7 +294,11 @@ public class SNMPUtil {
 				if (deviceDetailsResponse.getErrorResponse() == null) {
 					ErrorResponse errorResponse = new ErrorResponse();
 					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-					errorResponse.setMessage(e.toString());
+					try {
+						errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.cli.ifdescr").trim(), e.toString()));
+					} catch (Exception e1) {
+						log.error(e1,e1);
+					}
 					deviceDetailsResponse.setErrorResponse(errorResponse);
 				}
 			}
@@ -332,7 +337,11 @@ public class SNMPUtil {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifAlias").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -373,7 +382,11 @@ public class SNMPUtil {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifdescr").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -417,7 +430,11 @@ public class SNMPUtil {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.iflastchange").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -457,7 +474,11 @@ public class SNMPUtil {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifPhysAddress").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -501,7 +522,11 @@ public class SNMPUtil {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifOperStatus").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
@@ -546,7 +571,11 @@ public class SNMPUtil {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				errorResponse.setMessage(e.toString());
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.sysUpTime").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
