@@ -55,10 +55,11 @@
 			<div class="row">
 				<div class="col-md-6 column">
 				</div>
-				<div class="col-md-4 column">
+				<div class="col-md-1 column">
 					<button  class="btn btn-primary" ng-click="doSearch()"><spring:message code="global.search"></spring:message></button>
 				</div>
-				<div class="col-md-2 column">
+				<div class="col-md-5 column">
+					<button class="btn btn-primary" onclick="window.location.reload();"><spring:message code="global.reset"></spring:message></button>
 				</div>
 			</div>
 		</form>
