@@ -25,7 +25,7 @@ import com.colt.ws.biz.Search;
 
 public class AmnDAO extends DAO {
 
-	private final int maxResult = 30;
+	private final int maxResult = 60;
 	private Log log = LogFactory.getLog(AmnDAO.class);
 
 	public AmnDAO(EntityManager em, Properties resource, String username) {
