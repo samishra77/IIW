@@ -12,6 +12,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.colt.adapters.CiscoIOSAdapter;
+import com.colt.adapters.FactoryAdapter;
+import com.colt.connect.ConnectDevice;
+import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.Interface;
@@ -67,8 +70,8 @@ public class SNMPUtil {
 		return version;
 	}
 
-	public boolean discoverModel(String ipAddress, String model, String vendor) {
-		boolean isSameModel = false;
+	public boolean discoverVendor(String type, String ipAddress, String model, String vendor, IDeviceDetailsResponse deviceDetailsResponse, String deviceName) {
+		boolean isSameVendor = false;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
 				String community = this.snmpCommunity().trim();
@@ -88,7 +91,7 @@ public class SNMPUtil {
 												this.version = 2;
 											}
 											if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
-												isSameModel = true;
+												isSameVendor = true;
 											} else {
 												log.debug("Vendor didn't match for: " + vendor);
 											}
@@ -112,7 +115,7 @@ public class SNMPUtil {
 								if(line.contains("= STRING:")) {
 									this.version = 3;
 									if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
-										isSameModel = true;
+										isSameVendor = true;
 									} else {
 										log.debug("Vendor didn't match for: " + vendor);
 									}
@@ -122,11 +125,103 @@ public class SNMPUtil {
 						}
 					}
 				}
+				//both snmp command fail
+				if(this.version == null) {
+					if(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(type)) {
+						isSameVendor = discoverVendorByCliCommand(ipAddress, vendor, deviceDetailsResponse);
+						if(!isSameVendor) {
+							if(deviceDetailsResponse != null && deviceDetailsResponse.getErrorResponse() == null && deviceName != null) {
+								ErrorResponse errorResponse = new ErrorResponse();
+								errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("validate.pe.vendorModelDevDiff"), vendor, deviceName));
+								errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+								deviceDetailsResponse.setErrorResponse(errorResponse);
+							}
+							isSameVendor = true;
+						}
+					}
+				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);
 		}
-		return isSameModel;
+		return isSameVendor;
+	}
+
+	private boolean discoverVendorByCliCommand(String deviceIP, String vendor, IDeviceDetailsResponse deviceDetailsResponse) {
+		boolean isSameVendor = false;
+		if(deviceIP != null && !"".equals(deviceIP)) {
+			ConnectDevice connectDevice = null;
+			try {
+				try {
+					connectDevice = new ConnectDevice();
+					connectDevice.connect(deviceIP, 15, "telnet");
+				} catch (Exception e) {
+					try {
+						connectDevice = new ConnectDevice();
+						connectDevice.connect(deviceIP, 15, "ssh");
+					} catch (Exception e2) {
+						throw e2;
+					}
+				}
+
+				String prepareCommands = null;
+				String endTag = null;
+				if(FactoryAdapter.VENDOR_CISCO.equalsIgnoreCase(vendor)) {
+					prepareCommands = FactoryAdapter.VENDOR_CISCO;
+					endTag = "#";
+				} else if(FactoryAdapter.VENDOR_JUNIPER.equalsIgnoreCase(vendor)) {
+					prepareCommands = FactoryAdapter.VENDOR_JUNIPER;
+					endTag = ">";
+					vendor = "junos";
+				}
+
+				if(prepareCommands != null && endTag != null) {
+					connectDevice.prepareForCommands(prepareCommands);
+					String command = DeviceCommand.getDefaultInstance().getProperty("validate.cli.showVersion").trim();
+					if(command != null && !"".equals(command)) {
+						String output = connectDevice.applyCommands(command, endTag);
+						if(output != null && !"".equals(output)) {
+							String[] array = null;
+							if(output.indexOf("\r\n") > -1) {
+								array = output.split("\r\n");
+							} else {
+								array = new String[] {output};
+							}
+							if(array != null && array.length > 0) {
+								for(String line : array) {
+									line = line.trim();
+									List<String> lineList = AgentUtil.splitByDelimiters(line, " ,");
+									if(lineList != null && !lineList.isEmpty()) {
+										if(AgentUtil.verifyItemInList(lineList.toArray(new String[lineList.size()]), vendor)) {
+											isSameVendor = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+					
+				}
+			} catch (Exception e) {
+				log.error(e,e);
+				if(deviceDetailsResponse != null && deviceDetailsResponse.getErrorResponse() == null) {
+					ErrorResponse errorResponse = new ErrorResponse();
+					try {
+						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.vendor.validation"));
+					} catch (Exception e1) {
+						log.error(e1,e1);
+					}
+					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+					deviceDetailsResponse.setErrorResponse(errorResponse);
+				}
+			} finally {
+				if(connectDevice != null) {
+					connectDevice.disconnect();
+				}
+			}
+		}
+		return isSameVendor;
 	}
 
 	public void retrieveLastStatusChange(String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {

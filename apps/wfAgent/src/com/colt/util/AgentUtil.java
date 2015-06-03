@@ -40,6 +40,19 @@ public class AgentUtil {
 		return resp;
 	}
 
+	public static boolean verifyItemInList(String[] listArray, String item) {
+		boolean resp = false;
+		if(listArray != null && listArray.length > 0 && item != null && !"".equals(item)) {
+			for(String itemArray : listArray) {
+				if(itemArray.equalsIgnoreCase(item)) {
+					resp = true;
+					break;
+				}
+			}
+		}
+		return resp;
+	}
+
 //	public static void main(String[] args) {
 //		validateVendorModel("/home/daniel/workspace/sst/apps/wfAgent/src/com/colt/util/agentValidators.xml", "Cisco", "2901");
 //	}
