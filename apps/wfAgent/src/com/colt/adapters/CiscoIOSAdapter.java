@@ -3,7 +3,6 @@ package com.colt.adapters;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +11,6 @@ import com.colt.connect.ConnectDevice;
 import com.colt.util.AgentUtil;
 import com.colt.util.DeviceCommand;
 import com.colt.util.MessagesErrors;
-import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
@@ -71,10 +69,10 @@ public class CiscoIOSAdapter extends Adapter {
 		if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
 			retrievePhysicalInterface(connectDevice, physicalInterfaceName, deviceDetailsResponse);
 		}
-		if(snmpVersion != null) {
-			SNMPUtil snmp = new SNMPUtil(snmpVersion);
-			snmp.setCommunity(community);
-			snmp.retrieveLastStatusChange(deviceIP, deviceDetailsResponse);
+		if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
+			for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
+				interf.setLastChgTime("Not available yet");
+			}
 		}
 	}
 
@@ -87,6 +85,11 @@ public class CiscoIOSAdapter extends Adapter {
 					String[] array = null;
 					if(output.indexOf("\r\n") > -1) {
 						array = output.split("\r\n");
+					} else if(output.indexOf("\n") > -1) {
+						List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+						if(outputList != null && !outputList.isEmpty()) {
+							array = outputList.toArray(new String[outputList.size()]);
+						}
 					} else {
 						array = new String[] {output};
 					}
@@ -183,6 +186,11 @@ public class CiscoIOSAdapter extends Adapter {
 						String[] outputArray = null;
 						if(output.indexOf("\r\n") > -1) {
 							outputArray = output.split("\r\n");
+						} else if(output.indexOf("\n") > -1) {
+							List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+							if(outputList != null && !outputList.isEmpty()) {
+								outputArray = outputList.toArray(new String[outputList.size()]);
+							}
 						} else {
 							outputArray = new String[] {output};
 						}
@@ -240,6 +248,11 @@ public class CiscoIOSAdapter extends Adapter {
 					String[] array = null;
 					if(output.indexOf("\r\n") > -1) {
 						array = output.split("\r\n");
+					} else if(output.indexOf("\n") > -1) {
+						List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+						if(outputList != null && !outputList.isEmpty()) {
+							array = outputList.toArray(new String[outputList.size()]);
+						}
 					} else {
 						array = new String[] {output};
 					}
@@ -305,8 +318,9 @@ public class CiscoIOSAdapter extends Adapter {
 	private void retrievePhysicalInterface(ConnectDevice connectDevice, String physicalInterfaceName, IDeviceDetailsResponse deviceDetailsResponse) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
-			if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.ios.showIpInterfaces").trim(), physicalInterfaceName);
+			String physicalInterfaceNameAux =  AgentUtil.processCliInterfaceNameDescription(physicalInterfaceName);
+			if(physicalInterfaceNameAux != null && !"".equals(physicalInterfaceNameAux)) {
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showPhysicalInterface").trim(), physicalInterfaceNameAux);
 				if(command != null && !"".equals(command)) {
 					String output = connectDevice.applyCommands(command, "#");
 					if(output != null && !"".equals(output)) {
@@ -315,6 +329,11 @@ public class CiscoIOSAdapter extends Adapter {
 						String[] outputArray = null;
 						if(output.indexOf("\r\n") > -1) {
 							outputArray = output.split("\r\n");
+						} else if(output.indexOf("\n") > -1) {
+							List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+							if(outputList != null && !outputList.isEmpty()) {
+								outputArray = outputList.toArray(new String[outputList.size()]);
+							}
 						} else {
 							outputArray = new String[] {output};
 						}
@@ -325,7 +344,7 @@ public class CiscoIOSAdapter extends Adapter {
 							String lineLowerCase = null;
 							for(String line : outputArray) {
 								lineLowerCase = line.toLowerCase();
-								if((lineLowerCase.contains("down") || lineLowerCase.contains("up")) && line.contains(physicalInterfaceName)) {
+								if((lineLowerCase.contains("down") || lineLowerCase.contains("up")) && line.contains(physicalInterfaceNameAux)) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -338,20 +357,29 @@ public class CiscoIOSAdapter extends Adapter {
 										interf = new Interface();
 										String[] interfaceData = values.toArray(new String[values.size()]);
 										if(interfaceData.length > 0) {
+											boolean isPhysicalInterface = false;
+											String interfaceNameDescription = null;
 											for (int i = 0; i < interfaceData.length; i++) {
 												if(i == 0) {
-													interf.setName(interfaceData[i]);
+													interfaceNameDescription = AgentUtil.processCliInterfaceNameDescription(interfaceData[i]);
+													if(interfaceNameDescription != null && physicalInterfaceNameAux.equals(interfaceNameDescription)) {
+														interf.setName(physicalInterfaceName);
+														isPhysicalInterface = true;
+													}
 												}
-												if(i == 2) {
+												if(i == 2 && isPhysicalInterface) {
 													if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
 														interf.setStatus(AgentUtil.UP);
 													} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
 														interf.setStatus(AgentUtil.DOWN);
 													}
+													break;
 												}
 											}
-											interfaceList.add(interf);
-											break;
+											if(isPhysicalInterface) {
+												interfaceList.add(interf);
+												break;
+											}
 										}
 									}
 								}

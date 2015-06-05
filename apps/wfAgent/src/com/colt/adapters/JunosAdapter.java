@@ -3,7 +3,6 @@ package com.colt.adapters;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +11,6 @@ import com.colt.connect.ConnectDevice;
 import com.colt.util.AgentUtil;
 import com.colt.util.DeviceCommand;
 import com.colt.util.MessagesErrors;
-import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
@@ -74,10 +72,10 @@ public class JunosAdapter extends Adapter {
 		if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
 			retrievePhysicalInterface(connectDevice, physicalInterfaceName, deviceDetailsResponse);
 		}
-		if(snmpVersion != null) {
-			SNMPUtil snmp = new SNMPUtil(snmpVersion);
-			snmp.setCommunity(community);
-			snmp.retrieveLastStatusChange(deviceIP, deviceDetailsResponse);
+		if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
+			for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
+				interf.setLastChgTime("Not available yet");
+			}
 		}
 	}
 
@@ -90,6 +88,11 @@ public class JunosAdapter extends Adapter {
 					String[] array = null;
 					if(output.indexOf("\r\n") > -1) {
 						array = output.split("\r\n");
+					} else if(output.indexOf("\n") > -1) {
+						List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+						if(outputList != null && !outputList.isEmpty()) {
+							array = outputList.toArray(new String[outputList.size()]);
+						}
 					} else {
 						array = new String[] {output};
 					}
@@ -169,6 +172,11 @@ public class JunosAdapter extends Adapter {
 						String[] outputArray = null;
 						if(output.indexOf("\r\n") > -1) {
 							outputArray = output.split("\r\n");
+						} else if(output.indexOf("\n") > -1) {
+							List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+							if(outputList != null && !outputList.isEmpty()) {
+								outputArray = outputList.toArray(new String[outputList.size()]);
+							}
 						} else {
 							outputArray = new String[] {output};
 						}
@@ -226,6 +234,11 @@ public class JunosAdapter extends Adapter {
 					String[] array = null;
 					if(output.indexOf("\r\n") > -1) {
 						array = output.split("\r\n");
+					} else if(output.indexOf("\n") > -1) {
+						List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+						if(outputList != null && !outputList.isEmpty()) {
+							array = outputList.toArray(new String[outputList.size()]);
+						}
 					} else {
 						array = new String[] {output};
 					}
@@ -302,6 +315,11 @@ public class JunosAdapter extends Adapter {
 						String[] outputArray = null;
 						if(output.indexOf("\r\n") > -1) {
 							outputArray = output.split("\r\n");
+						} else if(output.indexOf("\n") > -1) {
+							List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+							if(outputList != null && !outputList.isEmpty()) {
+								outputArray = outputList.toArray(new String[outputList.size()]);
+							}
 						} else {
 							outputArray = new String[] {output};
 						}

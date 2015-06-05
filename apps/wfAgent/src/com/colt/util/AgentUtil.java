@@ -197,5 +197,24 @@ public class AgentUtil {
 		}
 		return splited;
 	}
+
+	public static String processCliInterfaceNameDescription(String interfaceNameDescription) {
+		String resp = null;
+		if(interfaceNameDescription != null && !"".equals(interfaceNameDescription)) {
+			boolean foundDigit = false;
+			int index = 0;
+			for(int i = 0; i < interfaceNameDescription.length(); i++) {
+				if(Character.isDigit(interfaceNameDescription.charAt(i))) {
+					index = i;
+					foundDigit = true;
+					break;
+				}
+			}
+			if(foundDigit) {
+				resp = interfaceNameDescription.substring(index, interfaceNameDescription.length());
+			}
+		}
+		return resp;
+	}
 }
 

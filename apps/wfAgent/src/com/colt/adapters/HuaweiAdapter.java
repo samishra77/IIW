@@ -21,7 +21,6 @@ public class HuaweiAdapter extends Adapter {
 			snmp.setCommunity(community);
 			Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitID, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceName(ifAliasMap, deviceIP, deviceDetailsResponse);
-			snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceIP, deviceDetailsResponse);
 			String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceIP, deviceDetailsResponse);
