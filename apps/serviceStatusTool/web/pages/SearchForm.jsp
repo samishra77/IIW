@@ -52,16 +52,16 @@
 					</tbody>
 				</table>
 			</div>
-			<div class="row">
-				<div class="col-md-5 column">
-				</div>
-				<div class="col-md-1 column">
-					<button  class="btn btn-primary" ng-click="doSearch()"><spring:message code="global.search"></spring:message></button>
-				</div>
-				<div class="col-md-6 column">
-					<button class="btn btn-primary" onclick="window.location.reload();"><spring:message code="global.reset"></spring:message></button>
-				</div>
-			</div>
+			<table align="center" cellpadding="8%">
+				<tr>	
+					<td style="padding-right: 11px;" >
+						<button  class="btn btn-primary" ng-click="doSearch()"><spring:message code="global.search"></spring:message></button>
+					</td>
+					<td >
+						<button class="btn btn-primary" onclick="window.location.reload();"><spring:message code="global.reset"></spring:message></button>
+					</td>
+				</tr>
+				</table>
 		</form>
 	</div>
 </div>
