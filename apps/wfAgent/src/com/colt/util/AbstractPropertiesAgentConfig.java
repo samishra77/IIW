@@ -12,6 +12,8 @@ import org.apache.commons.logging.LogFactory;
 
 public abstract class AbstractPropertiesAgentConfig {
 
+	private static Log log = LogFactory.getLog(AbstractPropertiesAgentConfig.class);
+
 	private Properties properties;
 	private long lastModification;
 	private long lastCheckOnDisk;
@@ -31,7 +33,11 @@ public abstract class AbstractPropertiesAgentConfig {
 		if(key == null) {
 			return null;
 		}
-		return properties.getProperty(key);
+		String value = properties.getProperty(key);
+		if(value == null) {
+			log.error("Property not found for key: " + key);
+		}
+		return value;
 	}
 
 	/**

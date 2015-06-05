@@ -239,6 +239,7 @@ public class CiscoXRAdapter extends Adapter {
 	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, String wanIPInterfaceName, String wanIP) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
+			String logicalInterfaceNameAux = AgentUtil.processCliInterfaceNameDescription(wanIPInterfaceName);
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
 			if(command != null && !"".equals(command)) {
 				String output = connectDevice.applyCommands(command, "#");
@@ -273,9 +274,11 @@ public class CiscoXRAdapter extends Adapter {
 									interf = new Interface();
 									String[] interfaceData = values.toArray(new String[values.size()]);
 									if(interfaceData.length > 0) {
+										String interfaceName= null;
 										for (int i = 0; i < interfaceData.length; i++) {
 											if(i == 0) {
-												if(wanIPInterfaceName != null && wanIPInterfaceName.equalsIgnoreCase(interfaceData[i])) {
+												interfaceName = AgentUtil.processCliInterfaceNameDescription(interfaceData[i]);
+												if(logicalInterfaceNameAux != null && logicalInterfaceNameAux.equals(interfaceName)) {
 													interf.setIpaddress(wanIP);
 												}
 												interf.setName(interfaceData[i]);
@@ -317,7 +320,7 @@ public class CiscoXRAdapter extends Adapter {
 	private void retrievePhysicalInterface(ConnectDevice connectDevice, String physicalInterfaceName, IDeviceDetailsResponse deviceDetailsResponse) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
-			String physicalInterfaceNameAux =  AgentUtil.processCliInterfaceNameDescription(physicalInterfaceName);
+			String physicalInterfaceNameAux = AgentUtil.processCliInterfaceNameDescription(physicalInterfaceName);
 			if(physicalInterfaceNameAux != null && !"".equals(physicalInterfaceNameAux)) {
 				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showPhysicalInterface").trim(), physicalInterfaceNameAux);
 				if(command != null && !"".equals(command)) {
