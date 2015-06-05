@@ -100,6 +100,7 @@ public class AgentUtil {
 		} catch (Exception e) {
 			log.error(e,e);
 		}
+		log.debug("XNG Model: " + model + " OS: " + (resp != null ? resp : " not found!"));
 		return resp;
 	}
 

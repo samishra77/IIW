@@ -41,7 +41,7 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 				} else {
 					snmp = new SNMPUtil(deviceDetails.getType(), deviceDetails.getServiceType());
 				}
-				boolean isSameVendor = snmp.discoverVendor(deviceDetails.getType(), deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor(), deviceDetailsResponse, deviceDetails.getName());
+				snmp.discoverVendor(deviceDetails.getType(), deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor(), deviceDetailsResponse, deviceDetails.getName());
 				if(snmp.getVersion() == null && DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetails.getType())) {
 					if(deviceDetailsResponse.getErrorResponse() == null) {
 						deviceDetailsResponse.setErrorResponse(new ErrorResponse());
@@ -53,39 +53,30 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 				}
 				input.put("snmpVersion", snmp.getVersion());
 				input.put("community", snmp.getCommunity());
-				if (isSameVendor) {
-					InputStream inputStreamFile = null;
-					String pathFile = AgentConfig.getDefaultInstance().getProperty("agentValidators.pathFile").trim();
-					String fileName = AgentConfig.getDefaultInstance().getProperty("agentValidators").trim();
-					if(pathFile != null && !"".equals(pathFile) && !" ".equals(pathFile) && fileName != null && !"".equals(fileName) && !" ".equals(fileName)) {
-						File file = new File(pathFile, fileName);
-						if(file != null && file.isFile()) {
-							inputStreamFile = new FileInputStream(file);
-						}
-					} else {
-						inputStreamFile = this.getClass().getResourceAsStream("/conf/agentValidators.xml");
+				InputStream inputStreamFile = null;
+				String pathFile = AgentConfig.getDefaultInstance().getProperty("agentValidators.pathFile").trim();
+				String fileName = AgentConfig.getDefaultInstance().getProperty("agentValidators").trim();
+				if(pathFile != null && !"".equals(pathFile) && !" ".equals(pathFile) && fileName != null && !"".equals(fileName) && !" ".equals(fileName)) {
+					File file = new File(pathFile, fileName);
+					if(file != null && file.isFile()) {
+						inputStreamFile = new FileInputStream(file);
 					}
-					String os = AgentUtil.validateVendorModel(inputStreamFile, deviceDetails.getDeviceType().getVendor(), deviceDetails.getDeviceType().getModel());
-					if(os != null && !"".equals(os)) {
-						input.put("vendor", deviceDetails.getDeviceType().getVendor());
-						input.put("os", os);
-						if (DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType())) {
-							resp = new String[] {"CLIFETCH"};
-						} else {
-							resp = new String[] {"SNMPFETCH"};
-						}
+				} else {
+					inputStreamFile = this.getClass().getResourceAsStream("/conf/agentValidators.xml");
+				}
+				String os = AgentUtil.validateVendorModel(inputStreamFile, deviceDetails.getDeviceType().getVendor(), deviceDetails.getDeviceType().getModel());
+				if(os != null && !"".equals(os)) {
+					input.put("vendor", deviceDetails.getDeviceType().getVendor());
+					input.put("os", os);
+					if (DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType())) {
+						resp = new String[] {"CLIFETCH"};
 					} else {
-						if(deviceDetailsResponse.getErrorResponse() == null) {
-							ErrorResponse errorResponse = new ErrorResponse();
-							errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelFile"));
-							errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-							deviceDetailsResponse.setErrorResponse(errorResponse);
-						}
+						resp = new String[] {"SNMPFETCH"};
 					}
 				} else {
 					if(deviceDetailsResponse.getErrorResponse() == null) {
 						ErrorResponse errorResponse = new ErrorResponse();
-						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelDevDiff"));
+						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelFile"));
 						errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 						deviceDetailsResponse.setErrorResponse(errorResponse);
 					}

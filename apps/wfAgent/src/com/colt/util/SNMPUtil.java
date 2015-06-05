@@ -1,7 +1,7 @@
 package com.colt.util;
 
 import java.io.File;
-
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +71,7 @@ public class SNMPUtil {
 		return version;
 	}
 
-	public boolean discoverVendor(String type, String ipAddress, String model, String vendor, IDeviceDetailsResponse deviceDetailsResponse, String deviceName) {
+	public void discoverVendor(String type, String ipAddress, String model, String vendor, IDeviceDetailsResponse deviceDetailsResponse, String deviceName) {
 		boolean isSameVendor = false;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
@@ -118,6 +118,7 @@ public class SNMPUtil {
 									if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
 										isSameVendor = true;
 									} else {
+										
 										log.debug("Vendor didn't match for: " + vendor);
 									}
 									break;
@@ -126,6 +127,7 @@ public class SNMPUtil {
 						}
 					}
 				}
+
 				//both snmp command fail
 				if(this.version == null) {
 					if(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(type)) {
@@ -137,7 +139,6 @@ public class SNMPUtil {
 								errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 								deviceDetailsResponse.setErrorResponse(errorResponse);
 							}
-							isSameVendor = true;
 						}
 					}
 				}
@@ -145,7 +146,19 @@ public class SNMPUtil {
 		} catch (Exception e) {
 			log.error(e,e);
 		}
-		return isSameVendor;
+
+		if(!isSameVendor) {
+			if(deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				try {
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelDevDiff"));
+				} catch (IOException e) {
+					log.error(e,e);
+				}
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
+		}
 	}
 
 	private boolean discoverVendorByCliCommand(String deviceIP, String vendor, IDeviceDetailsResponse deviceDetailsResponse) {
