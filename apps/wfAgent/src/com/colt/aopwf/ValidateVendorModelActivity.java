@@ -64,22 +64,22 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 				} else {
 					inputStreamFile = this.getClass().getResourceAsStream("/conf/agentValidators.xml");
 				}
-				String os = AgentUtil.validateVendorModel(inputStreamFile, deviceDetails.getDeviceType().getVendor(), deviceDetails.getDeviceType().getModel());
-				if(os != null && !"".equals(os)) {
-					input.put("vendor", deviceDetails.getDeviceType().getVendor());
-					input.put("os", os);
-					if (DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType())) {
+				if (DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType())) {
+					String os = AgentUtil.validateVendorModel(inputStreamFile, deviceDetails.getDeviceType().getVendor(), deviceDetails.getDeviceType().getModel());
+					if(os != null && !"".equals(os)) {
+						input.put("vendor", deviceDetails.getDeviceType().getVendor());
+						input.put("os", os);
 						resp = new String[] {"CLIFETCH"};
 					} else {
-						resp = new String[] {"SNMPFETCH"};
+						if(deviceDetailsResponse.getErrorResponse() == null) {
+							ErrorResponse errorResponse = new ErrorResponse();
+							errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelFile"));
+							errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+							deviceDetailsResponse.setErrorResponse(errorResponse);
+						}
 					}
 				} else {
-					if(deviceDetailsResponse.getErrorResponse() == null) {
-						ErrorResponse errorResponse = new ErrorResponse();
-						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelFile"));
-						errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-						deviceDetailsResponse.setErrorResponse(errorResponse);
-					}
+					resp = new String[] {"SNMPFETCH"};
 				}
 			}
 		} catch (Exception e) {
