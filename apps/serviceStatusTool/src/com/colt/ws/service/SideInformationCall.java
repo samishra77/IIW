@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.xml.bind.DatatypeConverter;
+
 import com.colt.util.SstConfig;
 import com.colt.util.Util;
 import com.colt.ws.biz.ASideInformation;
@@ -31,6 +33,15 @@ public class SideInformationCall {
 	public String sideInformationCallProcess(Circuit circuit) throws Exception {
 		String result = null;
 		String url = SstConfig.getDefaultInstance().getProperty("ws.pathViewer.url");
+
+//		String amnCheckerResponse = null;
+//		String subcategory = null;
+//		if (circuit.getCircuitID() != null && !circuit.getCircuitID().trim().equals("")) {
+//			Util util = new Util();
+//			amnCheckerResponse = getInfoFromAmnChecker(circuit);
+//			subcategory = util.getValue(amnCheckerResponse, "<subcategory>", "</subcategory>");
+//		}
+
 		URL u = new URL(url);
 		URLConnection uc = u.openConnection();
 		HttpURLConnection connection = (HttpURLConnection) uc;
@@ -38,6 +49,7 @@ public class SideInformationCall {
 		connection.setDoInput(true);
 		connection.setRequestMethod("POST");
 		connection.connect();
+
 		OutputStream out = connection.getOutputStream();
 		Writer wout = new BufferedWriter(new OutputStreamWriter(out));
 		wout.write("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:ws='http://ws.pathviewer.colt.com/'>");
@@ -48,6 +60,37 @@ public class SideInformationCall {
 		wout.write("<circPathHumID></circPathHumID>");
 		wout.write("<leg></leg>");
 		wout.write("</ws:retrieveEndInformation>");
+		wout.write("</soapenv:Body>");
+		wout.write("</soapenv:Envelope>");
+		wout.flush();
+		InputStream in  = connection.getInputStream();
+		result = new Util().getStringFromInputStream(in);
+		return result;
+	}
+
+	public String getInfoFromAmnChecker(Circuit circuit) throws Exception {
+		String result = null;
+		String url = SstConfig.getDefaultInstance().getProperty("ws.amnChecker.url");
+		URL u = new URL(url);
+		URLConnection uc = u.openConnection();
+		HttpURLConnection connection = (HttpURLConnection) uc;
+
+		connection.setDoOutput(true);
+		connection.setDoInput(true);
+		connection.setRequestMethod("POST");
+		connection.connect();
+
+		OutputStream out = connection.getOutputStream();
+		Writer wout = new BufferedWriter(new OutputStreamWriter(out));
+
+		wout.write("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:ws='http://ws.amnchecker.colt.com/'>");
+		wout.write("<soapenv:Header/>");
+		wout.write("<soapenv:Body>");
+		wout.write("<ws:amnChecker>");
+		wout.write("<arg0>Circuit</arg0>");
+		wout.write("<arg1>"+ circuit.getCircuitID() + "</arg1>");
+		wout.write("<arg2>0</arg2>");
+		wout.write("</ws:amnChecker>");
 		wout.write("</soapenv:Body>");
 		wout.write("</soapenv:Envelope>");
 		wout.flush();
