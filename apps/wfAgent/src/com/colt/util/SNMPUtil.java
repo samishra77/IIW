@@ -456,25 +456,20 @@ public class SNMPUtil {
 	public void retrieveInterfaceIpAddress(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse) {
 		try {
 			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
-				String arg = "";
-				for(String ifAlias : ifAliasMap.keySet()) {
-					arg+= "ifPhysAddress." + ifAlias + " ";
-				}
 				String command = null;
 				if(version != null && version == 3) {
-					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), deviceIP, "ipAdEntIfIndex");
 				} else if(community != null && !"".equals(community)) {
-					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, deviceIP, "ipAdEntIfIndex");
 				}
 				if(command != null && !"".equals(command)) {
 					List<String> outputList = AgentUtil.runLocalCommand(command);
 					if(outputList != null && !outputList.isEmpty()) {
 						for(String line : outputList) {
-							String ifAlias = getIfAlias(line);
-							if(ifAliasMap.containsKey(ifAlias)) {
-								String ifIpAddress = getIfValue(line);
-								if(ifIpAddress != null) {
-									ifAliasMap.get(ifAlias).setIpaddress(ifIpAddress);
+							String ifAlias = getIfValue(line);
+							if(ifAlias != null) {
+								if(ifAliasMap.containsKey(ifAlias)) {
+									ifAliasMap.get(ifAlias).setIpaddress(getIfIP(line));
 								}
 							}
 						}
@@ -488,7 +483,7 @@ public class SNMPUtil {
 				errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				try {
-					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifPhysAddress").trim(), e.toString()));
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ipAdEntIfIndex").trim(), e.toString()));
 				} catch (Exception e1) {
 					log.error(e1,e1);
 				}
@@ -593,6 +588,28 @@ public class SNMPUtil {
 			}
 		}
 		return sysUpTime;
+	}
+
+	private String getIfIP(String line) {
+		String resp = "";
+		if(line != null && line.contains("= INTEGER:")) {
+			List<String> splitList = AgentUtil.splitByDelimiters(line, "= INTEGER:");
+			if(splitList != null && splitList.size() > 0) {
+				List<String> ipSplit =  AgentUtil.splitByDelimiters(splitList.get(0), ".");
+				if(ipSplit != null && ipSplit.size() >= 4) {
+					int indexIpStart = ipSplit.size() - 4;
+					while( indexIpStart < ipSplit.size()) {
+						if(indexIpStart == ipSplit.size() - 1 ) {
+							resp+= ipSplit.get(indexIpStart);
+						} else {
+							resp+= ipSplit.get(indexIpStart) + ".";
+						}
+						indexIpStart++;
+					}
+				}
+			}
+		}
+		return resp;
 	}
 
 	private String getIfAlias(String line) {
