@@ -168,11 +168,11 @@ public class SNMPUtil {
 			try {
 				try {
 					connectDevice = new ConnectDevice();
-					connectDevice.connect(deviceIP, 15, "telnet");
+					connectDevice.connect(deviceIP, 30, "telnet");
 				} catch (Exception e) {
 					try {
 						connectDevice = new ConnectDevice();
-						connectDevice.connect(deviceIP, 15, "ssh");
+						connectDevice.connect(deviceIP, 30, "ssh");
 					} catch (Exception e2) {
 						throw e2;
 					}

@@ -1,5 +1,7 @@
 package com.colt.adapters;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +32,11 @@ public class CiscoXRAdapter extends Adapter {
 			ConnectDevice connectDevice = null;
 			try {
 				connectDevice = new ConnectDevice();
-				connectDevice.connect(deviceIP, 15, "telnet");
+				connectDevice.connect(deviceIP, 30, "telnet");
 			} catch (Exception e) {
 				try {
 					connectDevice = new ConnectDevice();
-					connectDevice.connect(deviceIP, 15, "ssh");
+					connectDevice.connect(deviceIP, 30, "ssh");
 				} catch (Exception e2) {
 					throw e2;
 				}
@@ -158,8 +160,19 @@ public class CiscoXRAdapter extends Adapter {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (SocketTimeoutException e) {
 			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				try {
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.socketTimeoutException").trim());
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
+		} catch (Exception e) {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
@@ -219,6 +232,18 @@ public class CiscoXRAdapter extends Adapter {
 						}
 					}
 				}
+			}
+		} catch (SocketTimeoutException e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				try {
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.socketTimeoutException").trim());
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
+				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		} catch (Exception e) {
 			log.error(e,e);
@@ -301,6 +326,18 @@ public class CiscoXRAdapter extends Adapter {
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 					}
 				}
+			}
+		} catch (SocketTimeoutException e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				try {
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.socketTimeoutException").trim());
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
+				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		} catch (Exception e) {
 			log.error(e,e);
@@ -392,6 +429,18 @@ public class CiscoXRAdapter extends Adapter {
 						}
 					}
 				}
+			}
+		} catch (SocketTimeoutException e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				try {
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.socketTimeoutException").trim());
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
+				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		} catch (Exception e) {
 			log.error(e,e);
