@@ -141,19 +141,29 @@ public class SNMPUtil {
 							}
 						}
 					}
+				} else {
+					if(!isSameVendor) {
+						if(deviceDetailsResponse.getErrorResponse() == null) {
+							ErrorResponse errorResponse = new ErrorResponse();
+							try {
+								errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelDevDiff"));
+							} catch (IOException e) {
+								log.error(e,e);
+							}
+							errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+							deviceDetailsResponse.setErrorResponse(errorResponse);
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);
-		}
-
-		if(!isSameVendor) {
-			if(deviceDetailsResponse.getErrorResponse() == null) {
+			if(deviceDetailsResponse != null && deviceDetailsResponse.getErrorResponse() == null) {
 				ErrorResponse errorResponse = new ErrorResponse();
 				try {
-					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("validate.vendorModelDevDiff"));
-				} catch (IOException e) {
-					log.error(e,e);
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.snmp.vendor.validation"));
+				} catch (Exception e1) {
+					log.error(e1,e1);
 				}
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				deviceDetailsResponse.setErrorResponse(errorResponse);
