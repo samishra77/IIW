@@ -267,7 +267,7 @@ public class JunosAdapter extends Adapter {
 	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, Interface wanIPInterface) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"\\[" + circuitID + "\\]\"");
+			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"" + circuitID + "\"");
 			if(command != null && !"".equals(command)) {
 				String output = connectDevice.applyCommands(command, "#|>");
 				if(output != null && !"".equals(output)) {
@@ -288,8 +288,9 @@ public class JunosAdapter extends Adapter {
 						String lineLowerCase = null;
 						for(String line : array) {
 							lineLowerCase = line.toLowerCase();
-							if( line.contains("[" + circuitID + "]") 
-									&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
+							if((line.contains(circuitID + "]") || line.contains(circuitID + " ")) 
+								&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
+
 								line = line.trim();
 								String[] lineArray = line.split(" ");
 								values = new ArrayList<String>();

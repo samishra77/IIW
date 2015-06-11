@@ -306,7 +306,7 @@ public class CiscoIOSAdapter extends Adapter {
 						String lineLowerCase = null;
 						for(String line : array) {
 							lineLowerCase = line.toLowerCase();
-							if(line.contains("[" + circuitID + "]") && (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
+							if((line.contains(circuitID + "]") || line.contains(circuitID + " ")) && (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
 								line = line.trim();
 								String[] lineArray = line.split(" ");
 								values = new ArrayList<String>();
