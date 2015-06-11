@@ -427,6 +427,10 @@ public class SNMPUtil {
 	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse) {
 		try {
 			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
+				for(String ifAlias : ifAliasMap.keySet()) {
+					ifAliasMap.get(ifAlias).setLastChgTime("Not available yet");
+				}
+				/*
 				String arg = "";
 				for(String ifAlias : ifAliasMap.keySet()) {
 					arg+= "ifLastChange." + ifAlias + " ";
@@ -455,6 +459,7 @@ public class SNMPUtil {
 						}
 					}
 				}
+				*/
 			}
 		} catch (Exception e) {
 			log.error(e,e);
