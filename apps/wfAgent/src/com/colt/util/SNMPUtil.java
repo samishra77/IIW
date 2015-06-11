@@ -341,8 +341,8 @@ public class SNMPUtil {
 			if(command != null && !"".equals(command)) {
 				List<String> outputList = AgentUtil.runLocalCommand(command);
 				if(outputList != null && !outputList.isEmpty()) {
-					String l3CircuitParam = circuitID;
-					String sidParam = "SID["+circuitID+"]";
+					String l3CircuitParam = "IfType[Customer";
+					String sidParam = "Customer]";
 					ifAliasMap = new HashMap<String, Interface>();
 					for(String line : outputList) {
 						if(line.contains(l3CircuitParam) || line.contains(sidParam)) {
@@ -350,6 +350,15 @@ public class SNMPUtil {
 							if(ifAlias != null && !"".equals(ifAlias)) {
 								ifAliasMap.put(ifAlias, new Interface());
 							}
+						}
+					}
+					// Collect all interfaces when IfType[Customer string is not configured on the device
+					if(0 == ifAliasMap.size()) {
+						for(String line : outputList) {							
+							String ifAlias = getIfAlias(line);
+							if(ifAlias != null && !"".equals(ifAlias)) {
+								ifAliasMap.put(ifAlias, new Interface());
+							}							
 						}
 					}
 				}
