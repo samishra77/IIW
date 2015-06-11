@@ -127,13 +127,15 @@ public class ConnectTelnet extends ConnectDevice {
 	/**
 	 * @throws Exception
 	 */
-	private String readBuffer(String endTag) throws Exception {
+	private String readBuffer(String pattern) throws Exception {
 		int k;
 		int sleepCount = 0;
 		//		final int maximumRunTime = 270000; // (REF#112 Increased to multiple of 3) spends maximum 90 seconds reading input
 		//		final int sleepInterval = 500;  // each sleep interval is 0.5 second
 		//		final int sleepCountMax = 180;  // (REF#112 Increased from 20 cycles to 180) number os sleep intervals in order to reach 20 seconds, which is the "idle" timeout
 
+		Pattern p = Pattern.compile(pattern);
+		Matcher m;
 		char ch;
 		StringBuilder sb = new StringBuilder();
 		long startTime = System.currentTimeMillis();
@@ -160,14 +162,14 @@ public class ConnectTelnet extends ConnectDevice {
 			//				sb.append("\n[Time expired. It is taking too long to run. This is the output so far. Operation finished]");
 			//				return sb.toString();
 			//			}
-			if (endTag!=null && !"".equals(endTag)) {
-				if ( ( k = sb.indexOf(endTag)) >= 0 ) {
-					String result = sb.substring(0,k);
-					log.debug(result);
-					return result;
-				}
+
+			m = p.matcher(sb.toString());
+			if( m.find() ) {
+				log.debug(sb.toString());
+				return sb.toString();
 			}
 		}
+
 		String result = sb.toString();
 		log.debug(result);
 		return result;

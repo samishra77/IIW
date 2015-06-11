@@ -126,10 +126,12 @@ public class ConnectSSH  extends ConnectDevice {
 	/**
 	 * @throws Exception
 	 */
-	private String readBuffer(String endTag) throws Exception {
+	private String readBuffer(String pattern) throws Exception {
 		int k;
 		int sleepCount = 0;
 		char ch;
+		Pattern p = Pattern.compile(pattern);
+		Matcher m;
 		StringBuilder sb = new StringBuilder();
 		long startTime = System.currentTimeMillis();
 		while (true) {
@@ -149,10 +151,11 @@ public class ConnectSSH  extends ConnectDevice {
 				log.debug("readBuffer() waiting for data... (sleepCount="+sleepCount+")");
 				Thread.sleep(waitForSleepInterval);
 			}
-			if (endTag!=null && !"".equals(endTag)) {
-				if ( ( k = sb.indexOf(endTag)) >= 0 ) {
-					return (sb.substring(0,k));
-				}
+			m = p.matcher(sb.toString());
+			if( m.find() ) {
+				String result = sb.toString();
+				log.debug(result);
+				return result;
 			}
 		}
 		String result = sb.toString();

@@ -84,7 +84,7 @@ public class JunosAdapter extends Adapter {
 		try {
 			String command = DeviceCommand.getDefaultInstance().getProperty("junos.showDeviceUptime").trim();
 			if(command != null && !"".equals(command)) {
-				String output = connectDevice.applyCommands(command, ">");
+				String output = connectDevice.applyCommands(command, "#|>");
 				if(output != null && !"".equals(output)) {
 					String[] array = null;
 					if(output.indexOf("\r\n") > -1) {
@@ -179,7 +179,7 @@ public class JunosAdapter extends Adapter {
 			if(ipAddress != null && !"".equals(ipAddress)) {
 				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), "\" " + ipAddress + "/\"");
 				if(command != null && !"".equals(command)) {
-					String output = connectDevice.applyCommands(command, ">");
+					String output = connectDevice.applyCommands(command, "#|>");
 					if(output != null && !"".equals(output)) {
 						//split each line
 						String[] outputArray = null;
@@ -253,7 +253,7 @@ public class JunosAdapter extends Adapter {
 		try {
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"\\[" + circuitID + "\\]\"");
 			if(command != null && !"".equals(command)) {
-				String output = connectDevice.applyCommands(command, ">");
+				String output = connectDevice.applyCommands(command, "#|>");
 				if(output != null && !"".equals(output)) {
 					Interface interf = null;
 					String[] array = null;
@@ -345,7 +345,7 @@ public class JunosAdapter extends Adapter {
 			if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
 				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), "\"" + physicalInterfaceName + " \"");
 				if(command != null && !"".equals(command)) {
-					String output = connectDevice.applyCommands(command, ">");
+					String output = connectDevice.applyCommands(command, "#|>");
 					if(output != null && !"".equals(output)) {
 						Interface interf = null;
 						//split each line

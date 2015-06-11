@@ -2,6 +2,6 @@ waitfor,name:|login:
 write,autoprov
 waitfor,word:
 write,c0lte1c0m
-waitfor,>
-sendCmd,set cli screen-length 0,>
-sendCmd,set cli screen-width 250,> 
+waitfor,#|>
+sendCmd,set cli screen-length 0,#|>
+sendCmd,set cli screen-width 250,#|>
