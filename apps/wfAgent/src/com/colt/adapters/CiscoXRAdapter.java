@@ -1,6 +1,5 @@
 package com.colt.adapters;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -60,12 +59,12 @@ public class CiscoXRAdapter extends Adapter {
 
 	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse, String community) {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
-		String wanIPInterfaceName = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
-		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, wanIPInterfaceName, wanIP);
+		Interface wanIPInterface = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
+		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, wanIPInterface, wanIP);
 		String physicalInterfaceName = null;
-		if(wanIPInterfaceName != null && !"".equals(wanIPInterfaceName)) {
-			if(wanIPInterfaceName.indexOf(".") > -1) {
-				physicalInterfaceName = wanIPInterfaceName.substring(0, wanIPInterfaceName.indexOf("."));
+		if(wanIPInterface != null && !"".equals(wanIPInterface.getName())) {
+			if(wanIPInterface.getName().indexOf(".") > -1) {
+				physicalInterfaceName = wanIPInterface.getName().substring(0, wanIPInterface.getName().indexOf("."));
 			}
 		}
 		if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
@@ -186,8 +185,8 @@ public class CiscoXRAdapter extends Adapter {
 		}
 	}
 
-	private String retrieveInterfaceByWanIp(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
-		String logicalInterfaceName = null;
+	private Interface retrieveInterfaceByWanIp(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
+		Interface wanIPInterface = null;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
 				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.xr.showIpInterfaces").trim(), ipAddress);
@@ -224,7 +223,20 @@ public class CiscoXRAdapter extends Adapter {
 									}
 									String[] interfaceData = values.toArray(new String[values.size()]);
 									if(interfaceData.length > 0) {
-										logicalInterfaceName = interfaceData[0];
+										wanIPInterface = new Interface();
+										for (int i = 0; i < interfaceData.length; i++) {
+											if(i == 0) {
+												wanIPInterface.setIpaddress(ipAddress);
+												wanIPInterface.setName(interfaceData[i]);
+											}
+											if(i == 1) {
+												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
+													wanIPInterface.setStatus(AgentUtil.UP);
+												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
+													wanIPInterface.setStatus(AgentUtil.DOWN);
+												}
+											}
+										}
 										break;
 									}
 								}
@@ -258,13 +270,19 @@ public class CiscoXRAdapter extends Adapter {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
-		return logicalInterfaceName;
+		if(wanIPInterface != null) {
+			deviceDetailsResponse.getDeviceDetails().getInterfaces().add(wanIPInterface);
+		}
+		return wanIPInterface;
 	}
 
-	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, String wanIPInterfaceName, String wanIP) {
+	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, Interface wanIPInterface, String wanIP) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
-			String logicalInterfaceNameAux = AgentUtil.processCliInterfaceNameDescription(wanIPInterfaceName);
+			String logicalInterfaceNameAux = null;
+			if(wanIPInterface != null) {
+				logicalInterfaceNameAux = AgentUtil.processCliInterfaceNameDescription(wanIPInterface.getName());
+			}
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
 			if(command != null && !"".equals(command)) {
 				String output = connectDevice.applyCommands(command, "#");
@@ -299,13 +317,8 @@ public class CiscoXRAdapter extends Adapter {
 									interf = new Interface();
 									String[] interfaceData = values.toArray(new String[values.size()]);
 									if(interfaceData.length > 0) {
-										String interfaceName= null;
 										for (int i = 0; i < interfaceData.length; i++) {
 											if(i == 0) {
-												interfaceName = AgentUtil.processCliInterfaceNameDescription(interfaceData[i]);
-												if(logicalInterfaceNameAux != null && logicalInterfaceNameAux.equals(interfaceName)) {
-													interf.setIpaddress(wanIP);
-												}
 												interf.setName(interfaceData[i]);
 											}
 											if(i == 1) {
@@ -317,7 +330,14 @@ public class CiscoXRAdapter extends Adapter {
 											}
 										}
 									}
-									interfaceList.add(interf);
+									if(wanIPInterface != null) {
+										String interfaceName = AgentUtil.processCliInterfaceNameDescription(interf.getName());
+										if(logicalInterfaceNameAux != null && interfaceName != null && !logicalInterfaceNameAux.equals(interfaceName)) {
+											interfaceList.add(interf);
+										}
+									} else {
+										interfaceList.add(interf);
+									}
 								}
 							}
 						}
