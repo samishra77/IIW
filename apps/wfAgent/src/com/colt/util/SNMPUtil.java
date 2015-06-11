@@ -27,6 +27,7 @@ public class SNMPUtil {
 	private String type;
 	private String serviceType;
 	private String community;
+	private String os;
 
 	private static final String grepCmd;
 
@@ -38,6 +39,14 @@ public class SNMPUtil {
 		} else {
 			grepCmd = "grep";
 		}
+	}
+
+	public String getOs() {
+		return os;
+	}
+
+	public void setOs(String os) {
+		this.os = os;
 	}
 
 	public String getCommunity() {
@@ -96,6 +105,19 @@ public class SNMPUtil {
 											} else {
 												log.debug("Vendor didn't match for: " + vendor);
 											}
+											if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
+												if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
+													this.setOs(FactoryAdapter.JUNIPER_ERX);
+												} else {
+													this.setOs(FactoryAdapter.JUNIPER_JUNOS);
+												}
+											} else if(line.toUpperCase().contains(FactoryAdapter.VENDOR_CISCO.toUpperCase())) {
+												if(line.toUpperCase().contains(FactoryAdapter.CISCO_XR.toUpperCase())) {
+													this.setOs(FactoryAdapter.CISCO_XR);
+												} else {
+													this.setOs(FactoryAdapter.CISCO_IOS);
+												}
+											}
 											break;
 										}
 									}
@@ -120,6 +142,19 @@ public class SNMPUtil {
 									} else {
 										
 										log.debug("Vendor didn't match for: " + vendor);
+									}
+									if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
+										if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
+											this.setOs(FactoryAdapter.JUNIPER_ERX);
+										} else {
+											this.setOs(FactoryAdapter.JUNIPER_JUNOS);
+										}
+									} else if(line.toUpperCase().contains(FactoryAdapter.VENDOR_CISCO.toUpperCase())) {
+										if(line.toUpperCase().contains(FactoryAdapter.CISCO_XR.toUpperCase())) {
+											this.setOs(FactoryAdapter.CISCO_XR);
+										} else {
+											this.setOs(FactoryAdapter.CISCO_IOS);
+										}
 									}
 									break;
 								}
@@ -153,6 +188,9 @@ public class SNMPUtil {
 							errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 							deviceDetailsResponse.setErrorResponse(errorResponse);
 						}
+					}
+					if(this.getOs() == null || "".equals(this.getOs()) && FactoryAdapter.VENDOR_HUAWEI.equalsIgnoreCase(vendor)) {
+						this.setOs(FactoryAdapter.HUAWEI_OS);
 					}
 				}
 			}
@@ -221,6 +259,29 @@ public class SNMPUtil {
 											break;
 										}
 									}
+								}
+								for(String line : array) {
+									line = line.trim();
+									if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
+										if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
+											this.setOs(FactoryAdapter.JUNIPER_ERX);
+											break;
+										} else {
+											this.setOs(FactoryAdapter.JUNIPER_JUNOS);
+											break;
+										}
+									} else if(line.toUpperCase().contains(FactoryAdapter.VENDOR_CISCO.toUpperCase())) {
+										if(line.toUpperCase().contains(FactoryAdapter.CISCO_XR.toUpperCase())) {
+											this.setOs(FactoryAdapter.CISCO_XR);
+											break;
+										} else {
+											this.setOs(FactoryAdapter.CISCO_IOS);
+											break;
+										}
+									}
+								}
+								if(this.getOs() == null || "".equals(this.getOs()) && FactoryAdapter.VENDOR_HUAWEI.equalsIgnoreCase(vendor)) {
+									this.setOs(FactoryAdapter.HUAWEI_OS);
 								}
 							}
 						}

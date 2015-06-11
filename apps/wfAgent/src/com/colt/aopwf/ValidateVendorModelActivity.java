@@ -65,7 +65,7 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 					inputStreamFile = this.getClass().getResourceAsStream("/conf/agentValidators.xml");
 				}
 				if (DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType())) {
-					String os = AgentUtil.validateVendorModel(inputStreamFile, deviceDetails.getDeviceType().getVendor(), deviceDetails.getDeviceType().getModel());
+					String os = snmp.getOs();
 					if(os != null && !"".equals(os)) {
 						input.put("vendor", deviceDetails.getDeviceType().getVendor());
 						input.put("os", os);
