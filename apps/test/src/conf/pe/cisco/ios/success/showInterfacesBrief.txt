@@ -1,0 +1,1 @@
+show interfaces brief | include Gi0/0/0/2.409\r\n\rFri May 22 14:56:30.272 UTC\r\n      Gi0/0/0/2.409        down        down

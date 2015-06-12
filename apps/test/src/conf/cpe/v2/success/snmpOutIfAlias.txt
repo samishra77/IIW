@@ -1,0 +1,5 @@
+.1.3.6.1.2.1.31.1.1.1.18.1 = STRING: InLoopBack0 Interface
+.1.3.6.1.2.1.31.1.1.1.18.2 = STRING: NULL0 Interface
+.1.3.6.1.2.1.31.1.1.1.18.3 = STRING: IfType[Customer] Customer[LIEFERHELD] SID[110701214]  IfStatus[U
+.1.3.6.1.2.1.31.1.1.1.18.4 = STRING: IfType[Customer] L3BEnd[SAR8.BER] Cct[BER/BER/IA-129771] Rate[10
+.1.3.6.1.2.1.31.1.1.1.18.5 = STRING: Aux0 Interface

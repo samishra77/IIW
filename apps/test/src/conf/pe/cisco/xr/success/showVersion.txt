@@ -1,0 +1,5 @@
+show version | in uptime
+
+Tue May 26 14:37:12.361 UTC
+sar3.BLB uptime is 6 weeks, 1 day, 10 hours, 56 minutes
+RP/0/8/CPU0:sar3.BLB#
