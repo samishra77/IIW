@@ -34,13 +34,13 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 				}
 				Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				snmp.retrieveInterfaceName(ifAliasMap,deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
-				snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
-				snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
-				snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				if(sysUpTime != null && !"".equals(sysUpTime)) {
 					deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
+					snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				}
+				snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+				snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
 					for(String key : ifAliasMap.keySet()) {
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().add(ifAliasMap.get(key));

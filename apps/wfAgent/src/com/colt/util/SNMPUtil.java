@@ -3,7 +3,11 @@ package com.colt.util;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -485,8 +489,117 @@ public class SNMPUtil {
 		}
 	}
 
+	public String parseTime (String entry) {
+		String ret;
+		String[] sArray =  entry.trim().split(",");
+
+		int month = 0;
+		int day =0;
+		int year =0; 
+		int hour = 0;
+		int min = 0;
+		int sec = 0;
+
+		if (sArray != null) {
+			for (String s : sArray) {
+				String valueUpper = s.toUpperCase();
+				String value= s;
+				if(valueUpper.contains("YEAR")) {
+					List<String> splitList = AgentUtil.splitByDelimiters(value, " ");
+					if(splitList != null && splitList.size() > 1) {
+						year = Integer.valueOf(splitList.get(0)) * 365;
+					}
+				}
+				if(valueUpper.contains("MONTH")) {
+					List<String> splitList = AgentUtil.splitByDelimiters(value, " ");
+					if(splitList != null && splitList.size() > 1) {
+						month = Integer.valueOf(splitList.get(0)) * 30;
+					}
+				}
+				if(valueUpper.contains("DAY")) {
+					List<String> splitList = AgentUtil.splitByDelimiters(value, " ");
+					if(splitList != null && splitList.size() > 1) {
+						day = Integer.valueOf(splitList.get(0));
+					}
+				}
+				if(valueUpper.contains(":")) {
+					String[] sArrayA = s.trim().split(":");
+					hour = Integer.valueOf(sArrayA[0]);
+					min = Integer.valueOf(sArrayA[1]);
+					sec = Integer.valueOf(sArrayA[2]);
+				}
+			}
+		}
+		ret =  year + month + day + "d " + hour +"h "+ min +"m "+ sec +"s " ;
+		return ret;
+	}
+
+	public String calc (String sysuptime1, String sysuptime2) throws ParseException {
+		int sysuptime1day = 0;
+		int sysuptime1hour = 0;
+		int sysuptime1min = 0;
+		int sysuptime1sec = 0;
+
+		String[] sArray = sysuptime1.split(" ");
+		if (sArray != null && sArray.length > 2) {
+			sysuptime1day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
+			sysuptime1hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
+			sysuptime1min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
+			sysuptime1sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
+		}
+
+		int sysuptime2day = 0;
+		int sysuptime2hour = 0;
+		int sysuptime2min = 0;
+		int sysuptime2sec = 0;
+
+		sArray = sysuptime2.split(" ");
+		if (sArray != null && sArray.length > 2) {
+			sysuptime2day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
+			sysuptime2hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
+			sysuptime2min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
+			sysuptime2sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
+		}
+
+		final SimpleDateFormat df = new SimpleDateFormat( "dd/MM/yyyy HH:mm:ss" );
+		final Date dateRef = df.parse("01/01/2000 00:00:00");
+		final java.util.Calendar calRef = GregorianCalendar.getInstance();
+		final java.util.Calendar calResult = GregorianCalendar.getInstance();
+
+		calRef.setTime(dateRef);
+		calResult.setTime(dateRef);
+
+		calResult.add(GregorianCalendar.DAY_OF_MONTH, sysuptime1day);
+		calResult.add(GregorianCalendar.HOUR, sysuptime1hour);
+		calResult.add(GregorianCalendar.MINUTE, sysuptime1min);
+		calResult.add(GregorianCalendar.SECOND, sysuptime1sec);
+
+		calResult.add(GregorianCalendar.DAY_OF_MONTH, -sysuptime2day);
+		calResult.add(GregorianCalendar.HOUR, -sysuptime2hour);
+		calResult.add(GregorianCalendar.MINUTE, -sysuptime2min);
+		calResult.add(GregorianCalendar.SECOND, -sysuptime2sec);
+
+		List<String> l = AgentUtil.splitByDelimiters(df.format(calResult.getTime()), " :");
+		if (l != null && l.size () > 3 ) {
+			String hourString = l.get(1);
+			String minString = l.get(2);
+			return (calResult.getTime().getTime() - calRef.getTime().getTime()) / (60*60*24*1000) + "d " + hourString + "h "+ minString + "m";
+		}
+		return null;
+	}
+
 	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse) {
 		try {
+
+			String sysuptimeWithSeconds = parseTime(deviceDetailsResponse.getDeviceDetails().getTime());
+			List<String> li = AgentUtil.splitByDelimiters(sysuptimeWithSeconds, " ");
+			for (String s : li) {
+				if (s.toUpperCase().contains("S")) {
+					String sysuptimeWithOutSeconds = sysuptimeWithSeconds.substring(0,sysuptimeWithSeconds.indexOf((s))).trim();
+					deviceDetailsResponse.getDeviceDetails().setTime(sysuptimeWithOutSeconds);
+				}
+			}
+
 			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
 				for(String ifAlias : ifAliasMap.keySet()) {
 					ifAliasMap.get(ifAlias).setLastChgTime("Not available yet");
@@ -513,7 +626,9 @@ public class SNMPUtil {
 									int index = ifLastStatusChange.lastIndexOf(")") + 1;
 									if(index != -1) {
 										ifLastStatusChange = ifLastStatusChange.substring(index, ifLastStatusChange.length());
-										ifAliasMap.get(ifAlias).setLastChgTime(ifLastStatusChange.trim());
+										String sysuptime1 = parseTime(ifLastStatusChange.trim());
+										String result = calc(sysuptimeWithSeconds, sysuptime1);
+										ifAliasMap.get(ifAlias).setLastChgTime(result);
 									}
 								}
 							}
@@ -638,21 +753,11 @@ public class SNMPUtil {
 				if(command != null && !"".equals(command)) {
 					List<String> outputList = AgentUtil.runLocalCommand(command);
 					if(outputList != null && !outputList.isEmpty()) {
+						String sys = null;
 						for(String line : outputList) {
-							sysUpTime = getIfValue(line);
-							if(sysUpTime != null && !"".equals(sysUpTime)) {
-								if(sysUpTime.contains(" days,")) {
-									sysUpTime = sysUpTime.replace(" days,", "d,");
-								} else if(sysUpTime.contains(" day,")) {
-									sysUpTime = sysUpTime.replace(" day,", "d,");
-								}
-								List<String> tokens = new ArrayList<String>();
-								StringTokenizer st = new StringTokenizer(sysUpTime, ",:");
-								while(st.hasMoreTokens()) {
-									tokens.add(st.nextToken());
-								}
-								sysUpTime = tokens.get(0) + " " + tokens.get(1).trim() + "h " + tokens.get(2) + "m ";
-								return sysUpTime;
+							sys = getIfValue(line);
+							if(sys != null && !"".equals(sys)) {
+								return sys;
 							}
 						}
 					}
