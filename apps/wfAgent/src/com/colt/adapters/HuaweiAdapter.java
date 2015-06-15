@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.colt.util.AgentUtil;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.IDeviceDetailsResponse;
@@ -25,7 +26,16 @@ public class HuaweiAdapter extends Adapter {
 			snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceIP, deviceDetailsResponse);
 			String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceIP, deviceDetailsResponse);
 			if(sysUpTime != null && !"".equals(sysUpTime)) {
-				deviceDetail.setTime(sysUpTime);
+				String sysUpTimeWithSeconds = snmp.parseTime(sysUpTime);
+				if(sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds)) {
+					List<String> li = AgentUtil.splitByDelimiters(sysUpTimeWithSeconds, " ");
+					for (String s : li) {
+						if (s.toUpperCase().contains("S")) {
+							String sysUpTimeWithoutSeconds = sysUpTimeWithSeconds.substring(0,sysUpTimeWithSeconds.indexOf((s))).trim();
+							deviceDetail.setTime(sysUpTimeWithoutSeconds);
+						}
+					}
+				}
 			}
 			deviceDetail.getInterfaces().addAll(sortInterfaces(ifAliasMap, wanIP));
 		}

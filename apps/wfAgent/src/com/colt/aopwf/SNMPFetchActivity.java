@@ -1,7 +1,9 @@
 package com.colt.aopwf;
 
+import java.util.List;
 import java.util.Map;
 
+import com.colt.util.AgentUtil;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.IDeviceDetailsResponse;
@@ -36,8 +38,17 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 				snmp.retrieveInterfaceName(ifAliasMap,deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				if(sysUpTime != null && !"".equals(sysUpTime)) {
-					deviceDetailsResponse.getDeviceDetails().setTime(sysUpTime);
-					snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+					String sysUpTimeWithSeconds = snmp.parseTime(sysUpTime);
+					if(sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds)) {
+						List<String> li = AgentUtil.splitByDelimiters(sysUpTimeWithSeconds, " ");
+						for (String s : li) {
+							if (s.toUpperCase().contains("S")) {
+								String sysuptimeWithOutSeconds = sysUpTimeWithSeconds.substring(0,sysUpTimeWithSeconds.indexOf((s))).trim();
+								deviceDetailsResponse.getDeviceDetails().setTime(sysuptimeWithOutSeconds);
+							}
+						}
+						snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse, sysUpTimeWithSeconds);
+					}
 				}
 				snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);

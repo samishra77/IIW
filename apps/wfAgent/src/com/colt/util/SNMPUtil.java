@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -313,10 +311,10 @@ public class SNMPUtil {
 		return isSameVendor;
 	}
 
-	public void retrieveLastStatusChange(String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
+	public void retrieveLastStatusChange(String ipAddress, IDeviceDetailsResponse deviceDetailsResponse, String sysuptimeWithSeconds) {
 		Map<String, Interface> ifAliasMap = retrieveInterfaceIdssByNames(ipAddress, deviceDetailsResponse);
-		if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
-			retrieveInterfaceLastStatusChange(ifAliasMap, ipAddress, deviceDetailsResponse);
+		if(ifAliasMap != null && !ifAliasMap.isEmpty() && sysuptimeWithSeconds != null && !"".equals(sysuptimeWithSeconds)) {
+			retrieveInterfaceLastStatusChange(ifAliasMap, ipAddress, deviceDetailsResponse, sysuptimeWithSeconds);
 		}
 	}
 
@@ -526,7 +524,10 @@ public class SNMPUtil {
 					String[] sArrayA = s.trim().split(":");
 					hour = Integer.valueOf(sArrayA[0]);
 					min = Integer.valueOf(sArrayA[1]);
-					sec = Integer.valueOf(sArrayA[2]);
+					List<String> splitList = AgentUtil.splitByDelimiters(sArrayA[2], ".");
+					if(splitList != null && splitList.size() > 0) {
+						sec = Integer.valueOf(splitList.get(0));
+					}
 				}
 			}
 		}
@@ -534,77 +535,66 @@ public class SNMPUtil {
 		return ret;
 	}
 
-	public String calc (String sysuptime1, String sysuptime2) throws ParseException {
-		int sysuptime1day = 0;
-		int sysuptime1hour = 0;
-		int sysuptime1min = 0;
-		int sysuptime1sec = 0;
+	private String calc (String sysUpTimeWithSeconds, String lastStatusChangeTime) throws ParseException {
+		String result = "";
+		if(sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds) && lastStatusChangeTime != null && !"".equals(lastStatusChangeTime)) {
+			int sysuptime1day = 0;
+			int sysuptime1hour = 0;
+			int sysuptime1min = 0;
+			int sysuptime1sec = 0;
 
-		String[] sArray = sysuptime1.split(" ");
-		if (sArray != null && sArray.length > 2) {
-			sysuptime1day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
-			sysuptime1hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
-			sysuptime1min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
-			sysuptime1sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
-		}
-
-		int sysuptime2day = 0;
-		int sysuptime2hour = 0;
-		int sysuptime2min = 0;
-		int sysuptime2sec = 0;
-
-		sArray = sysuptime2.split(" ");
-		if (sArray != null && sArray.length > 2) {
-			sysuptime2day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
-			sysuptime2hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
-			sysuptime2min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
-			sysuptime2sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
-		}
-
-		final SimpleDateFormat df = new SimpleDateFormat( "dd/MM/yyyy HH:mm:ss" );
-		final Date dateRef = df.parse("01/01/2000 00:00:00");
-		final java.util.Calendar calRef = GregorianCalendar.getInstance();
-		final java.util.Calendar calResult = GregorianCalendar.getInstance();
-
-		calRef.setTime(dateRef);
-		calResult.setTime(dateRef);
-
-		calResult.add(GregorianCalendar.DAY_OF_MONTH, sysuptime1day);
-		calResult.add(GregorianCalendar.HOUR, sysuptime1hour);
-		calResult.add(GregorianCalendar.MINUTE, sysuptime1min);
-		calResult.add(GregorianCalendar.SECOND, sysuptime1sec);
-
-		calResult.add(GregorianCalendar.DAY_OF_MONTH, -sysuptime2day);
-		calResult.add(GregorianCalendar.HOUR, -sysuptime2hour);
-		calResult.add(GregorianCalendar.MINUTE, -sysuptime2min);
-		calResult.add(GregorianCalendar.SECOND, -sysuptime2sec);
-
-		List<String> l = AgentUtil.splitByDelimiters(df.format(calResult.getTime()), " :");
-		if (l != null && l.size () > 3 ) {
-			String hourString = l.get(1);
-			String minString = l.get(2);
-			return (calResult.getTime().getTime() - calRef.getTime().getTime()) / (60*60*24*1000) + "d " + hourString + "h "+ minString + "m";
-		}
-		return null;
-	}
-
-	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse) {
-		try {
-
-			String sysuptimeWithSeconds = parseTime(deviceDetailsResponse.getDeviceDetails().getTime());
-			List<String> li = AgentUtil.splitByDelimiters(sysuptimeWithSeconds, " ");
-			for (String s : li) {
-				if (s.toUpperCase().contains("S")) {
-					String sysuptimeWithOutSeconds = sysuptimeWithSeconds.substring(0,sysuptimeWithSeconds.indexOf((s))).trim();
-					deviceDetailsResponse.getDeviceDetails().setTime(sysuptimeWithOutSeconds);
-				}
+			String[] sArray = sysUpTimeWithSeconds.split(" ");
+			if (sArray != null && sArray.length > 2) {
+				sysuptime1day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
+				sysuptime1hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
+				sysuptime1min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
+				sysuptime1sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
 			}
 
-			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
-				for(String ifAlias : ifAliasMap.keySet()) {
-					ifAliasMap.get(ifAlias).setLastChgTime("Not available yet");
-				}
-				/*
+			int sysuptime2day = 0;
+			int sysuptime2hour = 0;
+			int sysuptime2min = 0;
+			int sysuptime2sec = 0;
+
+			sArray = lastStatusChangeTime.split(" ");
+			if (sArray != null && sArray.length > 2) {
+				sysuptime2day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
+				sysuptime2hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
+				sysuptime2min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
+				sysuptime2sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
+			}
+
+			final SimpleDateFormat df = new SimpleDateFormat( "dd/MM/yyyy HH:mm:ss" );
+			final Date dateRef = df.parse("01/01/2000 00:00:00");
+			final java.util.Calendar calRef = GregorianCalendar.getInstance();
+			final java.util.Calendar calResult = GregorianCalendar.getInstance();
+
+			calRef.setTime(dateRef);
+			calResult.setTime(dateRef);
+
+			calResult.add(GregorianCalendar.DAY_OF_MONTH, sysuptime1day);
+			calResult.add(GregorianCalendar.HOUR, sysuptime1hour);
+			calResult.add(GregorianCalendar.MINUTE, sysuptime1min);
+			calResult.add(GregorianCalendar.SECOND, sysuptime1sec);
+
+			calResult.add(GregorianCalendar.DAY_OF_MONTH, -sysuptime2day);
+			calResult.add(GregorianCalendar.HOUR, -sysuptime2hour);
+			calResult.add(GregorianCalendar.MINUTE, -sysuptime2min);
+			calResult.add(GregorianCalendar.SECOND, -sysuptime2sec);
+
+			List<String> l = AgentUtil.splitByDelimiters(df.format(calResult.getTime()), " :");
+			if (l != null && l.size () > 3 ) {
+				String hourString = l.get(1);
+				String minString = l.get(2);
+				result = (calResult.getTime().getTime() - calRef.getTime().getTime()) / (60*60*24*1000) + "d " + hourString + "h "+ minString + "m";
+			}
+		}
+		return result;
+	}
+
+	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String sysUpTimeWithSeconds) {
+		try {
+			if(ifAliasMap != null && !ifAliasMap.isEmpty() && sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds)) {
 				String arg = "";
 				for(String ifAlias : ifAliasMap.keySet()) {
 					arg+= "ifLastChange." + ifAlias + " ";
@@ -626,16 +616,17 @@ public class SNMPUtil {
 									int index = ifLastStatusChange.lastIndexOf(")") + 1;
 									if(index != -1) {
 										ifLastStatusChange = ifLastStatusChange.substring(index, ifLastStatusChange.length());
-										String sysuptime1 = parseTime(ifLastStatusChange.trim());
-										String result = calc(sysuptimeWithSeconds, sysuptime1);
-										ifAliasMap.get(ifAlias).setLastChgTime(result);
+										String lastStatusChangeTime = parseTime(ifLastStatusChange.trim());
+										if(lastStatusChangeTime != null && !"".equals(lastStatusChangeTime)) {
+											String result = calc(sysUpTimeWithSeconds, lastStatusChangeTime);
+											ifAliasMap.get(ifAlias).setLastChgTime(result);
+										}
 									}
 								}
 							}
 						}
 					}
 				}
-				*/
 			}
 		} catch (Exception e) {
 			log.error(e,e);
