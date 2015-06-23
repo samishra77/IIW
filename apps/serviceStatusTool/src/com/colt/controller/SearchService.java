@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.colt.dao.AmnDAO;
 import com.colt.util.UsageTracking;
-import com.colt.ws.biz.ASideInformation;
 import com.colt.ws.biz.Circuit;
 import com.colt.ws.biz.ProductType;
 import com.colt.ws.biz.Response;
@@ -150,6 +149,27 @@ public class SearchService {
 			response = pwv.retrieveResponseSideInformation(pathViewerResponse);
 			if (response.getResult() != null) {
 				usageTracking.setResultsFetched(1);
+			}
+			if (response.getResult() != null) {
+				SideInformation si = (SideInformation) response.getResult();
+				if (si != null && si.getzSideInformation() != null) {
+					if (si.getzSideInformation().getInstId() != null && !"".equals(si.getzSideInformation().getInstId())) {
+						AmnDAO amnDAO = new AmnDAO(em, messages, username);
+						String networkObject = amnDAO.getNetworkObject(si.getzSideInformation().getInstId());
+						if (networkObject != null && !"".equals(networkObject)) {
+							si.getzSideInformation().setXngDeviceName(networkObject);
+						}
+					}
+				}
+				if (si != null && si.getaSideInformation() != null) {
+					if (si.getaSideInformation().getInstId() != null && !"".equals(si.getaSideInformation().getInstId())) {
+						AmnDAO amnDAO = new AmnDAO(em, messages, username);
+						String networkObject = amnDAO.getNetworkObject(si.getaSideInformation().getInstId());
+						if (networkObject != null && !"".equals(networkObject)) {
+							si.getaSideInformation().setXngDeviceName(networkObject);
+						}
+					}
+				}
 			}
 			response = processDevNameASideInformation(response, circuit, username);
 			response = processDevNameZSideInformation(response, circuit, username);

@@ -136,6 +136,9 @@ public class SideInformationCall {
 			if (kv[0].equals("name")) {
 				aSideInformation.setXngDeviceName(kv[1]);
 			}
+			if (kv[0].equals("inst")) {
+				aSideInformation.setInstId(kv[1]);
+			}
 		}
 		return aSideInformation;
 	}
@@ -153,6 +156,9 @@ public class SideInformationCall {
 			}
 			if (kv[0].equals("model")) {
 				zSideInformation.setModel(kv[1]);
+			}
+			if (kv[0].equals("inst")) {
+				zSideInformation.setInstId(kv[1]);
 			}
 		}
 		return zSideInformation;

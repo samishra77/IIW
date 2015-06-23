@@ -8,6 +8,7 @@ public class ASideInformation {
 	private String type;
 	private String deviceName;
 	private String xngDeviceName;
+	private String instId;
 
 	public String getPort() {
 		return port;
@@ -44,5 +45,11 @@ public class ASideInformation {
 	}
 	public void setXngDeviceName(String xngDeviceName) {
 		this.xngDeviceName = xngDeviceName;
+	}
+	public String getInstId() {
+		return instId;
+	}
+	public void setInstId(String instId) {
+		this.instId = instId;
 	}
 }
