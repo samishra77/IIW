@@ -660,7 +660,11 @@ public class SNMPUtil {
 							String ifAlias = getIfValue(line);
 							if(ifAlias != null) {
 								if(ifAliasMap.containsKey(ifAlias)) {
-									ifAliasMap.get(ifAlias).setIpaddress(getIfIP(line));
+									if (ifAliasMap.get(ifAlias).getIpaddress() != null && !"".equals(ifAliasMap.get(ifAlias).getIpaddress())) {
+										ifAliasMap.get(ifAlias).setIpaddress(ifAliasMap.get(ifAlias).getIpaddress() + ", " + getIfIP(line));
+									} else {
+										ifAliasMap.get(ifAlias).setIpaddress(getIfIP(line));
+									}
 								}
 							}
 						}
