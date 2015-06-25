@@ -129,6 +129,14 @@ public class AmnDAO extends DAO {
 				prepStmt.setString(idx++, search.getService().toUpperCase());
 			}
 			if( search.getOrder() != null && !"".equals(search.getOrder()) ) {
+				String[] split = search.getOrder().split("/");
+				if (split != null && split.length > 0) {
+					search.setOrder(split[0]);
+				}
+				char lastCharacter = search.getOrder().charAt(search.getOrder().length() -1);
+				if (lastCharacter != "%".charAt(0)) {
+					search.setOrder(search.getOrder() + "%");
+				}
 				prepStmt.setString(idx++, search.getOrder().toUpperCase());
 			}
 			if( search.getCustomer() != null && !"".equals(search.getCustomer())) {
