@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<erxes>
+	<erx name="dr1.par">
+		<backup name="dr2.par" ip="212.74.91.198"/>
+	</erx>
+	<erx name="dr1.mad">
+		<backup name="dr2.mad" ip="212.74.81.96"/>
+	</erx>
+</erxes>

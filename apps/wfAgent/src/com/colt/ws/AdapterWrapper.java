@@ -79,7 +79,7 @@ public class AdapterWrapper implements IAdapterWrapper {
 		String wanIP = AgentUtil.calculateWanIp(deviceDetailsResponse.getDeviceIP());
 		if(adapter != null) {
 			try {
-				IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community);
+				IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community, null, null,null,null);
 				if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 					deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 					deviceDetailsResponse.getDeviceDetails().setInterfaces(ddr.getDeviceDetails().getInterfaces());

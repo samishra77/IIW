@@ -1,12 +1,19 @@
 package com.colt.adapters;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.colt.connect.ConnectDevice;
 import com.colt.util.AgentUtil;
@@ -18,16 +25,35 @@ import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.Interface;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
+
 public class JunosERXAdapter extends Adapter {
 
 	private Log log = LogFactory.getLog(JunosERXAdapter.class);
 
+	public ErrorResponse validate (String serviceType, String cpeMgmtIp, String serviceId) throws IOException {
+		if (serviceType.equals("IPVPN")) {
+			if (serviceId == null || serviceId.trim().equals("")) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.noServiceId"));
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				return errorResponse;
+			}
+		}
+		if (cpeMgmtIp == null || cpeMgmtIp.trim().equals("")) {
+			ErrorResponse errorResponse = new ErrorResponse();
+			errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.noCpeMgmtIp"));
+			errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+			return errorResponse;
+		}
+		return null;
+	}
+
 	@Override
-	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community, String serviceId, String serviceType, String cpeMgmtIp, String deviceName) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
 		DeviceDetail deviceDetail = new DeviceDetail();
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);
-		if(deviceIP != null && !"".equals(deviceIP) && circuitID != null && !"".equals(circuitID)) {
+		if(deviceIP != null && !"".equals(deviceIP) ) {
 			ConnectDevice connectDevice = null;
 			try {
 				connectDevice = new ConnectDevice();
@@ -41,8 +67,34 @@ public class JunosERXAdapter extends Adapter {
 				}
 			}
 			try {
+				String devName = null;
+				String ipDevBkp = null;
+				if (deviceName != null) {
+					try {
+						DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+						DocumentBuilder db = dbf.newDocumentBuilder();
+						Document doc = db.parse(getClass().getResourceAsStream("/conf/erxBkp.xml"));
+						Element r = doc.getDocumentElement();
+						NodeList erxList = r.getElementsByTagName("erx");
+						for (int i=0; i < erxList.getLength(); i++) {
+							if (erxList.item(i).getAttributes().getLength() > 0) {
+								Element e = (Element) erxList.item(i);
+								devName = e.getAttribute("name").toLowerCase();
+								if (deviceName.toLowerCase().contains(devName)) {
+									for (int k=0; k < e.getChildNodes().getLength(); k++) {
+										if ( e.getChildNodes().item(k).getNodeName().equals("backup") ) {
+											ipDevBkp = ((Element) e.getChildNodes().item(k)).getAttribute("ip");
+										}
+									}
+								}
+							}
+						}
+					} catch (Exception e){
+						log.error(e,e);
+					}
+				}
 				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
-				executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse, community);
+				executeCommands(connectDevice, deviceIP, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp);
 			} catch (Exception e) {
 				log.error(e,e);
 				if(deviceDetailsResponse.getErrorResponse() == null) {
@@ -57,36 +109,15 @@ public class JunosERXAdapter extends Adapter {
 		return deviceDetailsResponse;
 	}
 
-	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse, String community) {
+	private void executeCommands(ConnectDevice connectDevice, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp) throws IOException {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
-//		Interface wanIPInterface = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
-//		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, wanIPInterface);
-//		String physicalInterfaceName = null;
-//		if(!deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
-//			for(Interface itf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
-//				if(itf.getName() != null && itf.getName().indexOf(".") > -1) {
-//					physicalInterfaceName = itf.getName().substring(0, itf.getName().indexOf("."));
-//					break;
-//				}
-//			}
-//		}
-//		if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
-//			retrievePhysicalInterface(connectDevice, physicalInterfaceName, deviceDetailsResponse);
-//		}
-//		if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
-//			for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
-//				interf.setLastChgTime("Not available yet");
-//			}
-//		}
-		if (deviceDetailsResponse.getErrorResponse() == null) {
-			ErrorResponse errorResponse = new ErrorResponse();
-			errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-			try {
-				errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.notSupportedYet").trim());
-			} catch (Exception e1) {
-				log.error(e1,e1);
+		ErrorResponse errorResponse = validate (serviceType, cpeMgmtIp, serviceId);
+		if (errorResponse == null) {
+			retrieveInterfaces(connectDevice, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp);
+		} else {
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
-			deviceDetailsResponse.setErrorResponse(errorResponse);
 		}
 	}
 
@@ -197,162 +228,228 @@ public class JunosERXAdapter extends Adapter {
 		}
 	}
 
-	private Interface retrieveInterfaceByWanIp(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
-		Interface wanIPInterface = null;
-		try {
-			if(ipAddress != null && !"".equals(ipAddress)) {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), "\" " + ipAddress + "/\"");
-				if(command != null && !"".equals(command)) {
-					String output = connectDevice.applyCommands(command, "#|>");
-					if(output != null && !"".equals(output)) {
-						//split each line
-						String[] outputArray = null;
-						if(output.indexOf("\r\n") > -1) {
-							outputArray = output.split("\r\n");
-						} else if(output.indexOf("\n") > -1) {
-							List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
-							if(outputList != null && !outputList.isEmpty()) {
-								outputArray = outputList.toArray(new String[outputList.size()]);
-							}
-						} else {
-							outputArray = new String[] {output};
-						}
-
-						//process data
-						if(outputArray != null && outputArray.length > 1) {
-							List<String> values = null;
-							String lineLowerCase = null;
-							for(String line : outputArray) {
-								lineLowerCase = line.toLowerCase();
-								if(lineLowerCase.contains("down") || lineLowerCase.contains("up")) {
-									line = line.trim();
-									String[] lineArray = line.split(" ");
-									values = new ArrayList<String>();
-									for(String l : lineArray) {
-										if(!" ".equals(l) && !"".equals(l)) {
-											values.add(l);
-										}
-									}
-									String[] interfaceData = values.toArray(new String[values.size()]);
-									if(interfaceData != null && interfaceData.length > 0) {
-										wanIPInterface = new Interface();
-										for (int i = 0; i < interfaceData.length; i++) {
-											if(i == 0) {
-												wanIPInterface.setIpaddress(ipAddress);
-												wanIPInterface.setName(interfaceData[i]);
-											}
-											if(i == 1) {
-												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-													wanIPInterface.setStatus(AgentUtil.UP);
-												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-													wanIPInterface.setStatus(AgentUtil.DOWN);
-												}
-											}
-										}
-										break;
-									}
-								}
-							}
+	private static String getVrf (ConnectDevice connectDevice, String serviceType, String serviceId) throws Exception {
+		String ret= null;
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.erx.vrf").trim(), serviceId);
+		if(command != null && !"".equals(command)) {
+			String output = connectDevice.applyCommands(command, "#|>");
+			if(output != null && !"".equals(output)) {
+				String[] array = null;
+				if(output.indexOf("\r\n") > -1) {
+					array = output.split("\r\n");
+				} else if(output.indexOf("\n") > -1) {
+					List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+					if(outputList != null && !outputList.isEmpty()) {
+						array = outputList.toArray(new String[outputList.size()]);
+					}
+				} else {
+					array = new String[] {output};
+				}
+				if(array != null && array.length > 0) {
+					String lineLowerCase = null;
+					for(String line : array) {
+						lineLowerCase = line.toLowerCase();
+						if( lineLowerCase.contains("vrf") ) {
+							String[] lineArray = lineLowerCase.split(":");
+							ret = lineArray[1].trim();
+							break;
 						}
 					}
 				}
 			}
-		} catch (SocketTimeoutException e) {
-			log.error(e,e);
-			if (deviceDetailsResponse.getErrorResponse() == null) {
-				ErrorResponse errorResponse = new ErrorResponse();
-				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				try {
-					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.socketTimeoutException").trim());
-				} catch (Exception e1) {
-					log.error(e1,e1);
-				}
-				deviceDetailsResponse.setErrorResponse(errorResponse);
-			}
-		} catch (Exception e) {
-			log.error(e,e);
-			if (deviceDetailsResponse.getErrorResponse() == null) {
-				ErrorResponse errorResponse = new ErrorResponse();
-				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				try {
-					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.cli.showIpInterfaces").trim(), e.toString()));
-				} catch (Exception e1) {
-					log.error(e1,e1);
-				}
-				deviceDetailsResponse.setErrorResponse(errorResponse);
-			}
 		}
-		if(wanIPInterface != null) {
-			deviceDetailsResponse.getDeviceDetails().getInterfaces().add(wanIPInterface);
-		}
-		return wanIPInterface;
+		return ret;
 	}
 
-	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, Interface wanIPInterface) {
-		List<Interface> interfaceList = new ArrayList<Interface>();
-		try {
-			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaceDescription").trim(), "\"\\[" + circuitID + "\\]\"");
-			if(command != null && !"".equals(command)) {
-				String output = connectDevice.applyCommands(command, "#|>");
-				if(output != null && !"".equals(output)) {
-					Interface interf = null;
-					String[] array = null;
-					if(output.indexOf("\r\n") > -1) {
-						array = output.split("\r\n");
-					} else if(output.indexOf("\n") > -1) {
-						List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
-						if(outputList != null && !outputList.isEmpty()) {
-							array = outputList.toArray(new String[outputList.size()]);
-						}
-					} else {
-						array = new String[] {output};
+	private static String getInterface (ConnectDevice connectDevice, String serviceType, String vrf, String ip) throws Exception {
+		String ret= null;
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.erx.interface.vrf").trim(), vrf.toUpperCase(), ip);
+		if(command != null && !"".equals(command)) {
+			String output = connectDevice.applyCommands(command, "#|>");
+			if(output != null && !"".equals(output)) {
+				String[] array = null;
+				if(output.indexOf("\r\n") > -1) {
+					array = output.split("\r\n");
+				} else if(output.indexOf("\n") > -1) {
+					List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+					if(outputList != null && !outputList.isEmpty()) {
+						array = outputList.toArray(new String[outputList.size()]);
 					}
-					if(array != null && array.length > 0) {
-						List<String> values = null;
-						String lineLowerCase = null;
-						for(String line : array) {
-							lineLowerCase = line.toLowerCase();
-							if( line.contains("[" + circuitID + "]") 
-									&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
-								line = line.trim();
-								String[] lineArray = line.split(" ");
-								values = new ArrayList<String>();
-								for(String l : lineArray) {
-									if(!" ".equals(l) && !"".equals(l)) {
-										values.add(l.trim());
+				} else {
+					array = new String[] {output};
+				}
+				if(array != null && array.length > 0) {
+					int count = 0;
+					for(String line : array) {
+						if (count != 0) {
+							if(line.toLowerCase().contains(ip) ) {
+								ret = line.substring(56,line.length());
+								if (array[count+1].length() == 79) {
+									if (ret != null && array.length != (count+1) && array[count+1] != null) {
+										String nextHop = array[count+1].substring(29,44).trim();
+										String prefix = array[count+1].substring(0,18).trim();
+										if (nextHop.equals("") && prefix.equals("")) {
+											ret = ret + array[count+1].substring(56,array[count+1].length());
+										}
 									}
 								}
-								if(!values.isEmpty()) {
-									interf = new Interface();
-									String[] interfaceData = values.toArray(new String[values.size()]);
-									if(interfaceData.length > 0) {
-										for (int i = 0; i < interfaceData.length; i++) {
-											if(i == 0) {
-												interf.setName(interfaceData[i]);
-											}
-											if(i == 1) {
-												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.UP);
-												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.DOWN);
-												}
-											}
+								break;
+							}
+						}
+						count++;
+					}
+				}
+			}
+		}
+		return ret != null ? ret.trim() : ret;
+	}
+
+	private static String getInterfaceIpaccess (ConnectDevice connectDevice,String ip, boolean inet) throws Exception {
+		String ret= null;
+		if (inet) {
+			String c = DeviceCommand.getDefaultInstance().getProperty("junos.erx.inet").trim();
+			if(c != null && !"".equals(c)) {
+				connectDevice.applyCommands(c, "#|>");
+			}
+		}
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.erx.show.ip.route").trim(), ip);
+		if(command != null && !"".equals(command)) {
+			String output = connectDevice.applyCommands(command, "#|>");
+			if(output != null && !"".equals(output)) {
+				String[] array = null;
+				if(output.indexOf("\r\n") > -1) {
+					array = output.split("\r\n");
+				} else if(output.indexOf("\n") > -1) {
+					List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+					if(outputList != null && !outputList.isEmpty()) {
+						array = outputList.toArray(new String[outputList.size()]);
+					}
+				} else {
+					array = new String[] {output};
+				}
+				if(array != null && array.length > 0) {
+					int count = 0;
+					for(String line : array) {
+						if (count != 0) {
+							if( line.toLowerCase().contains(ip) ) {
+								ret = line.substring(56,line.length());
+								if (array[count+1].length() == 79) {
+									if (ret != null && array.length != (count+1) && array[count+1] != null ) {
+										String nextHop = array[count+1].substring(29,44).trim();
+										String prefix = array[count+1].substring(0,18).trim();
+										if (nextHop.equals("") && prefix.equals("")) {
+											ret = ret + array[count+1].substring(56,array[count+1].length());
 										}
 									}
-									if(wanIPInterface != null) {
-										if(interf.getName() != null && wanIPInterface.getName() != null && !wanIPInterface.getName().equalsIgnoreCase(interf.getName())) {
-											interfaceList.add(interf);
-										}
-									} else {
-										interfaceList.add(interf);
-									}
+								}
+								break;
+							}
+						}
+						count++;
+					}
+				}
+			}
+		}
+		return ret != null ? ret.trim() : ret;
+	}
+
+	private static String getInterfaceIp (ConnectDevice connectDevice, String interfaceName) throws Exception {
+		String ret= null;
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.erx.ppp.interface").trim(), interfaceName);
+		if(command != null && !"".equals(command)) {
+			String output = connectDevice.applyCommands(command, "#|>");
+			if(output != null && !"".equals(output)) {
+				String[] array = null;
+				if(output.indexOf("\r\n") > -1) {
+					array = output.split("\r\n");
+				} else if(output.indexOf("\n") > -1) {
+					List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+					if(outputList != null && !outputList.isEmpty()) {
+						array = outputList.toArray(new String[outputList.size()]);
+					}
+				} else {
+					array = new String[] {output};
+				}
+				if(array != null && array.length > 0) {
+					String lineLowerCase = null;
+					int count = 0;
+					for(String line : array) {
+						if (count > 0) {
+							lineLowerCase = line.toLowerCase();
+							if( lineLowerCase.contains("ip-address") ) {
+								List<String> lineList = AgentUtil.splitByDelimiters(lineLowerCase," ");
+								if (lineList.get(1) != null) {
+									ret = lineList.get(1).trim();
+									break;
 								}
 							}
 						}
+						count++;
 					}
-					if(!interfaceList.isEmpty()) {
-						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+				}
+			}
+		}
+		return ret;
+	}
+
+	private void retrieveInterfaces(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp) {
+		List<Interface> interfaceList = new ArrayList<Interface>();
+		try {
+			String interfName = null;
+			String interfIp = null;
+			if ("IPVPN".toString().equalsIgnoreCase(serviceType)) {
+				if (serviceId.contains("/")) {
+					serviceId = serviceId.substring(0,serviceId.indexOf("/"));
+				}
+				String vrf = getVrf(connectDevice,serviceType,serviceId);
+				if (vrf != null) {
+					interfName = getInterface(connectDevice, serviceType, vrf, cpeMgmtIp);
+				}
+				if ((interfName == null || interfName.trim().equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
+					ConnectDevice connectDeviceBkp = new ConnectDevice();
+					connectDeviceBkp.connect(ipDevBkp, 30, "telnet");
+					connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
+					if ( vrf != null ) {
+						interfName = getInterface(connectDeviceBkp, serviceType, vrf, cpeMgmtIp);
 					}
+				}
+			} else {
+				if ("IP ACCESS".toString().equalsIgnoreCase(serviceType)) {
+					interfName = getInterfaceIpaccess(connectDevice, cpeMgmtIp, false);
+					if (interfName == null || interfName.equals("")) {
+						interfName = getInterfaceIpaccess(connectDevice, cpeMgmtIp, true);
+						if ((interfName == null || interfName.equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
+							ConnectDevice connectDeviceBkp = new ConnectDevice();
+							connectDeviceBkp.connect(ipDevBkp, 30, "telnet");
+							connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
+							interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, false);
+							if (interfName == null || interfName.equals("")) {
+								interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, true);
+							}
+						}
+					}
+				}
+			}
+			if (interfName != null && !interfName.equals("")) {
+				interfIp = getInterfaceIp(connectDevice, interfName);
+			}
+			if (interfName != null && !interfName.trim().equals("")) {
+				Interface interf = new Interface();
+				interf.setStatus(AgentUtil.UP);
+				interf.setName(interfName);
+				if (interfIp != null && !interfIp.equals("")) {
+					interf.setIpaddress(interfIp);
+				}
+				interfaceList.add(interf);
+				if(!interfaceList.isEmpty()) {
+					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+				}
+			} else {
+				Interface interf = new Interface();
+				interf.setStatus(AgentUtil.DOWN);
+				interfaceList.add(interf);
+				if(!interfaceList.isEmpty()) {
+					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 				}
 			}
 		} catch (SocketTimeoutException e) {
@@ -382,96 +479,4 @@ public class JunosERXAdapter extends Adapter {
 		}
 	}
 
-	private void retrievePhysicalInterface(ConnectDevice connectDevice, String physicalInterfaceName, IDeviceDetailsResponse deviceDetailsResponse) {
-		List<Interface> interfaceList = new ArrayList<Interface>();
-		try {
-			if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.showInterfaces").trim(), "\"" + physicalInterfaceName + " \"");
-				if(command != null && !"".equals(command)) {
-					String output = connectDevice.applyCommands(command, "#|>");
-					if(output != null && !"".equals(output)) {
-						Interface interf = null;
-						//split each line
-						String[] outputArray = null;
-						if(output.indexOf("\r\n") > -1) {
-							outputArray = output.split("\r\n");
-						} else if(output.indexOf("\n") > -1) {
-							List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
-							if(outputList != null && !outputList.isEmpty()) {
-								outputArray = outputList.toArray(new String[outputList.size()]);
-							}
-						} else {
-							outputArray = new String[] {output};
-						}
-
-						//process data
-						if(outputArray != null && outputArray.length > 1) {
-							List<String> values = null;
-							String lineLowerCase = null;
-							for(String line : outputArray) {
-								lineLowerCase = line.toLowerCase();
-								if(lineLowerCase.contains("down") || lineLowerCase.contains("up")) {
-									line = line.trim();
-									String[] lineArray = line.split(" ");
-									values = new ArrayList<String>();
-									for(String l : lineArray) {
-										if(!" ".equals(l) && !"".equals(l)) {
-											values.add(l);
-										}
-									}
-									if(!values.isEmpty()) {
-										interf = new Interface();
-										String[] interfaceData = values.toArray(new String[values.size()]);
-										if(interfaceData.length > 0) {
-											for (int i = 0; i < interfaceData.length; i++) {
-												if(i == 0) {
-													interf.setName(interfaceData[i]);
-												}
-												if(i == 1) {
-													if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-														interf.setStatus(AgentUtil.UP);
-													} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-														interf.setStatus(AgentUtil.DOWN);
-													}
-												}
-											}
-											interfaceList.add(interf);
-											break;
-										}
-									}
-								}
-							}
-						}
-						if(!interfaceList.isEmpty()) {
-							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
-						}
-					}
-				}
-			}
-		} catch (SocketTimeoutException e) {
-			log.error(e,e);
-			if (deviceDetailsResponse.getErrorResponse() == null) {
-				ErrorResponse errorResponse = new ErrorResponse();
-				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				try {
-					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.socketTimeoutException").trim());
-				} catch (Exception e1) {
-					log.error(e1,e1);
-				}
-				deviceDetailsResponse.setErrorResponse(errorResponse);
-			}
-		} catch (Exception e) {
-			log.error(e,e);
-			if (deviceDetailsResponse.getErrorResponse() == null) {
-				ErrorResponse errorResponse = new ErrorResponse();
-				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				try {
-					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.cli.physicalInterface").trim(), e.toString()));
-				} catch (Exception e1) {
-					log.error(e1,e1);
-				}
-				deviceDetailsResponse.setErrorResponse(errorResponse);
-			}
-		}
-	}
 }

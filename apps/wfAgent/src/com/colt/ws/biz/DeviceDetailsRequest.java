@@ -9,6 +9,7 @@ public class DeviceDetailsRequest {
 	private String name;
 	private DeviceType deviceType;
 	private String circuitID;
+	private String serviceId;
 	private String ip;
 	private String type;
 	private String associatedDevice;
@@ -131,4 +132,17 @@ public class DeviceDetailsRequest {
 	public void setServiceType(String serviceType) {
 		this.serviceType = serviceType;
 	}
+	/**
+	 * @return the serviceId
+	 */
+	public String getServiceId() {
+		return serviceId;
+	}
+	/**
+	 * @param serviceId the serviceId to set
+	 */
+	public void setServiceId(String serviceId) {
+		this.serviceId = serviceId;
+	}
+
 }

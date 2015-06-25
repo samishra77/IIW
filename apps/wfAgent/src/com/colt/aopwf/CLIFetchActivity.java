@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import com.colt.adapters.Adapter;
 import com.colt.adapters.FactoryAdapter;
 import com.colt.util.AgentUtil;
-import com.colt.util.AptUtil;
 import com.colt.util.MessagesErrors;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
@@ -61,10 +60,19 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 				if(adapter != null) {
 					Integer snmpVersion = (Integer) input.get("snmpVersion");
 					String community = null;
+					String serviceId = null;
+					String serviceType = null;
 					if(input.containsKey("community")) {
 						community = (String) input.get("community");
 					}
-					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community);
+					if (deviceDetails.getServiceId() != null && !deviceDetails.getServiceId().equals("")) {
+						serviceId = deviceDetails.getServiceId();
+					}
+					if (deviceDetails.getServiceType() != null && !deviceDetails.getServiceType().equals("")) {
+						serviceType = deviceDetails.getServiceType();
+					}
+
+					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community,serviceId,serviceType,cpeMgmtIp, deviceDetails.getName());
 					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());

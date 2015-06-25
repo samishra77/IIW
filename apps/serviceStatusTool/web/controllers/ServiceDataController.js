@@ -231,6 +231,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'seibelUserID'	: username,
 								'name'       	:  $scope.sideInformation.zSideInformation.deviceName,
 								'serviceType' : $scope.circuit.productType,
+								'serviceId'		:$scope.circuit.serviceId,
 								'deviceType'	: {
 									'vendor'	: $scope.sideInformation.zSideInformation.vendor,
 									'model'  	: $scope.sideInformation.zSideInformation.model
@@ -343,6 +344,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 						if ($scope.zSideManagementIPAddress) {
 							deviceDetails = new Object();
 							deviceDetails.ip = $scope.zSideManagementIPAddress;
+							deviceDetails.name = $scope.sideInformation.zSideInformation.deviceName;
 						} else if ($scope.sideInformation.zSideInformation.deviceName) {
 							deviceDetails = new Object();
 							deviceDetails.name = $scope.sideInformation.zSideInformation.deviceName;
@@ -351,6 +353,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							deviceDetails.requestID = callRefreshCount;
 							deviceDetails.seibelUserID = username;
 							deviceDetails.serviceType = $scope.circuit.productType;
+							deviceDetails.serviceId = $scope.circuit.serviceId;
 							deviceDetails.deviceType = new Object();
 							deviceDetails.deviceType.vendor = $scope.sideInformation.zSideInformation.vendor;
 							deviceDetails.deviceType.model = $scope.sideInformation.zSideInformation.model;
