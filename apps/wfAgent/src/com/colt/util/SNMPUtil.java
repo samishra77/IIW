@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -535,61 +534,34 @@ public class SNMPUtil {
 		return ret;
 	}
 
-	private String calc (String sysUpTimeWithSeconds, String lastStatusChangeTime) throws ParseException {
-		String result = "";
-		if(sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds) && lastStatusChangeTime != null && !"".equals(lastStatusChangeTime)) {
-			int sysuptime1day = 0;
-			int sysuptime1hour = 0;
-			int sysuptime1min = 0;
-			int sysuptime1sec = 0;
-
-			String[] sArray = sysUpTimeWithSeconds.split(" ");
-			if (sArray != null && sArray.length > 2) {
-				sysuptime1day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
-				sysuptime1hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
-				sysuptime1min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
-				sysuptime1sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
-			}
-
-			int sysuptime2day = 0;
-			int sysuptime2hour = 0;
-			int sysuptime2min = 0;
-			int sysuptime2sec = 0;
-
-			sArray = lastStatusChangeTime.split(" ");
-			if (sArray != null && sArray.length > 2) {
-				sysuptime2day = Integer.valueOf(sArray[0].substring(0,sArray[0].indexOf("d")));
-				sysuptime2hour = Integer.valueOf(sArray[1].substring(0,sArray[1].indexOf("h")));
-				sysuptime2min = Integer.valueOf(sArray[2].substring(0,sArray[2].indexOf("m")));
-				sysuptime2sec = Integer.valueOf(sArray[3].substring(0,sArray[3].indexOf("s")));
-			}
-
-			final SimpleDateFormat df = new SimpleDateFormat( "dd/MM/yyyy HH:mm:ss" );
-			final Date dateRef = df.parse("01/01/2000 00:00:00");
-			final java.util.Calendar calRef = GregorianCalendar.getInstance();
-			final java.util.Calendar calResult = GregorianCalendar.getInstance();
-
-			calRef.setTime(dateRef);
-			calResult.setTime(dateRef);
-
-			calResult.add(GregorianCalendar.DAY_OF_MONTH, sysuptime1day);
-			calResult.add(GregorianCalendar.HOUR, sysuptime1hour);
-			calResult.add(GregorianCalendar.MINUTE, sysuptime1min);
-			calResult.add(GregorianCalendar.SECOND, sysuptime1sec);
-
-			calResult.add(GregorianCalendar.DAY_OF_MONTH, -sysuptime2day);
-			calResult.add(GregorianCalendar.HOUR, -sysuptime2hour);
-			calResult.add(GregorianCalendar.MINUTE, -sysuptime2min);
-			calResult.add(GregorianCalendar.SECOND, -sysuptime2sec);
-
-			List<String> l = AgentUtil.splitByDelimiters(df.format(calResult.getTime()), " :");
-			if (l != null && l.size () > 3 ) {
-				String hourString = l.get(1);
-				String minString = l.get(2);
-				result = (calResult.getTime().getTime() - calRef.getTime().getTime()) / (60*60*24*1000) + "d " + hourString + "h "+ minString + "m";
-			}
+	private String calc(String sysUpTime, String lastStatusChangeTime) throws ParseException {
+		GregorianCalendar calendar = new GregorianCalendar();
+		GregorianCalendar diffCalendar = new GregorianCalendar();
+		calendar.set(1900, Calendar.JANUARY, 01, 0, 0, 0);
+		diffCalendar.set(1900, Calendar.JANUARY, 01, 0, 0, 0);
+		String[] seperator = sysUpTime.split(" ");
+		int sysDay = Integer.parseInt(seperator[0].substring(0, seperator[0].indexOf("d")));
+		int sysHour = Integer.parseInt(seperator[1].substring(0, seperator[1].indexOf("h")));
+		int sysMins = Integer.parseInt(seperator[2].substring(0, seperator[2].indexOf("m")));
+		seperator = lastStatusChangeTime.split(" ");
+		int diffDay = Integer.parseInt(seperator[0].substring(0, seperator[0].indexOf("d")));
+		int diffHour = Integer.parseInt(seperator[1].substring(0, seperator[1].indexOf("h")));
+		int diffMins = Integer.parseInt(seperator[2].substring(0, seperator[2].indexOf("m")));
+		if(0 != sysDay) {
+			calendar.add(GregorianCalendar.DAY_OF_MONTH, sysDay);
 		}
-		return result;
+		if(0 != sysHour) {
+			calendar.add(GregorianCalendar.HOUR, sysHour);
+		}
+		if(0 != sysMins) {
+			calendar.add(GregorianCalendar.MINUTE, sysMins);
+		}
+		calendar.add(GregorianCalendar.DAY_OF_MONTH, -diffDay);
+		calendar.add(GregorianCalendar.HOUR, -diffHour);
+		calendar.add(GregorianCalendar.MINUTE, -diffMins);
+		String h = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
+		String m = String.valueOf(calendar.get(Calendar.MINUTE));
+		return (calendar.getTime().getTime() - diffCalendar.getTime().getTime()) / (60*60*24*1000) + "d " + h + "h "+ m + "m";
 	}
 
 	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String sysUpTimeWithSeconds) {
@@ -611,14 +583,12 @@ public class SNMPUtil {
 						for(String line : outputList) {
 							String ifAlias = getIfAlias(line);
 							if(ifAliasMap.containsKey(ifAlias)) {
-								String ifLastStatusChange = getIfValue(line);
-								if(ifLastStatusChange != null) {
-									int index = ifLastStatusChange.lastIndexOf(")") + 1;
-									if(index != -1) {
-										ifLastStatusChange = ifLastStatusChange.substring(index, ifLastStatusChange.length());
-										String lastStatusChangeTime = parseTime(ifLastStatusChange.trim());
-										if(lastStatusChangeTime != null && !"".equals(lastStatusChangeTime)) {
-											String result = calc(sysUpTimeWithSeconds, lastStatusChangeTime);
+								String ifLastStatusChange = getTimeToString(line);
+								if(ifLastStatusChange != null && !"".equals(ifLastStatusChange)) {
+									String lastStatusChangeTime = convertTimeticks(ifLastStatusChange);
+									if(lastStatusChangeTime != null && !"".equals(lastStatusChangeTime)) {
+										String result = calc(sysUpTimeWithSeconds, lastStatusChangeTime);
+										if (result != null) {
 											ifAliasMap.get(ifAlias).setLastChgTime(result);
 										}
 									}
@@ -750,7 +720,7 @@ public class SNMPUtil {
 					if(outputList != null && !outputList.isEmpty()) {
 						String sys = null;
 						for(String line : outputList) {
-							sys = getIfValue(line);
+							sys = getTimeToString(line);
 							if(sys != null && !"".equals(sys)) {
 								return sys;
 							}
@@ -855,4 +825,85 @@ public class SNMPUtil {
 		return result;
 	}
 
+	private String convertTimeticks(String ticksvalue) {
+		int days=0;
+		int hrs=0;
+		int mins=0;
+		String d = null;
+
+		double daysValue = Double.parseDouble(ticksvalue)/8640000;
+		d = String.format("%10f",daysValue).trim();
+		if(null!=d && d.contains(".")) {
+			days =Integer.parseInt(( d.substring(0, d.indexOf("."))));
+		} else {
+			days = Integer.parseInt(d);
+		}
+
+		if(0 < days)	{
+			double hrValue = Double.parseDouble(d.substring(d.indexOf('.'), d.length()))*24;
+			d = String.format("%10f",hrValue).trim();
+			if(null!=d && d.contains(".")) {
+				hrs =Integer.parseInt(( d.substring(0, d.indexOf("."))));
+			} else {
+				hrs = Integer.parseInt(d);
+			}
+			if(0<hrs) {
+				double mmValue =  Double.parseDouble(d.substring(d.indexOf('.'), d.length()))*60;
+				d = String.format("%10f",mmValue).trim();
+				if(null!=d && d.contains(".")) {
+					mins =Integer.parseInt(( d.substring(0, d.indexOf("."))));
+				} else {
+					mins = Integer.parseInt(d);
+				}
+			}
+		} else {
+			double hrValue = Double.parseDouble(d.substring(d.indexOf('.'), d.length()))*24;
+			d = String.format("%10f", hrValue).trim();
+			if(null!=d && d.contains(".")) {
+				hrs =Integer.parseInt(( d.substring(0, d.indexOf("."))));
+			} else {
+				hrs = Integer.parseInt(d);
+			}
+			if(0<hrs) {
+				double mmValue =  Double.parseDouble(d.substring(d.indexOf('.'), d.length()))*60;
+				d = String.format("%10f",mmValue).trim();
+				if(null!=d && d.contains(".")) {
+					mins =Integer.parseInt(( d.substring(0, d.indexOf("."))));
+				} else {
+					mins = Integer.parseInt(d);
+				}
+			} else {
+				double mmValue =  Double.parseDouble(d.substring(d.indexOf('.'), d.length()))*60;
+				d = String.format("%10f",mmValue).trim();
+				if(null!=d && d.contains(".")) {
+					mins =Integer.parseInt(( d.substring(0, d.indexOf("."))));
+				} else {
+					mins = Integer.parseInt(d);
+				}
+			}
+		}
+		return (days+"d "+hrs+"h "+mins+"m");
+	}
+
+	public String retrieveSysUpTime(String sysUpTime) {
+		return convertTimeticks(sysUpTime);
+	}
+
+	private String getTimeToString(String line) {
+		String splitRegex = "";
+		if(line != null) {
+			if(line.contains("= Timeticks:")) {
+				splitRegex = "= Timeticks:";
+			}
+			if(!"".equals(splitRegex)) {
+				String[] split = line.split(splitRegex);
+				if(split != null && split.length > 1) {
+					split[1] = split[1].trim();
+					split = split[1].split("[\\(\\)]");
+					return split[1].trim();
+				}
+			}
+		}
+		return null;
+	}
 }

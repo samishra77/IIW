@@ -25,16 +25,10 @@ public class HuaweiAdapter extends Adapter {
 			snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceIP, deviceDetailsResponse);
 			String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceIP, deviceDetailsResponse);
-			if(sysUpTime != null && !"".equals(sysUpTime)) {
-				String sysUpTimeWithSeconds = snmp.parseTime(sysUpTime);
-				if(sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds)) {
-					List<String> li = AgentUtil.splitByDelimiters(sysUpTimeWithSeconds, " ");
-					for (String s : li) {
-						if (s.toUpperCase().contains("S")) {
-							String sysUpTimeWithoutSeconds = sysUpTimeWithSeconds.substring(0,sysUpTimeWithSeconds.indexOf((s))).trim();
-							deviceDetail.setTime(sysUpTimeWithoutSeconds);
-						}
-					}
+			if (sysUpTime != null && !"".equals(sysUpTime)) {
+				String sysuptimeFormated = snmp.retrieveSysUpTime(sysUpTime);
+				if (sysuptimeFormated != null && !"".equals(sysuptimeFormated)) {
+					deviceDetailsResponse.getDeviceDetails().setTime(sysuptimeFormated);
 				}
 			}
 			deviceDetail.getInterfaces().addAll(sortInterfaces(ifAliasMap, wanIP));
