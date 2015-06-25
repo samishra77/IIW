@@ -84,10 +84,10 @@ public class SiebelCall {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.US);
 		req.setSearchMethod("FILTERS");
-		req.setSearchType("EXACT");
+		req.setSearchType("FULL LIKE");
 		req.setTicketStatus("All");
-		//req.setEarliestStartDate(sdf.format(gc_start.getTime()));
-		//req.setLatestStartDate(sdf.format(gc_end.getTime()));
+		req.setEarliestStartDate(sdf.format(gc_start.getTime()));
+		req.setLatestStartDate(sdf.format(gc_end.getTime()));
 
 		url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
 		action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
@@ -127,7 +127,11 @@ public class SiebelCall {
 			wout.write("<v2:custReference>"+StringEscapeUtils.escapeXml(req.getCustReference())+"</v2:custReference>");
 		}
 		if (req.getCircuitServiceID() != null) {
-			wout.write("<v2:circuitServiceID>"+StringEscapeUtils.escapeXml(req.getCircuitServiceID())+"</v2:circuitServiceID>");
+			String[] split = req.getCircuitServiceID().split("/");
+			if (split != null && split.length > 0) {
+				req.setCircuitServiceID(split[0]);
+			}
+			wout.write("<v2:circuitServiceID>"+StringEscapeUtils.escapeXml(req.getCircuitServiceID()) + "*" + "</v2:circuitServiceID>");
 		}
 		if (req.getTicketStatus() != null) {
 			wout.write("<v2:ticketStatus>"+StringEscapeUtils.escapeXml(req.getTicketStatus())+"</v2:ticketStatus>");
