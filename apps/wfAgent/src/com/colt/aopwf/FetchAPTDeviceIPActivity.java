@@ -35,6 +35,14 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 						deviceDetails.setIp(ipAddress);
 						resp = new String[] {"FETCH_DEVICE_DONE"};
 					} else {
+						if (deviceDetails.getName() != null && deviceDetails.getName().startsWith("lo0-")) {
+							String devName = "%" + deviceDetails.getName().substring(4,deviceDetails.getName().length());
+							ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(devName);
+							if(ipAddress != null && !"".equals(ipAddress)) {
+								deviceDetails.setIp(ipAddress);
+								resp = new String[] {"FETCH_DEVICE_DONE"};
+							}
+						}
 						IDeviceDetailsResponse deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
 						DeviceDetail dd = new DeviceDetail();
 						ErrorResponse errorResponse = new ErrorResponse();
