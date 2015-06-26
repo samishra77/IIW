@@ -234,7 +234,7 @@ public class SNMPUtil {
 					endTag = "#";
 				} else if(FactoryAdapter.VENDOR_JUNIPER.equalsIgnoreCase(vendor)) {
 					prepareCommands = FactoryAdapter.VENDOR_JUNIPER;
-					endTag = ">";
+					endTag = "#|>";
 					vendor = "junos";
 				}
 
@@ -253,19 +253,10 @@ public class SNMPUtil {
 							if(array != null && array.length > 0) {
 								for(String line : array) {
 									line = line.trim();
-									List<String> lineList = AgentUtil.splitByDelimiters(line, " ,");
-									if(lineList != null && !lineList.isEmpty()) {
-										if(AgentUtil.verifyItemInList(lineList.toArray(new String[lineList.size()]), vendor)) {
-											isSameVendor = true;
-											break;
-										}
-									}
-								}
-								for(String line : array) {
-									line = line.trim();
 									if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
 										if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
 											this.setOs(FactoryAdapter.JUNIPER_ERX);
+											vendor = FactoryAdapter.VENDOR_JUNIPER;
 											break;
 										} else {
 											this.setOs(FactoryAdapter.JUNIPER_JUNOS);
@@ -284,6 +275,17 @@ public class SNMPUtil {
 								if(this.getOs() == null || "".equals(this.getOs()) && FactoryAdapter.VENDOR_HUAWEI.equalsIgnoreCase(vendor)) {
 									this.setOs(FactoryAdapter.HUAWEI_OS);
 								}
+								for(String line : array) {
+									line = line.trim();
+									List<String> lineList = AgentUtil.splitByDelimiters(line, " ,");
+									if(lineList != null && !lineList.isEmpty()) {
+										if(AgentUtil.verifyItemInList(lineList.toArray(new String[lineList.size()]), vendor)) {
+											isSameVendor = true;
+											break;
+										}
+									}
+								}
+								
 							}
 						}
 					}

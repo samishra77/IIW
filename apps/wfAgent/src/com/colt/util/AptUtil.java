@@ -26,8 +26,13 @@ public class AptUtil {
 
 				IDeviceDAO deviceDAO = (IDeviceDAO) Registry.bind(baseUrl+"/aptCache/services/DeviceDAO.wsdl",IDeviceDAO.class);
 				Device[] deviceArray = deviceDAO.retrieveDevicesByName(user, deviceName);
-				if(deviceArray != null && deviceArray.length == 1 && deviceArray[0].getAddress() != null && !"".equals(deviceArray[0].getAddress())) {
-					ipAdrress = deviceArray[0].getAddress();
+				if (deviceArray != null && deviceArray.length > 0) {
+					for (Device dev : deviceArray) {
+						if ( dev.getAddress() != null && !"".equals(dev.getAddress())) {
+							ipAdrress = deviceArray[0].getAddress();
+							break;
+						}
+					}
 				}
 			}
 		} catch (Exception e) {

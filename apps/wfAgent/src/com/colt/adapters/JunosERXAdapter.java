@@ -485,6 +485,7 @@ public class JunosERXAdapter extends Adapter {
 					interfName = getInterface(connectDevice, serviceType, vrf, cpeMgmtIp);
 					if (interfName != null && !"".equals(interfName)) {
 						lastStatus = getLastStatus(connectDevice, interfName);
+						interfIp = getInterfaceIp(connectDevice, interfName);
 					}
 				}
 				if ((interfName == null || interfName.trim().equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
@@ -495,6 +496,7 @@ public class JunosERXAdapter extends Adapter {
 						interfName = getInterface(connectDeviceBkp, serviceType, vrf, cpeMgmtIp);
 						if (interfName != null && !"".equals(interfName)) {
 							lastStatus = getLastStatus(connectDeviceBkp, interfName);
+							interfIp = getInterfaceIp(connectDeviceBkp, interfName);
 						}
 					}
 				}
@@ -503,11 +505,13 @@ public class JunosERXAdapter extends Adapter {
 					interfName = getInterfaceIpaccess(connectDevice, cpeMgmtIp, false);
 					if (interfName != null && !"".equals(interfName)) {
 						lastStatus = getLastStatus(connectDevice, interfName);
+						interfIp = getInterfaceIp(connectDevice, interfName);
 					}
 					if (interfName == null || interfName.equals("")) {
 						interfName = getInterfaceIpaccess(connectDevice, cpeMgmtIp, true);
 						if (interfName != null && !"".equals(interfName)) {
 							lastStatus = getLastStatus(connectDevice, interfName);
+							interfIp = getInterfaceIp(connectDevice, interfName);
 						}
 						if ((interfName == null || interfName.equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
 							ConnectDevice connectDeviceBkp = new ConnectDevice();
@@ -516,11 +520,13 @@ public class JunosERXAdapter extends Adapter {
 							interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, false);
 							if (interfName != null && !"".equals(interfName)) {
 								lastStatus = getLastStatus(connectDeviceBkp, interfName);
+								interfIp = getInterfaceIp(connectDeviceBkp, interfName);
 							}
 							if (interfName == null || interfName.equals("")) {
 								interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, true);
 								if (interfName != null && !"".equals(interfName)) {
 									lastStatus = getLastStatus(connectDeviceBkp, interfName);
+									interfIp = getInterfaceIp(connectDeviceBkp, interfName);
 								}
 							}
 						}
@@ -528,7 +534,6 @@ public class JunosERXAdapter extends Adapter {
 				}
 			}
 			if (interfName != null && !interfName.equals("")) {
-				interfIp = getInterfaceIp(connectDevice, interfName);
 				Interface interf = new Interface();
 				interf.setStatus(AgentUtil.UP);
 				interf.setName(interfName);
@@ -539,12 +544,15 @@ public class JunosERXAdapter extends Adapter {
 					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 				}
 			} else {
-				ErrorResponse errorResponse = new ErrorResponse();
-				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-				try {
-					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.notRetrieve").trim());
-				} catch (Exception e1) {
-					log.error(e1,e1);
+				if (deviceDetailsResponse.getErrorResponse() == null) {
+					ErrorResponse errorResponse = new ErrorResponse();
+					errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+					try {
+						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.notRetrieve").trim());
+					} catch (Exception e1) {
+						log.error(e1,e1);
+					}
+					deviceDetailsResponse.setErrorResponse(errorResponse);
 				}
 			}
 		} catch (SocketTimeoutException e) {
