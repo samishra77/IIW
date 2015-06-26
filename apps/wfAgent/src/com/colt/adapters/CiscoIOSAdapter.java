@@ -256,7 +256,7 @@ public class CiscoIOSAdapter extends Adapter {
 												wanIPInterface.setIpaddress(ipAddress);
 												wanIPInterface.setName(interfaceData[i]);
 											}
-											if(i == 1) {
+											if(i == 2) {
 												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
 													wanIPInterface.setStatus(AgentUtil.UP);
 												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
