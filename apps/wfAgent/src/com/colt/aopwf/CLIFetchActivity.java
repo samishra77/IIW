@@ -32,14 +32,6 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 			try {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				String cpeMgmtIp = deviceDetails.getAssociatedDeviceIp();
-				if (cpeMgmtIp == null) {
-					if(deviceDetailsResponse.getErrorResponse() == null) {
-						ErrorResponse errorResponse = new ErrorResponse();
-						errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("apt.mgmtIPNotFound.cpe"));
-						errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-						deviceDetailsResponse.setErrorResponse(errorResponse);
-					}
-				}
 				// Call adaptor implementation
 				String vendor = (String) input.get("vendor");
 				String os = (String) input.get("os");

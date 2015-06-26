@@ -1,5 +1,6 @@
 package com.colt.adapters;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -57,9 +58,33 @@ public class CiscoIOSAdapter extends Adapter {
 		return deviceDetailsResponse;
 	}
 
+	private ErrorResponse validate(String wanIP, Interface wanIPInterface) {
+		ErrorResponse errorResponse = null;
+		try {
+			String message = "";
+			if (wanIP == null || "".equals(wanIP)) {
+				message = MessagesErrors.getDefaultInstance().getProperty("error.cli.noCpeMgmtIp");
+			} else if (wanIPInterface == null) {
+				message = MessagesErrors.getDefaultInstance().getProperty("error.cli.noPhysicalInterface");
+			}
+			if (!"".equals(message)) {
+				errorResponse = new ErrorResponse();
+				errorResponse.setMessage(message);
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+			}
+		} catch (IOException e) {
+			log.error(e, e);
+		}
+		return errorResponse;
+	}
+
 	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse, String community) {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
 		Interface wanIPInterface = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
+		ErrorResponse errorResponse = validate(wanIP, wanIPInterface);
+		if (errorResponse != null) {
+			deviceDetailsResponse.setErrorResponse(errorResponse);
+		}
 		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, wanIPInterface, wanIP);
 		String physicalInterfaceName = null;
 		if(wanIPInterface != null && !"".equals(wanIPInterface.getName())) {
