@@ -114,6 +114,11 @@ public class JunosERXAdapter extends Adapter {
 		ErrorResponse errorResponse = validate (serviceType, cpeMgmtIp, serviceId);
 		if (errorResponse == null) {
 			retrieveInterfaces(connectDevice, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp);
+			if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
+				for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
+					interf.setLastChgTime("Not available yet");
+				}
+			}
 		} else {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -432,24 +437,21 @@ public class JunosERXAdapter extends Adapter {
 			}
 			if (interfName != null && !interfName.equals("")) {
 				interfIp = getInterfaceIp(connectDevice, interfName);
-			}
-			if (interfName != null && !interfName.trim().equals("")) {
 				Interface interf = new Interface();
 				interf.setStatus(AgentUtil.UP);
 				interf.setName(interfName);
-				if (interfIp != null && !interfIp.equals("")) {
-					interf.setIpaddress(interfIp);
-				}
+				interf.setIpaddress(interfIp);
 				interfaceList.add(interf);
 				if(!interfaceList.isEmpty()) {
 					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 				}
 			} else {
-				Interface interf = new Interface();
-				interf.setStatus(AgentUtil.DOWN);
-				interfaceList.add(interf);
-				if(!interfaceList.isEmpty()) {
-					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				try {
+					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.notRetrieve").trim());
+				} catch (Exception e1) {
+					log.error(e1,e1);
 				}
 			}
 		} catch (SocketTimeoutException e) {
