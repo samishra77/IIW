@@ -51,5 +51,12 @@ public interface IDeviceDetailsResponse {
 	 * @param errorResponse the errorResponse to set
 	 */
 	public void setErrorResponse(ErrorResponse errorResponse);
-
+	/**
+	 * @return the os
+	 */
+	public String getOs();
+	/**
+	 * @param os the os to set
+	 */
+	public void setOs(String os);
 }

@@ -69,6 +69,7 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 					if(os != null && !"".equals(os)) {
 						input.put("vendor", deviceDetails.getDeviceType().getVendor());
 						input.put("os", os);
+						deviceDetailsResponse.setOs(os);
 						resp = new String[] {"CLIFETCH"};
 					} else {
 						if(deviceDetailsResponse.getErrorResponse() == null) {

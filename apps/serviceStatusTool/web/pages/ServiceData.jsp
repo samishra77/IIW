@@ -355,10 +355,10 @@
 						</table>
 					</td>
 				</tr>
-				<tr>
+				<tr ng-show="showZEndPhysicalInterface">
 					<td><label class="labelData"><spring:message code="serviceData.zSide.physicalInterface"></spring:message></label></td>
 				</tr>
-				<tr>
+				<tr ng-show="showZEndPhysicalInterface">
 					<td>
 						<table class="table table-small-font sideInformation" >
 							<thead>

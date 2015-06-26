@@ -166,6 +166,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		var urlWorkFlow = workFlowAgentUrlBase + "/ws";
 		$scope.showDeviceErrorASide = false;
 		$scope.showDeviceErrorZSide = false;
+		$scope.showZEndPhysicalInterface = true;
 		var errorMsg = "Error receiving device details.";
 		if (workFlowAgentUrlBase) {
 			if ($scope.sideInformation) {
@@ -252,6 +253,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							var l3DeviceDetails = data;
 							if (l3DeviceDetails) {
 								if (l3DeviceDetails.responseID == callZSideCount) {
+									if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
+										$scope.showZEndPhysicalInterface = false;
+									}
 									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
 									if (l3DeviceDetails.deviceDetails) {
 										if (l3DeviceDetails.deviceDetails.interfaces) {
@@ -387,6 +391,11 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									$scope.aSideManagementIPAddress = l3DeviceDetails.deviceIP;
 								} else {
 									resetASideOrZSideInformation("zside");
+									if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
+										$scope.showZEndPhysicalInterface = false;
+									} else {
+										$scope.showZEndPhysicalInterface = true;
+									}
 									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
 									$scope.zSideAssociatedDeviceIp = l3DeviceDetails.associatedDeviceIp;
 								}
