@@ -5,6 +5,7 @@ import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -114,11 +115,6 @@ public class JunosERXAdapter extends Adapter {
 		ErrorResponse errorResponse = validate (serviceType, cpeMgmtIp, serviceId);
 		if (errorResponse == null) {
 			retrieveInterfaces(connectDevice, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp);
-			if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
-				for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
-					interf.setLastChgTime("Not available yet");
-				}
-			}
 		} else {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -397,11 +393,89 @@ public class JunosERXAdapter extends Adapter {
 		return ret;
 	}
 
+	private String getStatusUpOrDown (ConnectDevice connectDevice, String interfName) throws Exception {
+		String ret= null;
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.erx.interface.status").trim(), interfName);
+		if(command != null && !"".equals(command)) {
+			String output = connectDevice.applyCommands(command, "#|>");
+			if(output != null && !"".equals(output)) {
+				String[] array = null;
+				if(output.indexOf("\r\n") > -1) {
+					array = output.split("\r\n");
+				} else if(output.indexOf("\n") > -1) {
+					List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+					if(outputList != null && !outputList.isEmpty()) {
+						array = outputList.toArray(new String[outputList.size()]);
+					}
+				} else {
+					array = new String[] {output};
+				}
+				if(array != null && array.length > 0) {
+					String lineLowerCase = null;
+					for(String line : array) {
+						lineLowerCase = line.toLowerCase();
+						if( lineLowerCase.contains("is up") ) {
+							ret = AgentUtil.UP;
+							break;
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	private String getLastChg (ConnectDevice connectDevice, String interfName) throws Exception {
+		String ret= null;
+		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.erx.interface.status.last.chg").trim(), interfName);
+		if(command != null && !"".equals(command)) {
+			String output = connectDevice.applyCommands(command, "#|>");
+			if(output != null && !"".equals(output)) {
+				String[] array = null;
+				if(output.indexOf("\r\n") > -1) {
+					array = output.split("\r\n");
+				} else if(output.indexOf("\n") > -1) {
+					List<String> outputList = AgentUtil.splitByDelimiters(output, "\n");
+					if(outputList != null && !outputList.isEmpty()) {
+						array = outputList.toArray(new String[outputList.size()]);
+					}
+				} else {
+					array = new String[] {output};
+				}
+				if(array != null && array.length > 0) {
+					String lineLowerCase = null;
+					for(String line : array) {
+						lineLowerCase = line.toLowerCase();
+						if( lineLowerCase.contains("seconds") ) {
+							List<String> outputList = AgentUtil.splitByDelimiters(line.trim(), " ");
+							ret = outputList.get(1) != null ? outputList.get(1) : null;
+							break;
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	private String getLastStatus(ConnectDevice connectDevice, String interfName) throws Exception {
+		String status = getStatusUpOrDown(connectDevice,interfName );
+		if (status != null && status.equals(AgentUtil.UP)) {
+			String lastChangeSeconds = getLastChg(connectDevice,interfName);
+			int day = (int)TimeUnit.SECONDS.toDays(Long.parseLong(lastChangeSeconds));
+			long hours = TimeUnit.SECONDS.toHours(Long.parseLong(lastChangeSeconds)) - (day *24);
+			long minute = TimeUnit.SECONDS.toMinutes(Long.parseLong(lastChangeSeconds)) - (TimeUnit.SECONDS.toHours(Long.parseLong(lastChangeSeconds))* 60);
+			return (day+"d "+hours+"h "+minute+"m");
+		}
+		return "";
+	}
+
 	private void retrieveInterfaces(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
 			String interfName = null;
 			String interfIp = null;
+			String lastStatus = null;
 			if ("IPVPN".toString().equalsIgnoreCase(serviceType)) {
 				if (serviceId.contains("/")) {
 					serviceId = serviceId.substring(0,serviceId.indexOf("/"));
@@ -409,6 +483,9 @@ public class JunosERXAdapter extends Adapter {
 				String vrf = getVrf(connectDevice,serviceType,serviceId);
 				if (vrf != null) {
 					interfName = getInterface(connectDevice, serviceType, vrf, cpeMgmtIp);
+					if (interfName != null && !"".equals(interfName)) {
+						lastStatus = getLastStatus(connectDevice, interfName);
+					}
 				}
 				if ((interfName == null || interfName.trim().equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
 					ConnectDevice connectDeviceBkp = new ConnectDevice();
@@ -416,20 +493,35 @@ public class JunosERXAdapter extends Adapter {
 					connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
 					if ( vrf != null ) {
 						interfName = getInterface(connectDeviceBkp, serviceType, vrf, cpeMgmtIp);
+						if (interfName != null && !"".equals(interfName)) {
+							lastStatus = getLastStatus(connectDeviceBkp, interfName);
+						}
 					}
 				}
 			} else {
 				if ("IP ACCESS".toString().equalsIgnoreCase(serviceType)) {
 					interfName = getInterfaceIpaccess(connectDevice, cpeMgmtIp, false);
+					if (interfName != null && !"".equals(interfName)) {
+						lastStatus = getLastStatus(connectDevice, interfName);
+					}
 					if (interfName == null || interfName.equals("")) {
 						interfName = getInterfaceIpaccess(connectDevice, cpeMgmtIp, true);
+						if (interfName != null && !"".equals(interfName)) {
+							lastStatus = getLastStatus(connectDevice, interfName);
+						}
 						if ((interfName == null || interfName.equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
 							ConnectDevice connectDeviceBkp = new ConnectDevice();
 							connectDeviceBkp.connect(ipDevBkp, 30, "telnet");
 							connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
 							interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, false);
+							if (interfName != null && !"".equals(interfName)) {
+								lastStatus = getLastStatus(connectDeviceBkp, interfName);
+							}
 							if (interfName == null || interfName.equals("")) {
 								interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, true);
+								if (interfName != null && !"".equals(interfName)) {
+									lastStatus = getLastStatus(connectDeviceBkp, interfName);
+								}
 							}
 						}
 					}
@@ -441,6 +533,7 @@ public class JunosERXAdapter extends Adapter {
 				interf.setStatus(AgentUtil.UP);
 				interf.setName(interfName);
 				interf.setIpaddress(interfIp);
+				interf.setLastChgTime(lastStatus);
 				interfaceList.add(interf);
 				if(!interfaceList.isEmpty()) {
 					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
