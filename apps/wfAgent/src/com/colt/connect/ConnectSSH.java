@@ -184,11 +184,15 @@ public class ConnectSSH  extends ConnectDevice {
 		return outstream.toString();
 	}
 
-	public void prepareForCommands(String vendor) throws Exception {
+	public void prepareForCommands(String vendor, String os) throws Exception {
 		String line;
 		String[] columns;
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device." + vendor.toLowerCase())));
+		BufferedReader br = null;
+		if (os != null) {
+			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+		} else {
+			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+		}
 
 		this.vendor = vendor.toLowerCase();
 		boolean flag = false;
@@ -245,6 +249,10 @@ public class ConnectSSH  extends ConnectDevice {
 				}
 			}
 		}
+	}
+
+	public void prepareForCommands(String vendor) throws Exception {
+		prepareForCommands(vendor, null);
 	}
 
 	public String sendBREAK(String nexttoken) throws Exception {

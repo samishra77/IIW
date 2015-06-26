@@ -1,0 +1,7 @@
+waitfor,name:|login:
+write,autoprov
+waitfor,word:
+write,c0lte1c0m
+waitfor,#|>
+sendCmd,term len 0,#|>
+sendCmd,term width 250,#|>

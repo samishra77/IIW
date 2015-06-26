@@ -94,7 +94,7 @@ public class JunosERXAdapter extends Adapter {
 						log.error(e,e);
 					}
 				}
-				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
+				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, deviceDetailsResponse.getOs());
 				executeCommands(connectDevice, deviceIP, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp);
 			} catch (Exception e) {
 				log.error(e,e);
@@ -490,7 +490,7 @@ public class JunosERXAdapter extends Adapter {
 				if ((interfName == null || interfName.trim().equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
 					ConnectDevice connectDeviceBkp = new ConnectDevice();
 					connectDeviceBkp.connect(ipDevBkp, 30, "telnet");
-					connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
+					connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER,deviceDetailsResponse.getOs());
 					if ( vrf != null ) {
 						interfName = getInterface(connectDeviceBkp, serviceType, vrf, cpeMgmtIp);
 						if (interfName != null && !"".equals(interfName)) {
@@ -512,7 +512,7 @@ public class JunosERXAdapter extends Adapter {
 						if ((interfName == null || interfName.equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
 							ConnectDevice connectDeviceBkp = new ConnectDevice();
 							connectDeviceBkp.connect(ipDevBkp, 30, "telnet");
-							connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
+							connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER,deviceDetailsResponse.getOs());
 							interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, false);
 							if (interfName != null && !"".equals(interfName)) {
 								lastStatus = getLastStatus(connectDeviceBkp, interfName);

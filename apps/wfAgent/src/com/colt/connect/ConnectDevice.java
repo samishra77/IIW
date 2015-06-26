@@ -60,6 +60,10 @@ public class ConnectDevice {
 
 	}
 
+	public void prepareForCommands(String vendor, String os) throws Exception {
+		connectDevice.prepareForCommands(vendor, os);
+	}
+
 	public void prepareForCommands(String vendor) throws Exception {
 		connectDevice.prepareForCommands(vendor);
 	}
