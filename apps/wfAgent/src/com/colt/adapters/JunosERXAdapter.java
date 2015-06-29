@@ -285,6 +285,11 @@ public class JunosERXAdapter extends Adapter {
 						if (count != 0) {
 							if(line.toLowerCase().contains(ip) ) {
 								ret = line.substring(56,line.length());
+								String type = line.substring(19,29).trim().toLowerCase();
+								if (type != null && type.equals("bgp") && ret.contains("mpls.ip")) {
+									ret = null;
+									break;
+								}
 								if (array[count+1].length() == 79) {
 									if (ret != null && array.length != (count+1) && array[count+1] != null) {
 										String nextHop = array[count+1].substring(29,44).trim();
