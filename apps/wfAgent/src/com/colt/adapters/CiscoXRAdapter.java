@@ -24,7 +24,7 @@ public class CiscoXRAdapter extends Adapter {
 	private Log log = LogFactory.getLog(CiscoXRAdapter.class);
 
 	@Override
-	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community,String serviceId, String serviceType, String cpeMgmtIp, String deviceName) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community,String serviceId, String serviceType, String cpeMgmtIp, String deviceName, String os) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
 		DeviceDetail deviceDetail = new DeviceDetail();
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);

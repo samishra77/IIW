@@ -14,7 +14,7 @@ import com.colt.ws.biz.L3DeviceDetailsResponse;
 public class HuaweiAdapter extends Adapter {
 
 	@Override
-	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community, String serviceId, String serviceType, String cpeMgmtIp, String deviceName) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitID, String deviceIP, Integer snmpVersion, String wanIP, String community, String serviceId, String serviceType, String cpeMgmtIp, String deviceName, String os) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L3DeviceDetailsResponse();
 		DeviceDetail deviceDetail = new DeviceDetail();
 		if(deviceIP != null && !"".equals(deviceIP) && circuitID != null && !"".equals(circuitID) && snmpVersion != null) {

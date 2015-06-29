@@ -64,7 +64,7 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 						serviceType = deviceDetails.getServiceType();
 					}
 
-					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community,serviceId,serviceType,cpeMgmtIp, deviceDetails.getName());
+					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, wanIP, community,serviceId,serviceType,cpeMgmtIp, deviceDetails.getName(), os);
 					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());
