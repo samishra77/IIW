@@ -65,7 +65,7 @@ public class CiscoIOSAdapter extends Adapter {
 			if (wanIP == null || "".equals(wanIP)) {
 				message = MessagesErrors.getDefaultInstance().getProperty("error.cli.noCpeMgmtIp");
 			} else if (wanIPInterface == null) {
-				message = MessagesErrors.getDefaultInstance().getProperty("error.cli.noPhysicalInterface");
+				message = MessagesErrors.getDefaultInstance().getProperty("error.cli.noWanInterface");
 			}
 			if (!"".equals(message)) {
 				errorResponse = new ErrorResponse();
@@ -473,6 +473,13 @@ public class CiscoIOSAdapter extends Adapter {
 						}
 						if(!interfaceList.isEmpty()) {
 							deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+						} else {
+							if (deviceDetailsResponse.getErrorResponse() == null) {
+								ErrorResponse errorResponse = new ErrorResponse();
+								errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+								errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.cli.noPhysicalInterface").trim());
+								deviceDetailsResponse.setErrorResponse(errorResponse);
+							}
 						}
 					}
 				}
