@@ -255,6 +255,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								if (l3DeviceDetails.responseID == callZSideCount) {
 									if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
 										$scope.showZEndPhysicalInterface = false;
+										if (l3DeviceDetails.deviceName) {
+											var routerId = l3DeviceDetails.deviceName;
+											var deviceName = "lo0-" + routerId + ".router.colt.net";
+											$scope.sideInformation.zSideInformation.xngDeviceName = l3DeviceDetails.deviceName;
+											$scope.sideInformation.zSideInformation.deviceName = deviceName;
+										}
 									}
 									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
 									if (l3DeviceDetails.deviceDetails) {

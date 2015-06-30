@@ -59,4 +59,13 @@ public interface IDeviceDetailsResponse {
 	 * @param os the os to set
 	 */
 	public void setOs(String os);
+	/**
+	 * @return the deviceName
+	 */
+	public String getDeviceName();
+	/**
+	 * @param os the deviceName to set
+	 */
+	public void setDeviceName(String deviceName);
+
 }

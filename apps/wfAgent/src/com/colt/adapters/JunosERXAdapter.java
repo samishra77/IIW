@@ -1,5 +1,6 @@
 package com.colt.adapters;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
@@ -17,6 +18,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.colt.connect.ConnectDevice;
+import com.colt.util.AgentConfig;
 import com.colt.util.AgentUtil;
 import com.colt.util.DeviceCommand;
 import com.colt.util.MessagesErrors;
@@ -69,12 +71,27 @@ public class JunosERXAdapter extends Adapter {
 			}
 			try {
 				String devName = null;
+				String devNameBkp = null;
 				String ipDevBkp = null;
 				if (deviceName != null) {
 					try {
 						DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 						DocumentBuilder db = dbf.newDocumentBuilder();
-						Document doc = db.parse(getClass().getResourceAsStream("/conf/erxBkp.xml"));
+						String erxBkpFile = AgentConfig.getDefaultInstance().getProperty("erxBkpFile");
+						Document doc = null;
+						if (erxBkpFile!= null && !"".equals(erxBkpFile)) {
+							try {
+								doc = db.parse(erxBkpFile.trim());
+								log.info("erxBkp.xml read from: "+ erxBkpFile);
+							} catch (Exception e) {
+								e.printStackTrace();
+								doc = db.parse(getClass().getResourceAsStream("/conf/erxBkp.xml"));
+								log.info("erxBkp.xml read from: /conf/erxBkp.xml");
+							}
+						} else { 
+							doc = db.parse(getClass().getResourceAsStream("/conf/erxBkp.xml"));
+							log.info("erxBkp.xml read from: /conf/erxBkp.xml");
+						}
 						Element r = doc.getDocumentElement();
 						NodeList erxList = r.getElementsByTagName("erx");
 						for (int i=0; i < erxList.getLength(); i++) {
@@ -85,6 +102,7 @@ public class JunosERXAdapter extends Adapter {
 									for (int k=0; k < e.getChildNodes().getLength(); k++) {
 										if ( e.getChildNodes().item(k).getNodeName().equals("backup") ) {
 											ipDevBkp = ((Element) e.getChildNodes().item(k)).getAttribute("ip");
+											devNameBkp =  ((Element) e.getChildNodes().item(k)).getAttribute("name");
 										}
 									}
 								}
@@ -95,7 +113,7 @@ public class JunosERXAdapter extends Adapter {
 					}
 				}
 				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
-				executeCommands(connectDevice, deviceIP, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp, os);
+				executeCommands(connectDevice, deviceIP, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp, os, devNameBkp);
 			} catch (Exception e) {
 				log.error(e,e);
 				if(deviceDetailsResponse.getErrorResponse() == null) {
@@ -110,11 +128,11 @@ public class JunosERXAdapter extends Adapter {
 		return deviceDetailsResponse;
 	}
 
-	private void executeCommands(ConnectDevice connectDevice, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp, String os) throws IOException {
+	private void executeCommands(ConnectDevice connectDevice, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp, String os, String devNameBkp) throws IOException {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
 		ErrorResponse errorResponse = validate (serviceType, cpeMgmtIp, serviceId);
 		if (errorResponse == null) {
-			retrieveInterfaces(connectDevice, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp, os);
+			retrieveInterfaces(connectDevice, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp, os, devNameBkp);
 		} else {
 			if (deviceDetailsResponse.getErrorResponse() == null) {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
@@ -457,7 +475,7 @@ public class JunosERXAdapter extends Adapter {
 		return "";
 	}
 
-	private void retrieveInterfaces(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp, String os) {
+	private void retrieveInterfaces(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp, String os, String devNameBkp) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
 			String interfName = null;
@@ -484,6 +502,9 @@ public class JunosERXAdapter extends Adapter {
 						if (interfName != null && !"".equals(interfName)) {
 							lastStatus = getLastStatus(connectDeviceBkp, interfName);
 							interfIp = getInterfaceIp(connectDeviceBkp, interfName);
+							retrieveDeviceUpTime(connectDeviceBkp, deviceDetailsResponse);
+							deviceDetailsResponse.setDeviceIP(ipDevBkp);
+							deviceDetailsResponse.setDeviceName(devNameBkp);
 						}
 					}
 				}
@@ -514,6 +535,9 @@ public class JunosERXAdapter extends Adapter {
 								if (interfName != null && !"".equals(interfName)) {
 									lastStatus = getLastStatus(connectDeviceBkp, interfName);
 									interfIp = getInterfaceIp(connectDeviceBkp, interfName);
+									retrieveDeviceUpTime(connectDeviceBkp, deviceDetailsResponse);
+									deviceDetailsResponse.setDeviceIP(ipDevBkp);
+									deviceDetailsResponse.setDeviceName(devNameBkp);
 								}
 							}
 						}

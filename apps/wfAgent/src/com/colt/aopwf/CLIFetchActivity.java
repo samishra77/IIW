@@ -68,6 +68,10 @@ public class CLIFetchActivity implements IWorkflowProcessActivity {
 					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());
+						if (ddr.getDeviceIP() != null && ddr.getDeviceName() != null && os != null && os.equalsIgnoreCase("erx")) {
+							deviceDetailsResponse.setDeviceIP(ddr.getDeviceIP());
+							deviceDetailsResponse.setDeviceName(ddr.getDeviceName());
+						}
 						if(ddr.getErrorResponse() != null) {
 							if (deviceDetailsResponse.getErrorResponse() != null) {
 								ErrorResponse adapterEr = ddr.getErrorResponse();

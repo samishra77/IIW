@@ -9,6 +9,8 @@ public class L3DeviceDetailsResponse implements IDeviceDetailsResponse {
 	private DeviceDetail deviceDetails;
 	private ErrorResponse errorResponse;
 	private String os;
+	private String deviceName;
+
 	/**
 	 * @return the associatedDeviceIp
 	 */
@@ -92,5 +94,11 @@ public class L3DeviceDetailsResponse implements IDeviceDetailsResponse {
 	 */
 	public void setOs(String os) {
 		this.os = os;
+	}
+	public String getDeviceName() {
+		return deviceName;
+	}
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
 	}
 }
