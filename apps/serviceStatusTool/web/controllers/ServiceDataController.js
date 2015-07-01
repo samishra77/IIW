@@ -411,6 +411,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
 										$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
 									} else if (type == "zside") {
+										if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
+											if (l3DeviceDetails.deviceName) {
+												var routerId = l3DeviceDetails.deviceName;
+												var deviceName = "lo0-" + routerId + ".router.colt.net";
+												$scope.sideInformation.zSideInformation.xngDeviceName = l3DeviceDetails.deviceName;
+												$scope.sideInformation.zSideInformation.deviceName = deviceName;
+											}
+										}
 										for (var i = 0; i < l3DeviceDetails.deviceDetails.interfaces.length; i++) {
 											if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") != -1 || l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1) {
 												//logical
