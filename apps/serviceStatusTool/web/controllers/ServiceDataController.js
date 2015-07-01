@@ -273,6 +273,10 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 													//physical
 													$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);
 												}
+												if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1 && l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") == -1) {
+													//physical
+													$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);	
+												}
 											}
 										}
 										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
@@ -426,6 +430,10 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 											} else {
 												//physical
 												$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);
+											}
+											if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1 && l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") == -1) {
+												//physical
+												$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);	
 											}
 										}
 										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;

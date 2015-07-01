@@ -532,6 +532,7 @@ public class JunosERXAdapter extends Adapter {
 							if (interfName != null && !"".equals(interfName)) {
 								lastStatus = getLastStatus(connectDeviceBkp, interfName);
 								interfIp = getInterfaceIp(connectDeviceBkp, interfName);
+								retrieveDeviceUpTime(connectDeviceBkp, deviceDetailsResponse);
 							}
 							if (interfName == null || interfName.equals("")) {
 								interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, true);

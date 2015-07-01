@@ -306,7 +306,6 @@ public class JunosAdapter extends Adapter {
 						array = new String[] {output};
 					}
 					if(array != null && array.length > 0) {
-						List<String> values = null;
 						String lineLowerCase = null;
 						for(String line : array) {
 							lineLowerCase = line.toLowerCase();
@@ -314,37 +313,21 @@ public class JunosAdapter extends Adapter {
 								&& (lineLowerCase.contains("down") || lineLowerCase.contains("up")) ) {
 
 								line = line.trim();
-								String[] lineArray = line.split(" ");
-								values = new ArrayList<String>();
-								for(String l : lineArray) {
-									if(!" ".equals(l) && !"".equals(l)) {
-										values.add(l.trim());
-									}
+								interf = new Interface();
+								String interfName = line.substring(0,16).trim();
+								String status = line.substring(16,22).trim();
+								interf.setName(interfName);
+								if(AgentUtil.UP.equalsIgnoreCase(status.trim().toUpperCase())) {
+									interf.setStatus(AgentUtil.UP);
+								} else if(AgentUtil.DOWN.equalsIgnoreCase(status.trim().toUpperCase())) {
+									interf.setStatus(AgentUtil.DOWN);
 								}
-								if(!values.isEmpty()) {
-									interf = new Interface();
-									String[] interfaceData = values.toArray(new String[values.size()]);
-									if(interfaceData.length > 0) {
-										for (int i = 0; i < interfaceData.length; i++) {
-											if(i == 0) {
-												interf.setName(interfaceData[i]);
-											}
-											if(i == 1) {
-												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.UP);
-												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-													interf.setStatus(AgentUtil.DOWN);
-												}
-											}
-										}
-									}
-									if(wanIPInterface != null) {
-										if(interf.getName() != null && wanIPInterface.getName() != null && !wanIPInterface.getName().equalsIgnoreCase(interf.getName())) {
-											interfaceList.add(interf);
-										}
-									} else {
+								if(wanIPInterface != null) {
+									if(interf.getName() != null && wanIPInterface.getName() != null && !wanIPInterface.getName().equalsIgnoreCase(interf.getName())) {
 										interfaceList.add(interf);
 									}
+								} else {
+									interfaceList.add(interf);
 								}
 							}
 						}
