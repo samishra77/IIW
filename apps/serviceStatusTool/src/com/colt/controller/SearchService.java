@@ -203,10 +203,11 @@ public class SearchService {
 				}
 			}
 			if (circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType())) {
+				String circuitId = amnDAO.processCircuitId(circuit.getCircuitID());
 				if(circuit.getProductType().equalsIgnoreCase(ProductType.CPE_SOLUTIONS.value())) {
-					deviceName = amnDAO.getFqdnCpeSol(circuit);
+					deviceName = amnDAO.getFqdnCpeSol(circuit, circuitId);
 				} else if(circuit.getProductType().equalsIgnoreCase(ProductType.IPVPN.value())) {
-					deviceName = amnDAO.getFqdnIPVPN(circuit);
+					deviceName = amnDAO.getFqdnIPVPN(circuit, circuitId);
 				}
 			}
 			if (deviceName != null && !"".equals(deviceName)) {

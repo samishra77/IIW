@@ -293,10 +293,14 @@ public class AmnDAO extends DAO {
 				circuit.setOsmOrderNO((String)o[12] != null ? (String)o[12] : "");
 				response.setResult(circuit);
 			}
+			String circuitId = null;
+			if (circuit != null) {
+				circuitId = processCircuitId(circuit.getCircuitID());
+			}
 			if(circuit.getOsmOrderNO() != null && !"".equals(circuit.getOsmOrderNO())) {
-				fetchFromSiebelOrder(circuit);
+				fetchFromSiebelOrder(circuit, circuitId);
 			} else {
-				fetchFromOHSContractRelatedTables(circuit);
+				fetchFromOHSContractRelatedTables(circuit, circuitId);
 			}
 		}
 
@@ -304,14 +308,26 @@ public class AmnDAO extends DAO {
 		return response;
 	}
 
-	private void fetchFromSiebelOrder(Circuit circuit) {
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID())) {
+	public String processCircuitId(String circuitId) {
+		String retrieve = "";
+		if (circuitId != null && !"".equals(circuitId)) {
+			if (circuitId.length() >= 17) {
+				retrieve = circuitId.substring(0, 17);
+			} else {
+				retrieve = circuitId;
+			}
+		}
+		return retrieve;
+	}
+
+	private void fetchFromSiebelOrder(Circuit circuit, String circuitId) {
+		if(circuitId != null && !"".equals(circuitId)) {
 			String sql = "select LEGAL_PARTY_NAME as CUSTOMER, SERVICE_DESC, LEGAL_PARTY_OCN as OCN, D_RELATED_ORDER_NO, NETWORK_ID, RESILIENCE_OPTION " +
 					"from AMN.IE_SIEBEL_OSM_ORDERS " +
 					"where XNG_CIRCUIT_ID like :circuitID";
 
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID()+"%");
+			query.setParameter("circuitID", circuitId + "%");
 			List<Object[]> resutlList = query.getResultList();
 			if(resutlList != null && resutlList.size() > 0) {
 				for(Object[] o : resutlList) {
@@ -326,22 +342,22 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	private void fetchFromOHSContractRelatedTables(Circuit circuit){
-		recapProcessServicesWithoutProduct(circuit);
+	private void fetchFromOHSContractRelatedTables(Circuit circuit, String circuitId){
+		recapProcessServicesWithoutProduct(circuit, circuitId);
 		if(circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType()) ) {
 			if(circuit.getProductType().equalsIgnoreCase(ProductType.HSS.value())) {
-				getCircuitHSS(circuit);
+				getCircuitHSS(circuit , circuitId);
 			} else if(circuit.getProductType().equalsIgnoreCase(ProductType.LANLINK.value())) {
-				getCircuitLANLINK(circuit);
+				getCircuitLANLINK(circuit, circuitId);
 			} else if(circuit.getProductType().equalsIgnoreCase(ProductType.IP_ACCESS.value()) || circuit.getProductType().equalsIgnoreCase(ProductType.IPVPN.value())) {
-				getCircuitIP(circuit);
+				getCircuitIP(circuit, circuitId);
 			} else if(circuit.getProductType().equalsIgnoreCase(ProductType.CPE_SOLUTIONS.value())) {
-				getCircuitCPESOLUTIONS(circuit);
+				getCircuitCPESOLUTIONS(circuit, circuitId);
 			} else {
-				getCircuitOthers(circuit);
+				getCircuitOthers(circuit, circuitId);
 			}
 		} else {
-			getCircuitOthers(circuit);
+			getCircuitOthers(circuit, circuitId);
 		}
 	}
 	
@@ -350,13 +366,13 @@ public class AmnDAO extends DAO {
 	 * @param HashMap<String ProductType, List<ServiceAttribType>> productServiceList
 	 * @throws Exception
 	 */
-	private void recapProcessServicesWithoutProduct(Circuit circuit){
-		if(circuit != null && (circuit.getProductType() == null || "".equals(circuit.getProductType())) && circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber()) ) {
+	private void recapProcessServicesWithoutProduct(Circuit circuit, String circuitId){
+		if(circuit != null && (circuit.getProductType() == null || "".equals(circuit.getProductType())) && circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber()) ) {
 			String sql = "select distinct LEGAL_CUSTOMER, PRODUCT_NAME, OCN " +
 					"from AMN.IE_OHS_CONTRACT " +
 					"where CONTRACT_NO = :orderNumber and CIRCUIT_REFERENCE_5D = :circuitID";
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<Object[]> resutlList = query.getResultList();
 			if(resutlList != null && resutlList.size() > 0) {
@@ -372,14 +388,14 @@ public class AmnDAO extends DAO {
 	
 
 
-	private void getCircuitHSS(Circuit circuit) {
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+	private void getCircuitHSS(Circuit circuit, String circuitId) {
+		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
 			String sql = "select a.LEGAL_CUSTOMER, a.OCN, b.SERVICE_DETAILS " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_HSS_SERVICE b " +
 					"where a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<Object[]> resutlList = query.getResultList();
 			if(resutlList != null && resutlList.size() > 0) {
@@ -392,14 +408,14 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	private void getCircuitLANLINK(Circuit circuit) {
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+	private void getCircuitLANLINK(Circuit circuit, String circuitId) {
+		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
 			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO_ , b.SERVICE_ID, b.RESILIENCY " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_LINK_LAN_ORDER b " +
 					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<Object[]> resutlList = query.getResultList();
 			if(resutlList != null && resutlList.size() > 0) {
@@ -415,14 +431,14 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	private void getCircuitIP(Circuit circuit) {
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+	private void getCircuitIP(Circuit circuit, String circuitId) {
+		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
 			String sql = "select a.LEGAL_CUSTOMER, b.SERVICE_DETAILS, a.OCN, b.RELATED_CONTRACT_NO, b.SERVICE_ID, b.RESILIENCY " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_IP_DATA_ORDER b " +
 					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<Object[]> resutlList = query.getResultList();
 			if(resutlList != null && resutlList.size() > 0) {
@@ -440,14 +456,14 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	private void getCircuitCPESOLUTIONS(Circuit circuit) {
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+	private void getCircuitCPESOLUTIONS(Circuit circuit, String circuitId) {
+		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
 			String sql = "select distinct a.LEGAL_CUSTOMER, b.SERVICE_OPTIONS, a.OCN, b.RELATED_ORDER_NO_ , b.RESILIENCE_OPTION " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
 					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID  ORDER BY a.CIRCUIT_REFERENCE_5D";
 
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<Object[]> resutlList = query.getResultList();
 			if(resutlList != null && resutlList.size() > 0) {
@@ -462,14 +478,14 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	private void getCircuitOthers(Circuit circuit) {
-		if(circuit != null && circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber()) ) {
+	private void getCircuitOthers(Circuit circuit, String circuitId) {
+		if(circuit != null && circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber()) ) {
 			String sql = "select distinct LEGAL_CUSTOMER, PRODUCT_NAME, OCN " +
 					"from AMN.IE_OHS_CONTRACT " +
 					"where CONTRACT_NO = :orderNumber and CIRCUIT_REFERENCE_5D = :circuitID";
 
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<Object[]> resutlList = query.getResultList();
 			if(resutlList != null && resutlList.size() > 0) {
@@ -482,14 +498,14 @@ public class AmnDAO extends DAO {
 		}
 	}
 
-	public String getFqdnCpeSol(Circuit circuit) {
+	public String getFqdnCpeSol(Circuit circuit, String circuitId) {
 		String result = "";
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
 			String sql = "select distinct b.PRIMARY_DEVICE_ID " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
 					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID  ORDER BY a.CIRCUIT_REFERENCE_5D";
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<String> resultList = query.getResultList();
 			if(resultList != null && resultList.size() > 0) {
@@ -505,14 +521,14 @@ public class AmnDAO extends DAO {
 		return result;
 	}
 
-	public String getFqdnIPVPN(Circuit circuit) {
+	public String getFqdnIPVPN(Circuit circuit, String circuitId) {
 		String result = "";
-		if(circuit.getCircuitID() != null && !"".equals(circuit.getCircuitID()) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
+		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
 			String sql = "select b.DEVICE_ID " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_IP_DATA_ORDER b " +
 					"where a.CIRCUIT_REFERENCE_5D = b.CIRCUIT_REFERENCE and a.CONTRACT_NO = b.CONTRACT_NO and a.CONTRACT_NO = :orderNumber and a.CIRCUIT_REFERENCE_5D = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
 			Query query = em.createNativeQuery(sql);
-			query.setParameter("circuitID", circuit.getCircuitID());
+			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
 			List<String> resultList = query.getResultList();
 			if(resultList != null && resultList.size() > 0) {
