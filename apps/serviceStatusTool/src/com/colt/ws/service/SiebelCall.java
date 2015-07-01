@@ -88,6 +88,7 @@ public class SiebelCall {
 		req.setTicketStatus("All");
 		req.setEarliestStartDate(sdf.format(gc_start.getTime()));
 		req.setLatestStartDate(sdf.format(gc_end.getTime()));
+		req.setMaxRowsReq("250");
 
 		url = SstConfig.getDefaultInstance().getProperty("ws.siebel.url");
 		action = SstConfig.getDefaultInstance().getProperty("ws.siebel.action");
