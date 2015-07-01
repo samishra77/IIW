@@ -58,43 +58,30 @@ public class CiscoIOSAdapter extends Adapter {
 		return deviceDetailsResponse;
 	}
 
-	private ErrorResponse validate(String wanIP, Interface wanIPInterface) {
-		ErrorResponse errorResponse = null;
-		try {
-			String message = "";
-			if (wanIP == null || "".equals(wanIP)) {
-				message = MessagesErrors.getDefaultInstance().getProperty("error.cli.noCpeMgmtIp");
-			} else if (wanIPInterface == null) {
-				message = MessagesErrors.getDefaultInstance().getProperty("error.cli.noWanInterface");
-			}
-			if (!"".equals(message)) {
-				errorResponse = new ErrorResponse();
-				errorResponse.setMessage(message);
-				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-			}
-		} catch (IOException e) {
-			log.error(e, e);
-		}
-		return errorResponse;
-	}
-
 	private void executeCommands(ConnectDevice connectDevice, String wanIP, String deviceIP, String circuitID, Integer snmpVersion, IDeviceDetailsResponse deviceDetailsResponse, String community) {
 		retrieveDeviceUpTime(connectDevice, deviceDetailsResponse);
-		Interface wanIPInterface = retrieveInterfaceByWanIp(connectDevice, wanIP, deviceDetailsResponse);
-		ErrorResponse errorResponse = validate(wanIP, wanIPInterface);
-		if (errorResponse != null) {
-			deviceDetailsResponse.setErrorResponse(errorResponse);
-		}
-		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse, wanIPInterface, wanIP);
+		retrieveLogicalInterfaces(connectDevice, circuitID, deviceDetailsResponse);
 		String physicalInterfaceName = null;
-		if(wanIPInterface != null && !"".equals(wanIPInterface.getName())) {
-			if(wanIPInterface.getName().indexOf(".") > -1) {
-				physicalInterfaceName = wanIPInterface.getName().substring(0, wanIPInterface.getName().indexOf("."));
+		if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
+			for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
+				if(interf.getName().indexOf(".") > -1) {
+					physicalInterfaceName = interf.getName().substring(0, interf.getName().indexOf("."));
+					break;
+				}
 			}
 		}
 		if(physicalInterfaceName != null && !"".equals(physicalInterfaceName)) {
 			retrievePhysicalInterface(connectDevice, physicalInterfaceName, deviceDetailsResponse);
 		}
+		if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
+			for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
+				if (physicalInterfaceName == null || !physicalInterfaceName.equals(interf.getName())) {
+					String ipAddress = retrieveInterfaceIp(connectDevice, interf.getName(), deviceDetailsResponse);
+					interf.setIpaddress(ipAddress);
+				}
+			}
+		}
+		
 		if(deviceDetailsResponse.getDeviceDetails().getInterfaces() != null && !deviceDetailsResponse.getDeviceDetails().getInterfaces().isEmpty()) {
 			for(Interface interf : deviceDetailsResponse.getDeviceDetails().getInterfaces()) {
 				interf.setLastChgTime("Not available yet");
@@ -212,13 +199,14 @@ public class CiscoIOSAdapter extends Adapter {
 		}
 	}
 
-	private Interface retrieveInterfaceByWanIp(ConnectDevice connectDevice, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
-		Interface wanIPInterface = null;
+	private String retrieveInterfaceIp(ConnectDevice connectDevice, String interfName, IDeviceDetailsResponse deviceDetailsResponse) {
+		String ipAddress = null;
 		try {
-			if(ipAddress != null && !"".equals(ipAddress)) {
-				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.ios.showIpInterfaces").trim(), ipAddress);
+			if(interfName != null && !"".equals(interfName)) {
+				String interfaceName = AgentUtil.processCliInterfaceNameDescription(interfName).toLowerCase();
+				String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.ios.showIpInterfaces").trim(), interfaceName);
 				if(command != null && !"".equals(command)) {
-					String output = connectDevice.applyCommands(command, "#");
+					String output = connectDevice.applyCommands(command, "#|>");
 					if(output != null && !"".equals(output)) {
 						//split each line
 						String[] outputArray = null;
@@ -233,13 +221,12 @@ public class CiscoIOSAdapter extends Adapter {
 							outputArray = new String[] {output};
 						}
 
-						//process data
 						if(outputArray != null && outputArray.length > 1) {
 							List<String> values = null;
 							String lineLowerCase = null;
 							for(String line : outputArray) {
 								lineLowerCase = line.toLowerCase();
-								if((lineLowerCase.contains("down") || lineLowerCase.contains("up")) && line.contains(" " + ipAddress + " ")) {
+								if(lineLowerCase.contains(interfaceName) && (lineLowerCase.contains("down") || lineLowerCase.contains("up"))) {
 									line = line.trim();
 									String[] lineArray = line.split(" ");
 									values = new ArrayList<String>();
@@ -250,17 +237,11 @@ public class CiscoIOSAdapter extends Adapter {
 									}
 									String[] interfaceData = values.toArray(new String[values.size()]);
 									if(interfaceData != null && interfaceData.length > 0) {
-										wanIPInterface = new Interface();
 										for (int i = 0; i < interfaceData.length; i++) {
-											if(i == 0) {
-												wanIPInterface.setIpaddress(ipAddress);
-												wanIPInterface.setName(interfaceData[i]);
-											}
-											if(i == 2) {
-												if(AgentUtil.UP.equalsIgnoreCase(interfaceData[i])) {
-													wanIPInterface.setStatus(AgentUtil.UP);
-												} else if(AgentUtil.DOWN.equalsIgnoreCase(interfaceData[i])) {
-													wanIPInterface.setStatus(AgentUtil.DOWN);
+											if(i == 1) {
+												ipAddress = interfaceData[i].trim();
+												if (ipAddress.contains("/") ) {
+													ipAddress = ipAddress.substring(0,ipAddress.indexOf("/"));
 												}
 											}
 										}
@@ -297,19 +278,12 @@ public class CiscoIOSAdapter extends Adapter {
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
 		}
-		if(wanIPInterface != null) {
-			deviceDetailsResponse.getDeviceDetails().getInterfaces().add(wanIPInterface);
-		}
-		return wanIPInterface;
+		return ipAddress;
 	}
 
-	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse, Interface wanIPInterface, String wanIP) {
+	private void retrieveLogicalInterfaces(ConnectDevice connectDevice, String circuitID, IDeviceDetailsResponse deviceDetailsResponse) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
 		try {
-			String logicalInterfaceNameAux = null;
-			if(wanIPInterface != null) {
-				logicalInterfaceNameAux = AgentUtil.processCliInterfaceNameDescription(wanIPInterface.getName());
-			}
 			String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("cisco.showInterfaceDescription").trim(), circuitID);
 			if(command != null && !"".equals(command)) {
 				String output = connectDevice.applyCommands(command, "#");
@@ -341,14 +315,7 @@ public class CiscoIOSAdapter extends Adapter {
 								} else if(AgentUtil.DOWN.equalsIgnoreCase(status.trim().toUpperCase())) {
 									interf.setStatus(AgentUtil.DOWN);
 								}
-								if(wanIPInterface != null) {
-									String interfaceName = AgentUtil.processCliInterfaceNameDescription(interf.getName());
-									if(logicalInterfaceNameAux != null && interfaceName != null && !logicalInterfaceNameAux.equals(interfaceName)) {
-										interfaceList.add(interf);
-									}
-								} else {
-									interfaceList.add(interf);
-								}
+								interfaceList.add(interf);
 							}
 						}
 					}
