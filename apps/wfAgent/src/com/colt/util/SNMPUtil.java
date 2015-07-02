@@ -536,7 +536,7 @@ public class SNMPUtil {
 		return ret;
 	}
 
-	private String calc(String sysUpTime, String lastStatusChangeTime) throws ParseException {
+	private String calc(String sysUpTime, String lastStatusChangeTime) throws ParseException, IOException {
 		GregorianCalendar calendar = new GregorianCalendar();
 		GregorianCalendar diffCalendar = new GregorianCalendar();
 		calendar.set(1900, Calendar.JANUARY, 01, 0, 0, 0);
@@ -563,6 +563,9 @@ public class SNMPUtil {
 		calendar.add(GregorianCalendar.MINUTE, -diffMins);
 		String h = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
 		String m = String.valueOf(calendar.get(Calendar.MINUTE));
+		if (((calendar.getTime().getTime() - diffCalendar.getTime().getTime()) / (60*60*24*1000)) > 10) {
+			return MessagesErrors.getDefaultInstance().getProperty("error.cli.moreTenDays");
+		}
 		return (calendar.getTime().getTime() - diffCalendar.getTime().getTime()) / (60*60*24*1000) + "d " + h + "h "+ m + "m";
 	}
 
