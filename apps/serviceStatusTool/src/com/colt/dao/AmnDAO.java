@@ -4,8 +4,11 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -17,6 +20,7 @@ import javax.persistence.Query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.colt.util.PamStatusCalculator;
 import com.colt.util.Util;
 import com.colt.ws.biz.Circuit;
 import com.colt.ws.biz.ProductType;
@@ -262,7 +266,7 @@ public class AmnDAO extends DAO {
 		Response response = new Response();
 		
 		String sql = "SELECT CIRC_PATH_INST_ID, CIRC_PATH_HUM_ID as CIRCUITID, ORDER_NUM, SERVICE_MENU AS PRODUCT_TYPE, CIRC_PATH_REV_NBR as REVISION_NUMBER, " +
-				"STATUS, BANDWIDTH, TYPE as CATEGORY, CUSTOMER_ID, TRUNK_GROUP, MANAGEMENTTEAM, MONITORING, OSMORDERNO " +
+				"STATUS, BANDWIDTH, TYPE as CATEGORY, CUSTOMER_ID, TRUNK_GROUP, MANAGEMENTTEAM, MONITORING, OSMORDERNO, IN_SERVICE, PERF_MONITORING " +
 				"FROM AMN.IE_CIRC_PATH_INST " +
 				"WHERE CIRC_PATH_INST_ID =  :circPathInstID";
 		
@@ -270,7 +274,9 @@ public class AmnDAO extends DAO {
 		query.setParameter("circPathInstID", circPathInstID );
 
 		Circuit circuit = new Circuit();
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 		List<Object[]> resutlList = query.getResultList();
+		String pam = "";
 		if(resutlList == null || resutlList.isEmpty()) {
 			response.setErrorCode(Response.CODE_EMPTY);
 			response.setErrorMsg(getMessages().getProperty("global.error.resultNotFound"));
@@ -289,8 +295,10 @@ public class AmnDAO extends DAO {
 				circuit.setCustomer((String)o[8] != null ? (String)o[8] : "");
 				circuit.setTrunkGroup((String)o[9] != null ? (String)o[9] : "");
 				circuit.setManagementTeam((String)o[10] != null ? (String)o[10] : "");
-				//circuit.setPerformanceMonitoring((String)o[11] != null ? (String)o[11] : "");
+				pam = (String)o[11] != null ? (String)o[11] : "";
 				circuit.setOsmOrderNO((String)o[12] != null ? (String)o[12] : "");
+				circuit.setInServiceSince(o[13] != null ? df.format((Date)o[13]) : "");
+				circuit.setPerformanceMonitoring((String)o[14] != null ? (String)o[14] : "");
 				response.setResult(circuit);
 			}
 			String circuitId = null;
@@ -301,6 +309,19 @@ public class AmnDAO extends DAO {
 				fetchFromSiebelOrder(circuit, circuitId);
 			} else {
 				fetchFromOHSContractRelatedTables(circuit, circuitId);
+			}
+			try {
+				String[] dateArray = circuit.getInServiceSince().split("/");
+				if(dateArray != null && dateArray.length > 2) {
+					int month = Integer.valueOf(dateArray[1]);
+					if(month > 0) {
+						month = month - 1;
+					}
+					Date date = PamStatusCalculator.getDate(Integer.valueOf(dateArray[2]), month, Integer.valueOf(dateArray[0]));
+					circuit.setPamStatus(PamStatusCalculator.getPamEnabledSprint1(circuit.getCategory(), circuit.getServiceMenu(), circuit.getProductName(), pam, date));
+				}
+			} catch (Exception e) {
+				log.error(e, e);
 			}
 		}
 
