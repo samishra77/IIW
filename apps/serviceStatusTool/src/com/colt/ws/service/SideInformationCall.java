@@ -33,15 +33,16 @@ public class SideInformationCall {
 	public String sideInformationCallProcess(Circuit circuit) throws Exception {
 		String result = null;
 		String url = SstConfig.getDefaultInstance().getProperty("ws.pathViewer.url");
-
-//		String amnCheckerResponse = null;
-//		String subcategory = null;
-//		if (circuit.getCircuitID() != null && !circuit.getCircuitID().trim().equals("")) {
-//			Util util = new Util();
-//			amnCheckerResponse = getInfoFromAmnChecker(circuit);
-//			subcategory = util.getValue(amnCheckerResponse, "<subcategory>", "</subcategory>");
-//		}
-
+		String serviceType = circuit.getProductType();
+		String amnCheckerResponse = null;
+		String subcategory = null;
+		if (serviceType != null && serviceType.toUpperCase().contains("LANLINK")) {
+			if (circuit.getCircuitID() != null && !circuit.getCircuitID().trim().equals("")) {
+				Util util = new Util();
+				amnCheckerResponse = getInfoFromAmnChecker(circuit);
+				subcategory = util.getValue(amnCheckerResponse, "<subcategory>", "</subcategory>");
+			}
+		}
 		URL u = new URL(url);
 		URLConnection uc = u.openConnection();
 		HttpURLConnection connection = (HttpURLConnection) uc;
@@ -58,6 +59,12 @@ public class SideInformationCall {
 		wout.write("<ws:retrieveEndInformation>");
 		wout.write("<circPathInstID>" + circuit.getCircPathInstID() + "</circPathInstID>");
 		wout.write("<circPathHumID></circPathHumID>");
+		if (serviceType != null && serviceType.toUpperCase().contains("LANLINK") && subcategory != null && !subcategory.equals("")) {
+			wout.write("<subCategory>"+subcategory+"</subCategory>");
+		}
+		if (serviceType != null && !serviceType.equals("")){
+			wout.write("<serviceType>"+serviceType+"</serviceType>");
+		}
 		wout.write("<leg></leg>");
 		wout.write("</ws:retrieveEndInformation>");
 		wout.write("</soapenv:Body>");
