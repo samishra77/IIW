@@ -2,6 +2,7 @@ package com.colt.ws.biz;
 
 public class ZSideInformation {
 
+	private String port;
 	private String type;
 	private String vendor;
 	private String xngDeviceName;
@@ -45,4 +46,11 @@ public class ZSideInformation {
 	public void setInstId(String instId) {
 		this.instId = instId;
 	}
+	public String getPort() {
+		return port;
+	}
+	public void setPort(String port) {
+		this.port = port;
+	}
+
 }

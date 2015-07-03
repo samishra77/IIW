@@ -191,6 +191,13 @@ public class SideInformationCall {
 		zSideInformation.setType(messages.getProperty("serviceData.zSide.siteType.value"));
 		for (int i = 0; i < itemValueArray.length; i++) {
 			String[] kv = itemValueArray[i].split("=");
+			if (kv[0].equals("port")) {
+				String port = kv[1];
+				if (port != null && port.startsWith("[")) {
+					port = port.substring(1,port.length()-1);
+				}
+				zSideInformation.setPort(port);
+			}
 			if (kv[0].equals("vendor")) {
 				zSideInformation.setVendor(kv[1]);
 			}

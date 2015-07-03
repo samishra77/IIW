@@ -275,6 +275,102 @@
 				</tr>
 			</table>
 		</div>
+	</div>
+	<!-- lanlink service -->
+	<div class="marginTop" ng-if="viewLanLinkZSideInformation">
+		<div class="table-responsive"  style="width: 50%;float: left;min-width: 200px">
+			<table class="panel-sideInformation">
+				<tr class="rich-table-header">
+					<th><label class="labelData"><spring:message code="serviceData.zSide.information.title"></spring:message></label>
+						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showSideLoading" />
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation" >
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.siteType"></spring:message></td>
+								<td>{{sideInformation.zSideInformation.type}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.deviceName"></spring:message></td>
+								<td>{{sideInformation.zSideInformation.deviceName}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.vendor"></spring:message> / <spring:message code="serviceData.aSide.model"></spring:message> </td>
+								<td><label style="font-weight: normal">{{sideInformation.zSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.zSideInformation.model}}</label></td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.xngDeviceName"></spring:message></td>
+								<td>{{sideInformation.zSideInformation.xngDeviceName}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.managementIPAddress"></spring:message></td>
+								<td>{{zSideManagementIPAddress}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
+								<td>{{sideInformation.zSideInformation.port}}</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr ng-show="showDeviceErrorASide">
+					<td class="msg-red" >{{deviceMessageZSideError}}</td>
+				</tr>
+				<tr>
+					<td style="padding: 8px;">
+						<button class="button button-primary" ng-click="doDeviceRefresh('zside')" ng-if="showButtonRefreshZSide"><spring:message code="global.refresh"></spring:message></button>
+						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showRefreshZSideLoading"/ >
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font" style="border :0;" >
+							<tr>
+								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceStatus"></spring:message>:</td>
+								<td style="border-top: 0" >{{aSideDeviceStatus}}</td>
+							</tr>
+							<tr>
+								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
+								<td style="border-top: 0">{{zSideDeviceUpTime}}</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label class="labelData"><spring:message code="serviceData.aSide.customerInterfaces"></spring:message></label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table class="table table-small-font sideInformation" >
+							<thead>
+								<tr>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.name"></spring:message></td>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.ipAddress"></spring:message></td>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.status"></spring:message></td>
+									<td><spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange"></spring:message></td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="inferf in zSideInterfaces">
+									<td>{{inferf.name}}</td>
+									<td>{{inferf.ipaddress}}</td>
+									<td>{{inferf.status}}</td>
+									<td>{{inferf.lastChgTime}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<!-- lanlink service -->
+	<!-- not lanlink service -->
+	<div class="marginTop" ng-if="!viewLanLinkZSideInformation && viewSideInformation">
 		<div class="table-responsive"  style="width: 50%;float: left;min-width: 200px">
 			<table class="panel-sideInformation">
 				<tr class="rich-table-header">
@@ -311,7 +407,7 @@
 				<tr>
 					<td style="padding: 8px;">
 						<button class="button button-primary" ng-click="doDeviceRefresh('zside')" ng-if="showButtonRefreshZSide"><spring:message code="global.refresh"></spring:message></button>
-						<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showRefreshZSideLoading" />
+							<img src="<%=request.getContextPath()%>/images/loading.gif"  alt="" ng-if="showRefreshZSideLoading" />
 					</td>
 				</tr>
 				<tr>
@@ -381,4 +477,5 @@
 			</table>
 		</div>
 	</div>
+	<!-- not lanlink service -->
 </div>
