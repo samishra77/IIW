@@ -466,14 +466,11 @@ public class JunosERXAdapter extends Adapter {
 	private String getLastStatus(ConnectDevice connectDevice, String interfName) throws Exception {
 		String status = getStatusUpOrDown(connectDevice,interfName );
 		if (status != null && status.equals(AgentUtil.UP)) {
-			String lastChangeMillisSeconds = getLastChg(connectDevice,interfName);
-			if (lastChangeMillisSeconds != null && !lastChangeMillisSeconds.equals("")) {
-				Long lSeconds = Long.parseLong(lastChangeMillisSeconds)/1000;
-				int day = (int)TimeUnit.SECONDS.toDays(lSeconds);
-				long hours = TimeUnit.SECONDS.toHours(lSeconds) - (day *24);
-				long minute = TimeUnit.SECONDS.toMinutes(lSeconds) - (TimeUnit.SECONDS.toHours(lSeconds)* 60);
-				return (day+"d "+hours+"h "+minute+"m");
-			}
+			String lastChangeSeconds = getLastChg(connectDevice,interfName);
+			int day = (int)TimeUnit.SECONDS.toDays(Long.parseLong(lastChangeSeconds));
+			long hours = TimeUnit.SECONDS.toHours(Long.parseLong(lastChangeSeconds)) - (day *24);
+			long minute = TimeUnit.SECONDS.toMinutes(Long.parseLong(lastChangeSeconds)) - (TimeUnit.SECONDS.toHours(Long.parseLong(lastChangeSeconds))* 60);
+			return (day+"d "+hours+"h "+minute+"m");
 		}
 		return "";
 	}
