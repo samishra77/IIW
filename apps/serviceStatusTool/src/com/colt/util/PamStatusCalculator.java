@@ -144,7 +144,7 @@ public class PamStatusCalculator {
 	public static String getPamEnabledSprint1(final String category, final String serviceMenu, final String productName, String pam, Date inService) {
 		String[] arrServiceType = getServiceType(category, serviceMenu, productName);
 
-		PAM_STATUS pamStatus = pam == null ? PAM_STATUS.NOTSET : PAM_STATUS.fromString(pam.replaceAll(" ","_").toUpperCase());
+		PAM_STATUS pamStatus = (pam == null || pam.trim().equals("")) ? PAM_STATUS.NOTSET : PAM_STATUS.fromString(pam.replaceAll(" ","_").toUpperCase());
 		MANAGEMENT  management = MANAGEMENT.fromString(arrServiceType[1].replaceAll(" ","_").toUpperCase());
 		SERVICE_TYPE serviceType = SERVICE_TYPE.fromString(arrServiceType[0].replaceAll(" ","_").toUpperCase());
 		inService = inService == null ? new Date(0): inService;
