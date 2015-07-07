@@ -12,6 +12,7 @@ import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
+import com.colt.ws.biz.L2DeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class NetWorkLayerTransition implements IWorkflowProcessActivity {
@@ -27,17 +28,19 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				if( deviceDetails.getType() != null && 
 						(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType()) || DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetails.getType())) ) {
-					deviceDetailsResponse = new L3DeviceDetailsResponse();
-					resp = new String[] {"L3DEVICE"};
-				} else {
-					//l2
+					if (deviceDetails.getServiceType() != null && DeviceDetailsRequest.SERVICE_TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getServiceType())) {
+						deviceDetailsResponse = new L2DeviceDetailsResponse();
+						resp = new String[] {"L2DEVICE"};
+					} else {
+						deviceDetailsResponse = new L3DeviceDetailsResponse();
+						resp = new String[] {"L3DEVICE"};
+					}
 				}
 				if(deviceDetailsResponse != null) {
 					deviceDetailsResponse.setAssociatedDeviceIp(deviceDetails.getAssociatedDeviceIp());
 					deviceDetailsResponse.setDeviceIP(deviceDetails.getIp());
 					deviceDetailsResponse.setCircuitID(deviceDetails.getCircuitID());
 					deviceDetailsResponse.setResponseID(deviceDetails.getRequestID());
-
 					deviceDetailsResponse.setDeviceDetails(new DeviceDetail());
 					if (((List<String>) input.get("WORKFLOW-STATE")).contains("PING_FAIL")) {
 						deviceDetailsResponse.getDeviceDetails().setStatus(AgentUtil.DOWN);

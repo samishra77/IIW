@@ -1,10 +1,9 @@
-package com.colt.adapters;
+package com.colt.adapters.l3;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.colt.util.AgentUtil;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.IDeviceDetailsResponse;
@@ -20,7 +19,7 @@ public class HuaweiAdapter extends Adapter {
 		if(deviceIP != null && !"".equals(deviceIP) && circuitID != null && !"".equals(circuitID) && snmpVersion != null) {
 			SNMPUtil snmp = new SNMPUtil(snmpVersion);
 			snmp.setCommunity(community);
-			Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitID, deviceIP, deviceDetailsResponse);
+			Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitID, deviceIP, null, null, deviceDetailsResponse);
 			snmp.retrieveInterfaceName(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceIP, deviceDetailsResponse);

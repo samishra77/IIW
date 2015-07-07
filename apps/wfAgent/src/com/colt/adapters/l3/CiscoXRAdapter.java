@@ -1,4 +1,4 @@
-package com.colt.adapters;
+package com.colt.adapters.l3;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;

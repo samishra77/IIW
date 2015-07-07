@@ -13,8 +13,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.colt.adapters.CiscoIOSAdapter;
-import com.colt.adapters.FactoryAdapter;
+import com.colt.adapters.l3.CiscoIOSAdapter;
+import com.colt.adapters.l3.FactoryAdapter;
 import com.colt.connect.ConnectDevice;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
@@ -315,7 +315,7 @@ public class SNMPUtil {
 	public void retrieveLastStatusChange(String ipAddress, IDeviceDetailsResponse deviceDetailsResponse, String sysuptimeWithSeconds) {
 		Map<String, Interface> ifAliasMap = retrieveInterfaceIdssByNames(ipAddress, deviceDetailsResponse);
 		if(ifAliasMap != null && !ifAliasMap.isEmpty() && sysuptimeWithSeconds != null && !"".equals(sysuptimeWithSeconds)) {
-			retrieveInterfaceLastStatusChange(ifAliasMap, ipAddress, deviceDetailsResponse, sysuptimeWithSeconds);
+			retrieveInterfaceLastStatusChange(ifAliasMap, ipAddress, null, deviceDetailsResponse, sysuptimeWithSeconds);
 		}
 	}
 
@@ -393,14 +393,22 @@ public class SNMPUtil {
 		return ifAliasMap;
 	}
 
-	public Map<String, Interface> retrieveIfAlias(String circuitID, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
+	public Map<String, Interface> retrieveIfAlias(String circuitID, String ipAddress, String portName, String type, IDeviceDetailsResponse deviceDetailsResponse) {
 		Map<String, Interface> ifAliasMap = null;
 		try {
 			String command = null;
-			if(version != null && version == 3) {
-				command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifAlias");
-			} else if(community != null && !"".equals(community)) {
-				command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifAlias");
+			if (!"CPE".equalsIgnoreCase(type) && !"PE".equalsIgnoreCase(type) && portName != null) {
+				if(version != null && version == 3) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifAlias");
+				} else if(community != null && !"".equals(community)) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifAlias | grep \"" + portName + "\"");
+				}
+			} else {
+				if(version != null && version == 3) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifAlias");
+				} else if(community != null && !"".equals(community)) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifAlias");
+				}
 			}
 			if(command != null && !"".equals(command)) {
 				List<String> outputList = AgentUtil.runLocalCommand(command);
@@ -569,7 +577,7 @@ public class SNMPUtil {
 		return (calendar.getTime().getTime() - diffCalendar.getTime().getTime()) / (60*60*24*1000) + "d " + h + "h "+ m + "m";
 	}
 
-	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String sysUpTimeWithSeconds) {
+	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, String type, IDeviceDetailsResponse deviceDetailsResponse, String sysUpTimeWithSeconds) {
 		try {
 			if(ifAliasMap != null && !ifAliasMap.isEmpty() && sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds)) {
 				String arg = "";
@@ -577,10 +585,18 @@ public class SNMPUtil {
 					arg+= "ifLastChange." + ifAlias + " ";
 				}
 				String command = null;
-				if(version != null && version == 3) {
-					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
-				} else if(community != null && !"".equals(community)) {
-					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
+				if (!"CPE".equalsIgnoreCase(type) && !"PE".equalsIgnoreCase(type)) {
+					if(version != null && version == 3) {
+						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), deviceIP, arg);
+					} else if(community != null && !"".equals(community)) {
+						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, deviceIP, arg);
+					}
+				} else {
+					if(version != null && version == 3) {
+						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
+					} else if(community != null && !"".equals(community)) {
+						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
+					}
 				}
 				if(command != null && !"".equals(command)) {
 					List<String> outputList = AgentUtil.runLocalCommand(command);
@@ -816,7 +832,7 @@ public class SNMPUtil {
 		try {
 			if ( (serviceType != null && !"".equals(serviceType)) && (type != null && !"".equals(type)) ) {
 				serviceType = serviceType.toUpperCase().replaceAll(" ", "_");
-				String community = "community." + type.toLowerCase() + "." + serviceType;
+				String community = "community." + type.toLowerCase() + "." + serviceType.toUpperCase();
 				result = DeviceCommand.getDefaultInstance().getProperty(community).trim();
 				if (result == null || "".equals(result)) {
 					result = DeviceCommand.getDefaultInstance().getProperty("community").trim();
@@ -830,7 +846,7 @@ public class SNMPUtil {
 		return result;
 	}
 
-	private String convertTimeticks(String ticksvalue) {
+	public String convertTimeticks(String ticksvalue) {
 		int days=0;
 		int hrs=0;
 		int mins=0;
@@ -894,7 +910,7 @@ public class SNMPUtil {
 		return convertTimeticks(sysUpTime);
 	}
 
-	private String getTimeToString(String line) {
+	public String getTimeToString(String line) {
 		String splitRegex = "";
 		if(line != null) {
 			if(line.contains("= Timeticks:")) {

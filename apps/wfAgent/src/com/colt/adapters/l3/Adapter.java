@@ -1,4 +1,4 @@
-package com.colt.adapters;
+package com.colt.adapters.l3;
 
 import com.colt.ws.biz.IDeviceDetailsResponse;
 

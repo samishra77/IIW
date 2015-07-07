@@ -19,7 +19,11 @@
 		<aop:advisor pointcut-ref="itemPointcut" advice-ref="validateVendorModelFilter"/>
 		<aop:advisor pointcut-ref="itemPointcut" advice-ref="snmpFetchFilter"/>
 		<aop:advisor pointcut-ref="itemPointcut" advice-ref="cliFetchFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="validateVendorModelL2Filter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="snmpFetchL2Filter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="emsapiFetchFilter"/>
 		<aop:advisor pointcut-ref="itemPointcut" advice-ref="sendResponseFilter"/>
+		<aop:advisor pointcut-ref="itemPointcut" advice-ref="sendResponseL2Filter"/>
 	</aop:config>
 
 	<bean id="filter" class="com.colt.aopwf.ActivityFilterInterceptor" abstract="true"/>
@@ -32,6 +36,10 @@
 	<bean id="snmpFetchActivity" class="com.colt.aopwf.SNMPFetchActivity"/>
 	<bean id="cliFetchActivity" class="com.colt.aopwf.CLIFetchActivity"/>
 	<bean id="sendResponseActivity" class="com.colt.aopwf.SendResponseActivity"/>
+	<bean id="validateVendorModelL2Activity" class="com.colt.aopwf.ValidateVendorModelL2Activity"/>
+	<bean id="snmpFetchL2Activity" class="com.colt.aopwf.SNMPFetchL2Activity"/>
+	<bean id="emsapiFetchActivity" class="com.colt.aopwf.EMSAPIActivity"/>
+	<bean id="sendResponseL2Activity" class="com.colt.aopwf.SendResponseActivity"/>
 
 	<bean id="deviceDetailFilter" parent="filter">
 		<constructor-arg ref="receiveDeviceDetailsActivity"/>
@@ -64,5 +72,21 @@
 	<bean id="sendResponseFilter" parent="filter">
 		<constructor-arg ref="sendResponseActivity"/>
 		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L3DEVICE, SENDRESPONSE"/>
+	</bean>
+	<bean id="validateVendorModelL2Filter" parent="filter">
+		<constructor-arg ref="validateVendorModelL2Activity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L2DEVICE"/>
+	</bean>
+	<bean id="snmpFetchL2Filter" parent="filter">
+		<constructor-arg ref="snmpFetchL2Activity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L2DEVICE, SNMPFETCH_L2"/>
+	</bean>
+	<bean id="emsapiFetchFilter" parent="filter">
+		<constructor-arg ref="emsapiFetchActivity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L2DEVICE, EMSAPIFETCH"/>
+	</bean>
+	<bean id="sendResponseL2Filter" parent="filter">
+		<constructor-arg ref="sendResponseL2Activity"/>
+		<property name="invokeState" value="FETCH_DEVICE_DONE, PING_SUCCESS, L2DEVICE, SENDRESPONSE"/>
 	</bean>
 </beans>

@@ -75,8 +75,13 @@ public class AgentUtil {
 					expression = new String[] {"L3Devices/Juniper/JunOSRouter"};
 				} else if("Huawei".equalsIgnoreCase(vendor)) {
 					resp = "huaweios";
+				} else if("Accedian".equalsIgnoreCase(vendor)) {
+					expression = new String[] {"L2Devices/AccedianDevice"};
+				} else if("Overture".equalsIgnoreCase(vendor)) {
+					expression = new String[] {"L2Devices/OvertureDevice"};
+				} else if("Actelis".equalsIgnoreCase(vendor)) {
+					expression = new String[] {"L2Devices/ActelisDevice"};
 				}
-
 				Node node = null;
 				if(expression != null && expression.length > 0) {
 					for(String e : expression) {

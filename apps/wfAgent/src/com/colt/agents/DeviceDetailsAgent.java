@@ -12,6 +12,7 @@ import com.colt.aopwf.DeviceDetailsProcess;
 import com.colt.aopwf.IWorkflowProcess;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.IDeviceDetailsResponse;
+import com.colt.ws.biz.L2DeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class DeviceDetailsAgent {
@@ -37,7 +38,7 @@ public class DeviceDetailsAgent {
 			if(input.get("deviceDetailsResponse") instanceof L3DeviceDetailsResponse) {
 				deviceDetailsResponse = (L3DeviceDetailsResponse) input.get("deviceDetailsResponse");
 			} else {
-				//L2 Cast
+				deviceDetailsResponse = (L2DeviceDetailsResponse) input.get("deviceDetailsResponse");
 			}
 		}
 		return deviceDetailsResponse;

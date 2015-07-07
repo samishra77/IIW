@@ -4,6 +4,8 @@ public class DeviceDetailsRequest {
 
 	public static final String TYPE_CPE = "CPE";
 	public static final String TYPE_PE = "PE";
+	public static final String SERVICE_TYPE_LAN_LINK = "LANLink";
+
 	private String requestID;
 	private String seibelUserID;
 	private String name;
@@ -15,6 +17,8 @@ public class DeviceDetailsRequest {
 	private String associatedDevice;
 	private String associatedDeviceIp;
 	private String serviceType;
+	private String portName;
+	private String productName;
 
 	
 	/**
@@ -144,5 +148,28 @@ public class DeviceDetailsRequest {
 	public void setServiceId(String serviceId) {
 		this.serviceId = serviceId;
 	}
-
+	/**
+	 * @return the portName
+	 */
+	public String getPortName() {
+		return portName;
+	}
+	/**
+	 * @param portName the portName to set
+	 */
+	public void setPortName(String portName) {
+		this.portName = portName;
+	}
+	/**
+	 * @return the productName
+	 */
+	public String getProductName() {
+		return productName;
+	}
+	/**
+	 * @param productName the productName to set
+	 */
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
 }

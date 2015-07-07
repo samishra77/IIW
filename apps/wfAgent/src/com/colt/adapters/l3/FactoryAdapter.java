@@ -1,4 +1,5 @@
-package com.colt.adapters;
+package com.colt.adapters.l3;
+
 
 
 public class FactoryAdapter {
@@ -13,10 +14,9 @@ public class FactoryAdapter {
 	public final static String JUNIPER_ERX = "erx";
 	public final static String VENDOR_HUAWEI = "Huawei";
 	public final static String HUAWEI_OS = "huaweios";
-	
+
 //	private final String HUAWEI_ = "";
 //	private final String HUAWEI_ = "";
-	
 
 	public Adapter getAdapter(String vendor, String os) {
 		Adapter adapter = null;

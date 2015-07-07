@@ -13,3 +13,8 @@
 		<ScreenOSRouter/>
 	</Juniper>
 </L3Devices>
+<L2Devices vendor="Accedian,Overture,Atrica,Actelis">
+	<AccedianDevice>accedian.txt</Accedian>
+	<OvertureDevice>overture.txt</Overture>
+	<ActelisDevice>actelis.txt</Actelis>
+</L2Devices>

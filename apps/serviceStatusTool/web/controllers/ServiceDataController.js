@@ -245,6 +245,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										'model'  	: $scope.sideInformation.zSideInformation.model
 									},
 									'type': 'CPE',
+									"portName" 	: $scope.sideInformation.zSideInformation.port,
+									"productName" : $scope.circuit.productName,
 									'circuitID': $scope.circuit.circuitID
 							};
 							var respAgentZSide = $http({
@@ -443,6 +445,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							}
 							if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 								deviceDetails.type = 'CPE';
+								deviceDetails.portName = $scope.sideInformation.zSideInformation.port;
+								deviceDetails.productName = $scope.circuit.productName;
 							} else {
 								deviceDetails.type = 'PE';
 							}

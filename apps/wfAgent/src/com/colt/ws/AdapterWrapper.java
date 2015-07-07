@@ -9,8 +9,8 @@ import javax.servlet.annotation.WebServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.colt.adapters.Adapter;
-import com.colt.adapters.FactoryAdapter;
+import com.colt.adapters.l3.Adapter;
+import com.colt.adapters.l3.FactoryAdapter;
 import com.colt.aopwf.ValidateVendorModelActivity;
 import com.colt.util.AgentUtil;
 import com.colt.ws.biz.DeviceDetail;

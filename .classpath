@@ -25,5 +25,7 @@
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/common-AspenWrapper.jar"/>
+	<classpathentry kind="lib" path="lib/common-aptServices.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

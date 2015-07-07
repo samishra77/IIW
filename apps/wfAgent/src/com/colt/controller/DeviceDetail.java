@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.colt.agents.DeviceDetailsAgent;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.IDeviceDetailsResponse;
+import com.colt.ws.biz.L2DeviceDetailsResponse;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 @RestController
@@ -27,9 +28,11 @@ public class DeviceDetail {
 			if(deviceDetailsResponse == null) {
 				if(deviceDetail != null && deviceDetail.getType() != null && 
 						(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetail.getType()) || DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetail.getType()))) {
-					deviceDetailsResponse = new L3DeviceDetailsResponse();
-				} else {
-					//deviceDetailsResponse = new L2DeviceDetailsResponse();
+					if (deviceDetail.getServiceType() != null && DeviceDetailsRequest.SERVICE_TYPE_LAN_LINK.equalsIgnoreCase(deviceDetail.getServiceType())) {
+						deviceDetailsResponse = new L2DeviceDetailsResponse();
+					} else {
+						deviceDetailsResponse = new L3DeviceDetailsResponse();
+					}
 				}
 			}
 			deviceDetailsResponse.setResponseID(deviceDetail.getRequestID());
@@ -40,4 +43,5 @@ public class DeviceDetail {
 		log.info("[" + deviceDetail.getSeibelUserID() + "] Exit method getDeviceDetails()");
 		return deviceDetailsResponse;
 	}
+
 }

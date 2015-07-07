@@ -21,8 +21,6 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 		if(input.containsKey("deviceDetailsResponse")) {
 			if(input.get("deviceDetailsResponse") instanceof L3DeviceDetailsResponse) {
 				deviceDetailsResponse = (L3DeviceDetailsResponse) input.get("deviceDetailsResponse");
-			} else {
-				//L2 Cast
 			}
 		}
 		if(input != null && input.containsKey("deviceDetails")) {
@@ -32,14 +30,14 @@ public class SNMPFetchActivity implements IWorkflowProcessActivity {
 				if(input.containsKey("community")) {
 					snmp.setCommunity((String) input.get("community"));
 				}
-				Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+				Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(),null, null, deviceDetailsResponse);
 				snmp.retrieveInterfaceName(ifAliasMap,deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
 				if (sysUpTime != null && !"".equals(sysUpTime)) {
 					String sysuptimeFormated = snmp.retrieveSysUpTime(sysUpTime);
 					if (sysuptimeFormated != null && !"".equals(sysuptimeFormated)) {
 						deviceDetailsResponse.getDeviceDetails().setTime(sysuptimeFormated);
-						snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse, sysuptimeFormated);
+						snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), null, deviceDetailsResponse, sysuptimeFormated);
 					}
 				}
 				snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
