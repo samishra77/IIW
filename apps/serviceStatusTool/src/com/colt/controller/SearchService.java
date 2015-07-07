@@ -199,6 +199,17 @@ public class SearchService {
 				if (circuit != null && circuit.getProductType() != null && !"".equals(circuit.getProductType())) {
 					if(circuit.getProductType().equalsIgnoreCase(ProductType.IP_ACCESS.value())) {
 						deviceName = routerId + ".ia.colt.net";
+					} else {
+						if (circuit.getProductType().equalsIgnoreCase(ProductType.LANLINK.value())) {
+							if (si.getaSideInformation().getVendor() != null) {
+								if (si.getaSideInformation().getVendor().equalsIgnoreCase("Accedian") || si.getaSideInformation().getVendor().equalsIgnoreCase("Overture")){ 
+									deviceName = routerId + ".lanlink.dcn.colt.net";
+								}
+								if (si.getaSideInformation().getVendor().equalsIgnoreCase("Actelis") || si.getaSideInformation().getVendor().equalsIgnoreCase("Atrica")) {
+									deviceName = routerId;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -229,7 +240,18 @@ public class SearchService {
 				routerId = si.getzSideInformation().getXngDeviceName();
 			}
 			if (routerId != null && !"".equals(routerId)) {
+				if (circuit != null && circuit.getProductType() != null && circuit.getProductType().equalsIgnoreCase(ProductType.LANLINK.value())) {
+					if (si.getzSideInformation().getVendor() != null) {
+						if (si.getzSideInformation().getVendor().equalsIgnoreCase("Accedian") || si.getzSideInformation().getVendor().equalsIgnoreCase("Overture")) {
+							deviceName = routerId + ".lanlink.dcn.colt.net";
+						} 
+						if (si.getzSideInformation().getVendor().equalsIgnoreCase("Actelis") || si.getzSideInformation().getVendor().equalsIgnoreCase("Atrica")) {
+							deviceName = routerId;
+						}
+					}
+				} else {
 					deviceName = "lo0-" + routerId + ".router.colt.net";
+				}
 			}
 			if (deviceName != null && !"".equals(deviceName)) {
 				if (si != null && si.getzSideInformation() != null) {
