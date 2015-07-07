@@ -1,3 +1,101 @@
+function disableFields(elem) {
+	var serviceElem = document.getElementById('Service');
+	var orderElem = document.getElementById('Order');
+	var customerElem = document.getElementById('customer');
+	var addressElem = document.getElementById('address');
+	var cityElem = document.getElementById('city');
+	var address2Elem = document.getElementById('address2');
+	var city2Elem = document.getElementById('city2');
+
+	if((elem === serviceElem || elem === orderElem) && elem.value == "") {
+		if(elem === serviceElem) {
+			if (orderElem != undefined && orderElem.disabled == true) {
+				orderElem.disabled = false;
+			}
+		}
+
+		if(elem === orderElem) {
+			if (serviceElem != undefined && serviceElem.disabled == true) {
+				serviceElem.disabled = false;
+			}
+		}
+
+		if (customerElem != undefined && customerElem.disabled == true) {
+			customerElem.disabled = false;
+		}
+
+		if (addressElem != undefined && addressElem.disabled == true) {
+			addressElem.disabled = false;
+		}
+
+		if (cityElem != undefined && cityElem.disabled == true) {
+			cityElem.disabled = false;
+		}
+
+		if (address2Elem != undefined && address2Elem.disabled == true) {
+			address2Elem.disabled = false;
+		}
+
+		if (city2Elem != undefined && city2Elem.disabled == true) {
+			city2Elem.disabled = false;
+		}
+	}
+	if((elem === customerElem || elem === addressElem || elem === cityElem || elem === address2Elem || elem === city2Elem) 
+			&& customerElem.value == "" && addressElem.value == "" && cityElem.value == "" && address2Elem.value == "" && city2Elem.value == "") {
+		if (serviceElem != undefined && serviceElem.disabled == true) {
+			serviceElem.disabled = false;
+		}
+	
+		if (orderElem != undefined && orderElem.disabled == true) {
+			orderElem.disabled = false;
+		}
+	}
+
+	if((elem === serviceElem || elem === orderElem) && elem.value != "") {
+		if(elem === serviceElem) {
+			if (orderElem != undefined && orderElem.disabled == false) {
+				orderElem.disabled = true;
+			}
+		}
+
+		if(elem === orderElem) {
+			if (serviceElem != undefined && serviceElem.disabled == false) {
+				serviceElem.disabled = true;
+			}
+		}
+
+		if (customerElem != undefined && customerElem.disabled == false) {
+			customerElem.disabled = true;
+		}
+
+		if (addressElem != undefined && addressElem.disabled == false) {
+			addressElem.disabled = true;
+		}
+
+		if (cityElem != undefined && cityElem.disabled == false) {
+			cityElem.disabled = true;
+		}
+
+		if (address2Elem != undefined && address2Elem.disabled == false) {
+			address2Elem.disabled = true;
+		}
+
+		if (city2Elem != undefined && city2Elem.disabled == false) {
+			city2Elem.disabled = true;
+		}
+	}
+
+	if((elem === customerElem || elem === addressElem || elem === cityElem || elem === address2Elem || elem === city2Elem) && elem.value != "") {
+		if (serviceElem != undefined && serviceElem.disabled == false) {
+			serviceElem.disabled = true;
+		}
+
+		if (orderElem != undefined && orderElem.disabled == false) {
+			orderElem.disabled = true;
+		}
+	}
+}
+
 var SearchController = function ($scope, $http){
 
 	var urlBase= contextPath + "/ws";

@@ -28,8 +28,8 @@
 				<table class="table table-small-font">
 					<tbody>
 						<tr>
-							<td><b><spring:message code="searchForm.ohsOrder"></spring:message>:<input type="text" ng-model="search.order" id="Order" class="form-control"/></b></td>
-							<td><b><spring:message code="searchForm.service"></spring:message>:<input type="text" ng-model="search.service" id="Service" class="form-control" /></b></td>
+							<td><b><spring:message code="searchForm.ohsOrder"></spring:message>:<input type="text" onblur="disableFields(this)" onclick="disableFields(this)" onchange="disableFields(this)" onkeyup="disableFields(this)" ng-model="search.order" id="Order" class="form-control"/></b></td>
+							<td><b><spring:message code="searchForm.service"></spring:message>:<input type="text" onblur="disableFields(this)" onclick="disableFields(this)" onchange="disableFields(this)" onkeyup="disableFields(this)" ng-model="search.service" id="Service" class="form-control" /></b></td>
 						</tr>
 					</tbody>
 				</table>
@@ -38,16 +38,16 @@
 				<table class="table table-small-font">
 					<tbody>
 						<tr>	
-							<td><b><spring:message code="searchForm.customer"></spring:message>:<input type="text" ng-model="search.customer" id="customer" class="form-control" /></b></td>
+							<td><b><spring:message code="searchForm.customer"></spring:message>:<input type="text" onblur="disableFields(this)" onclick="disableFields(this)" onchange="disableFields(this)" onkeyup="disableFields(this)" ng-model="search.customer" id="customer" class="form-control" /></b></td>
 							<td></td>
 						</tr>
 						<tr>
-							<td><b><spring:message code="searchForm.site1Address"></spring:message>:<input type="text" ng-model="search.address"  class="form-control" id="address" /></b></td>
-							<td><b><spring:message code="searchForm.site1City"></spring:message>:<input type="text" ng-model="search.city" class="form-control" id="city"/></b></td>
+							<td><b><spring:message code="searchForm.site1Address"></spring:message>:<input type="text" onblur="disableFields(this)" onclick="disableFields(this)" onchange="disableFields(this)" onkeyup="disableFields(this)" ng-model="search.address"  class="form-control" id="address" /></b></td>
+							<td><b><spring:message code="searchForm.site1City"></spring:message>:<input type="text" onblur="disableFields(this)" onclick="disableFields(this)" onchange="disableFields(this)" onkeyup="disableFields(this)" ng-model="search.city" class="form-control" id="city"/></b></td>
 						</tr>
 						<tr>	
-							<td><b><spring:message code="searchForm.site2Address"></spring:message>:<input type="text" ng-model="search.address2" class="form-control" id="address2" /></b></td>
-							<td><b><spring:message code="searchForm.site2City"></spring:message>:<input type="text" ng-model="search.city2" class="form-control" id="city2"/></b></td>
+							<td><b><spring:message code="searchForm.site2Address"></spring:message>:<input type="text" onblur="disableFields(this)" onclick="disableFields(this)" onchange="disableFields(this)" onkeyup="disableFields(this)" ng-model="search.address2" class="form-control" id="address2" /></b></td>
+							<td><b><spring:message code="searchForm.site2City"></spring:message>:<input type="text" onblur="disableFields(this)" onclick="disableFields(this)" onchange="disableFields(this)" onkeyup="disableFields(this)" ng-model="search.city2" class="form-control" id="city2"/></b></td>
 						</tr>
 					</tbody>
 				</table>
