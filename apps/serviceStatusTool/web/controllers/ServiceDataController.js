@@ -169,6 +169,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		serviceDetailsAndTickets();
 	}
 
+	var tiOut = 30000;
 	function sideInformationFromDevice() {
 		var urlWorkFlow = workFlowAgentUrlBase + "/ws";
 		$scope.showDeviceErrorASide = false;
@@ -192,11 +193,16 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'type': 'CPE',
 								'circuitID': $scope.circuit.circuitID
 						};
+						var timedOutAEnd = false;
+						setTimeout(function () {
+							timedOutAEnd = true;
+						}, (tiOut));
 						var respAgentASide = $http({
 							method  : 'POST',
 							url     : urlWorkFlow + '/getDeviceDetails',
 							data    : deviceDetailsAside,
-							headers : { 'Content-Type': 'application/json' }
+							headers : { 'Content-Type': 'application/json' },
+							timeout : tiOut
 						});
 						respAgentASide.success(function(data) {
 							var l3DeviceDetails = data;
@@ -222,6 +228,19 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							}
 							$scope.showButtonRefreshASide = true;
 							$scope.showRefreshASideLoading = false;
+						});
+						respAgentASide.error(function(data, status) {
+							$scope.showButtonRefreshASide = true;
+							$scope.showRefreshASideLoading = false;
+							$scope.showDeviceErrorASide = true;
+							if (status == 404) {
+								errorMsg = "The server agent did not respond.";
+							} else if (timedOutAEnd && status == 0 && data == null) {
+								errorMsg = "Connection timeout.";
+							} else {
+								errorMsg = "Error";
+							}
+							$scope.deviceMessageASideError = errorMsg;
 						});
 					} else {
 						$scope.showButtonRefreshASide = true;
@@ -249,11 +268,16 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									"ocn" : $scope.circuit.customerOCN,
 									'circuitID': $scope.circuit.circuitID
 							};
+							var timedOutZEnd = false;
+							setTimeout(function () {
+								timedOutZEnd = true;
+							}, (tiOut));
 							var respAgentZSide = $http({
 								method  : 'POST',
 								url     : urlWorkFlow + '/getDeviceDetails',
 								data    : deviceDetailsZside,
-								headers : { 'Content-Type': 'application/json' }
+								headers : { 'Content-Type': 'application/json' },
+								timeout : tiOut
 							});
 							respAgentZSide.success(function(data) {
 								var l3DeviceDetails = data;
@@ -279,6 +303,19 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								}
 								$scope.showButtonRefreshZSide = true;
 								$scope.showRefreshZSideLoading = false;
+							});
+							respAgentZSide.error(function(data, status) {
+								$scope.showButtonRefreshZSide = true;
+								$scope.showRefreshZSideLoading = false;
+								$scope.showDeviceErrorZSide = true;
+								if (status == 404) {
+									errorMsg = "The server agent did not respond.";
+								} else if (timedOutZEnd && status == 0 && data == null) {
+									errorMsg = "Connection timeout.";
+								} else {
+									errorMsg = "Error";
+								}
+								$scope.deviceMessageZSideError = errorMsg;
 							});
 						} else {
 							$scope.showButtonRefreshZSide = true;
@@ -308,11 +345,16 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							if ($scope.sideInformation.aSideInformation && $scope.sideInformation.aSideInformation.deviceName) {
 								deviceDetailsZside.associatedDevice = $scope.sideInformation.aSideInformation.deviceName;
 							}
+							var timedOutZEnd = false;
+							setTimeout(function () {
+								timedOutZEnd = true;
+							}, (tiOut));
 							var respAgentZSide = $http({
 								method  : 'POST',
 								url     : urlWorkFlow + '/getDeviceDetails',
 								data    : deviceDetailsZside,
-								headers : { 'Content-Type': 'application/json' }
+								headers : { 'Content-Type': 'application/json' },
+								timeout : tiOut
 							});
 							respAgentZSide.success(function(data) {
 								var l3DeviceDetails = data;
@@ -363,6 +405,19 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								}
 								$scope.showButtonRefreshZSide = true;
 								$scope.showRefreshZSideLoading = false;
+							});
+							respAgentZSide.error(function(data, status) {
+								$scope.showButtonRefreshZSide = true;
+								$scope.showRefreshZSideLoading = false;
+								$scope.showDeviceErrorZSide = true;
+								if (status == 404) {
+									errorMsg = "The server agent did not respond.";
+								} else if (timedOutZEnd && status == 0 && data == null) {
+									errorMsg = "Connection timeout.";
+								} else {
+									errorMsg = "Error";
+								}
+								$scope.deviceMessageZSideError = errorMsg;
 							});
 						} else {
 							$scope.showButtonRefreshZSide = true;
