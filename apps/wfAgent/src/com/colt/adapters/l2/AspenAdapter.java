@@ -53,8 +53,8 @@ public class AspenAdapter extends Adapter {
 						if(port != null && port.length > 0 ){
 							for(int i = 0; i < port.length ; i++) {
 								Interface inf = new Interface();
-								inf.setIpaddress(port[i].getDeviceId());
-								inf.setStatus(port[i].getStatus());
+								inf.setOpStatus(port[i].getOperStatus());
+								inf.setAdminStatus(port[i].getStatus());
 								inf.setName(port[i].getName());
 								interfaceList.add(inf);
 							}

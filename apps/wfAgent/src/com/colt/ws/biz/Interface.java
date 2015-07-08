@@ -6,6 +6,10 @@ public class Interface {
 	private String ipaddress;
 	private String lastChgTime;
 	private String status;
+	private String opStatus;
+	private String adminStatus;
+	private String portStatus;
+
 	/**
 	 * @return the name
 	 */
@@ -53,5 +57,41 @@ public class Interface {
 	 */
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	/**
+	 * @return the opStatus
+	 */
+	public String getOpStatus() {
+		return opStatus;
+	}
+	/**
+	 * @param opStatus the opStatus to set
+	 */
+	public void setOpStatus(String opStatus) {
+		this.opStatus = opStatus;
+	}
+	/**
+	 * @return the adminStatus
+	 */
+	public String getAdminStatus() {
+		return adminStatus;
+	}
+	/**
+	 * @param adminStatus the adminStatus to set
+	 */
+	public void setAdminStatus(String adminStatus) {
+		this.adminStatus = adminStatus;
+	}
+	/**
+	 * @return the portStatus
+	 */
+	public String getPortStatus() {
+		return portStatus;
+	}
+	/**
+	 * @param portStatus the portStatus to set
+	 */
+	public void setPortStatus(String portStatus) {
+		this.portStatus = portStatus;
 	}
 }
