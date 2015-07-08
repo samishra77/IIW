@@ -23,12 +23,12 @@ public class AccedianAdapter extends Adapter {
 		SNMPUtil snmp = new SNMPUtil(snmpVersion, type, serviceType);
 		snmp.setCommunity(community);
 		Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitId, deviceIP, portName, type, deviceDetailsResponse);
-		String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceDetailsResponse.getDeviceIP(), deviceDetailsResponse);
+		String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceIP, deviceDetailsResponse);
 		if (sysUpTime != null && !"".equals(sysUpTime)) {
 			String sysuptimeFormated = snmp.retrieveSysUpTime(sysUpTime);
 			if (sysuptimeFormated != null && !"".equals(sysuptimeFormated)) {
 				deviceDetailsResponse.getDeviceDetails().setTime(sysuptimeFormated);
-				snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceDetailsResponse.getDeviceIP(), type, deviceDetailsResponse, sysuptimeFormated);
+				snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceIP, type, deviceDetailsResponse, sysuptimeFormated);
 			}
 		}
 		if(ifAliasMap != null && !ifAliasMap.isEmpty()) {

@@ -28,11 +28,9 @@ public class DeviceDetail {
 			if(deviceDetailsResponse == null) {
 				if(deviceDetail != null && deviceDetail.getType() != null && 
 						(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetail.getType()) || DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetail.getType()))) {
-					if (deviceDetail.getServiceType() != null && DeviceDetailsRequest.SERVICE_TYPE_LAN_LINK.equalsIgnoreCase(deviceDetail.getServiceType())) {
-						deviceDetailsResponse = new L2DeviceDetailsResponse();
-					} else {
-						deviceDetailsResponse = new L3DeviceDetailsResponse();
-					}
+					deviceDetailsResponse = new L3DeviceDetailsResponse();
+				} else if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(deviceDetail.getType())) {
+					deviceDetailsResponse = new L2DeviceDetailsResponse();
 				}
 			}
 			deviceDetailsResponse.setResponseID(deviceDetail.getRequestID());

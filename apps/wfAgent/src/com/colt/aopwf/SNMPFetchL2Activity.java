@@ -39,7 +39,7 @@ public class SNMPFetchL2Activity implements IWorkflowProcessActivity {
 					if (deviceDetails.getServiceType() != null && !deviceDetails.getServiceType().equals("")) {
 						serviceType = deviceDetails.getServiceType();
 					}
-					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion,community, deviceDetails.getPortName(), deviceDetails.getType(), serviceType, deviceDetails.getProductName());
+					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, community, deviceDetails.getPortName(), deviceDetails.getType(), serviceType, deviceDetails.getOcn());
 					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());

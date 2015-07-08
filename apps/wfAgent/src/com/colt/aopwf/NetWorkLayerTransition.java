@@ -28,13 +28,11 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				if( deviceDetails.getType() != null && 
 						(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType()) || DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetails.getType())) ) {
-					if (deviceDetails.getServiceType() != null && DeviceDetailsRequest.SERVICE_TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getServiceType())) {
-						deviceDetailsResponse = new L2DeviceDetailsResponse();
-						resp = new String[] {"L2DEVICE"};
-					} else {
-						deviceDetailsResponse = new L3DeviceDetailsResponse();
-						resp = new String[] {"L3DEVICE"};
-					}
+					deviceDetailsResponse = new L3DeviceDetailsResponse();
+					resp = new String[] {"L3DEVICE"};
+				} else if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getType())) {
+					deviceDetailsResponse = new L2DeviceDetailsResponse();
+					resp = new String[] {"L2DEVICE"};
 				}
 				if(deviceDetailsResponse != null) {
 					deviceDetailsResponse.setAssociatedDeviceIp(deviceDetails.getAssociatedDeviceIp());

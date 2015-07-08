@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.colt.adapters.l2.FactoryAdapter;
 import com.colt.util.AgentConfig;
-import com.colt.util.AgentUtil;
+import com.colt.util.MessagesErrors;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
@@ -32,13 +32,17 @@ public class ValidateVendorModelL2Activity implements IWorkflowProcessActivity {
 		try {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
-				SNMPUtil snmp = null;
-				if (null != deviceDetails.getType() && "PE".equalsIgnoreCase(deviceDetails.getType())) {
-					snmp = new SNMPUtil();
-				} else {
-					snmp = new SNMPUtil(deviceDetails.getType(), deviceDetails.getServiceType());
-				}
+				SNMPUtil snmp = new SNMPUtil(deviceDetails.getType(), deviceDetails.getServiceType());
 				snmp.discoverVendor(deviceDetails.getType(), deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor(), deviceDetailsResponse, deviceDetails.getName());
+				if(snmp.getVersion() == null) {
+					if(deviceDetailsResponse.getErrorResponse() == null) {
+						deviceDetailsResponse.setErrorResponse(new ErrorResponse());
+						deviceDetailsResponse.getErrorResponse().setCode(ErrorResponse.CODE_UNKNOWN);
+						deviceDetailsResponse.getErrorResponse().setMessage(MessagesErrors.getDefaultInstance().getProperty("snmp.queryFailed"));
+					}
+					deviceDetailsResponse.getErrorResponse().getFailedSnmp().add(deviceDetails.getIp());
+					log.debug("SNMP query to device failed: " + deviceDetails.getIp());
+				}
 				input.put("snmpVersion", snmp.getVersion());
 				input.put("community", snmp.getCommunity());
 				InputStream inputStreamFile = null;
@@ -52,15 +56,13 @@ public class ValidateVendorModelL2Activity implements IWorkflowProcessActivity {
 				} else {
 					inputStreamFile = this.getClass().getResourceAsStream("/conf/agentValidators.xml");
 				}
-				AgentUtil.validateVendorModel(inputStreamFile, deviceDetails.getDeviceType().getVendor(), deviceDetails.getDeviceType().getModel());
 				if (deviceDetails != null && deviceDetails.getDeviceType() != null && deviceDetails.getDeviceType().getVendor() != null) {
 					if (FactoryAdapter.VENDOR_ACCEDIAN.equals(deviceDetails.getDeviceType().getVendor()) ||
 							FactoryAdapter.VENDOR_ACTELIS.equals(deviceDetails.getDeviceType().getVendor()) ||
-							FactoryAdapter.VENDOR_ASPEN.equals(deviceDetails.getDeviceType().getVendor()) ||
-							FactoryAdapter.VENDOR_OVERTURE.equals(deviceDetails.getDeviceType().getVendor()) ||
-							FactoryAdapter.VENDOR_ATRICA.equals(deviceDetails.getDeviceType().getVendor())) {
+							FactoryAdapter.VENDOR_OVERTURE.equals(deviceDetails.getDeviceType().getVendor())) {
+						input.put("vendor", deviceDetails.getDeviceType().getVendor());
 						resp = new String[] {"SNMPFETCH_L2"};
-					} else {
+					} else if (FactoryAdapter.VENDOR_ATRICA.equals(deviceDetails.getDeviceType().getVendor())) {
 						resp = new String[] {"EMSAPIFETCH"};
 					}
 				}

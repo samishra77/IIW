@@ -4,7 +4,7 @@ public class DeviceDetailsRequest {
 
 	public static final String TYPE_CPE = "CPE";
 	public static final String TYPE_PE = "PE";
-	public static final String SERVICE_TYPE_LAN_LINK = "LANLink";
+	public static final String TYPE_LAN_LINK = "LANLink";
 
 	private String requestID;
 	private String seibelUserID;
@@ -18,7 +18,7 @@ public class DeviceDetailsRequest {
 	private String associatedDeviceIp;
 	private String serviceType;
 	private String portName;
-	private String productName;
+	private String ocn;
 
 	
 	/**
@@ -161,15 +161,15 @@ public class DeviceDetailsRequest {
 		this.portName = portName;
 	}
 	/**
-	 * @return the productName
+	 * @return the ocn
 	 */
-	public String getProductName() {
-		return productName;
+	public String getOcn() {
+		return ocn;
 	}
 	/**
-	 * @param productName the productName to set
+	 * @param ocn the ocn to set
 	 */
-	public void setProductName(String productName) {
-		this.productName = productName;
+	public void setOcn(String ocn) {
+		this.ocn = ocn;
 	}
 }

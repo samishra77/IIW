@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.colt.adapters.l2.FactoryAdapter;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +28,10 @@ public class ReceiveDeviceDetailsActivity implements IWorkflowProcessActivity {
 					// Empty
 				}
 			}
-			if(deviceDetails.getIp() != null && !"".equals(deviceDetails.getIp())) {
+			if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getType()) && 
+					deviceDetails.getDeviceType() != null && FactoryAdapter.VENDOR_ATRICA.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor())) {
+				resp = new String[] {"FETCH_DEVICE_DONE", "PING_SUCCESS"};
+			} else if(deviceDetails.getIp() != null && !"".equals(deviceDetails.getIp())) {
 				resp = new String[] {"FETCH_DEVICE_DONE"};
 			}
 		}

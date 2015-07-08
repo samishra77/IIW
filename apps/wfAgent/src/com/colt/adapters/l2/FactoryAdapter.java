@@ -7,7 +7,6 @@ public class FactoryAdapter {
 	public final static String VENDOR_ACCEDIAN = "Accedian";
 	public final static String VENDOR_ACTELIS = "Actelis";
 	public final static String VENDOR_OVERTURE = "Overture";
-	public final static String VENDOR_ASPEN = "Aspen";
 	public final static String VENDOR_ATRICA = "Atrica";
 
 	public Adapter getAdapter(String vendor) {
@@ -18,10 +17,8 @@ public class FactoryAdapter {
 			adapter = new ActelisAdapter();
 		} else if(VENDOR_OVERTURE.equalsIgnoreCase(vendor)) {
 			adapter = new OvertureAdapter();
-		} else if(VENDOR_ASPEN.equalsIgnoreCase(vendor)) {
-			adapter = new AspenAdapter();
 		} else if(VENDOR_ATRICA.equalsIgnoreCase(vendor)) {
-			adapter = new AtricaAdapter();
+			adapter = new AspenAdapter();
 		}
 		return adapter;
 	}
