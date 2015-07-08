@@ -192,11 +192,26 @@ var SearchController = function ($scope, $http){
 				searchScopeBak.circuits = $scope.circuits;
 				searchScopeBak.search = $scope.search;
 			});
+			resp.error(function(data, status) {
+				var errorMsg = getErrorMsg(status);
+				$scope.error = true;
+				$scope.messageError = errorMsg;
+			});
 		} else {
 			$scope.isHidden = false;
 			searchScopeBak.circuits = null;
 		}
 	};
 };
+
+function getErrorMsg(status) {
+	var errorMsg;
+	if (status == 0) {
+		 errorMsg = "Connection to server failed.";
+	} else {
+		errorMsg = "Connection to server failed with status: " + status;
+	}
+	return errorMsg;
+}
 
 angular.module('sstApp').controller('SearchController',SearchController);

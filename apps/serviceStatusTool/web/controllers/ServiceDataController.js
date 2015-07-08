@@ -27,10 +27,26 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				$scope.circuitList = data.result;
 			}
 		});
+		resp.error(function(data, status) {
+			var errorMsg = getErrorMsg(status);
+			$scope.error = true;
+			$scope.messageError = errorMsg;
+			$scope.showLoading = false;
+		});
 	} else {
 		$scope.viewServiceData = true;
 		$scope.showPopUp = false;
 		serviceDetailsAndTickets();
+	}
+
+	function getErrorMsg(status) {
+		var errorMsg;
+		if (status == 0) {
+			 errorMsg = "Connection to server failed.";
+		} else {
+			errorMsg = "Connection to server failed with status: " + status;
+		}
+		return errorMsg;
 	}
 
 	function serviceDetailsAndTickets() {
@@ -83,8 +99,21 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							$scope.showTicketLoading = false;
 						}
 					});
+					resp2.error(function(data, status) {
+						var errorMsg = getErrorMsg(status);
+						$scope.error = true;
+						$scope.messageError = errorMsg;
+						$scope.showTicketLoading = false;
+					});
 				}
 			}
+		});
+		resp.error(function(data, status) {
+			var errorMsg = getErrorMsg(status);
+			$scope.error = true;
+			$scope.messageError = errorMsg;
+			$scope.showDetailsLoading = false;
+			$scope.showTicketLoading = false;
 		});
 	}
 
@@ -139,6 +168,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			}
 			$scope.showSideLoading = false;
 		});
+		resp.error(function(data, status) {
+			var errorMsg = getErrorMsg(status);
+			$scope.sideInformationError = true;
+			$scope.sideInformationErrorMessage = errorMsg;
+			$scope.showSideLoading = false;
+		});
 	}
 	$scope.doRelatedOrderNumber = function doRelatedOrderNumber(relatedOrderNumber) {
 		var URL = contextPath + "/popUp.jsp?username=" + username + "&orderNumber=" + encodeURIComponent(relatedOrderNumber) + '#/ServiceData/' + $scope.circuit.circPathInstID;
@@ -169,7 +204,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		serviceDetailsAndTickets();
 	}
 
-	var tiOut = 30000;
+	var conTimeout = 30000;
 	function sideInformationFromDevice() {
 		var urlWorkFlow = workFlowAgentUrlBase + "/ws";
 		$scope.showDeviceErrorASide = false;
@@ -178,6 +213,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		var errorMsg = "Error receiving device details.";
 		if (workFlowAgentUrlBase) {
 			if ($scope.sideInformation) {
+				var startTimeA = new Date().getTime();
 				if ($scope.sideInformation.aSideInformation) {
 					if ($scope.sideInformation.aSideInformation.deviceName) {
 						callASideCount++;
@@ -193,16 +229,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'type': 'CPE',
 								'circuitID': $scope.circuit.circuitID
 						};
-						var timedOutAEnd = false;
-						setTimeout(function () {
-							timedOutAEnd = true;
-						}, (tiOut));
 						var respAgentASide = $http({
 							method  : 'POST',
 							url     : urlWorkFlow + '/getDeviceDetails',
 							data    : deviceDetailsAside,
 							headers : { 'Content-Type': 'application/json' },
-							timeout : tiOut
+							timeout : conTimeout
 						});
 						respAgentASide.success(function(data) {
 							var l3DeviceDetails = data;
@@ -233,12 +265,16 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							$scope.showButtonRefreshASide = true;
 							$scope.showRefreshASideLoading = false;
 							$scope.showDeviceErrorASide = true;
-							if (status == 404) {
-								errorMsg = "The server agent did not respond.";
-							} else if (timedOutAEnd && status == 0 && data == null) {
-								errorMsg = "Connection timeout.";
+							if (status == 0) {
+								var respTime = new Date().getTime() - startTimeA;
+								console.info(respTime+":"+startTimeA);
+								if(respTime >= conTimeout) {
+									errorMsg = "Connection timeout.";
+								} else {
+									errorMsg = "Connection to server failed.";
+								}
 							} else {
-								errorMsg = "Error";
+								errorMsg = "Connection to server failed with status: " + status;
 							}
 							$scope.deviceMessageASideError = errorMsg;
 						});
@@ -252,6 +288,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				}
 				if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 					if ($scope.sideInformation.zSideInformation) {
+						var startTimeZ = new Date().getTime();
 						if ($scope.sideInformation.zSideInformation.deviceName) {
 							callZSideCount++;
 							var deviceDetailsZside = {
@@ -268,16 +305,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									"ocn" : $scope.circuit.customerOCN,
 									'circuitID': $scope.circuit.circuitID
 							};
-							var timedOutZEnd = false;
-							setTimeout(function () {
-								timedOutZEnd = true;
-							}, (tiOut));
 							var respAgentZSide = $http({
 								method  : 'POST',
 								url     : urlWorkFlow + '/getDeviceDetails',
 								data    : deviceDetailsZside,
 								headers : { 'Content-Type': 'application/json' },
-								timeout : tiOut
+								timeout : conTimeout
 							});
 							respAgentZSide.success(function(data) {
 								var l3DeviceDetails = data;
@@ -308,12 +341,15 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								$scope.showButtonRefreshZSide = true;
 								$scope.showRefreshZSideLoading = false;
 								$scope.showDeviceErrorZSide = true;
-								if (status == 404) {
-									errorMsg = "The server agent did not respond.";
-								} else if (timedOutZEnd && status == 0 && data == null) {
-									errorMsg = "Connection timeout.";
+								if (status == 0) {
+									var respTime = new Date().getTime() - startTimeZ;
+									if(respTime >= conTimeout) {
+										errorMsg = "Connection timeout.";
+									} else {
+										errorMsg = "Connection to server failed.";
+									}
 								} else {
-									errorMsg = "Error";
+									errorMsg = "Connection to server failed with status: " + status;
 								}
 								$scope.deviceMessageZSideError = errorMsg;
 							});
@@ -327,6 +363,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					}
 				} else {
 					if ($scope.sideInformation.zSideInformation) {
+						var startTimeZ = new Date().getTime();
 						if ($scope.sideInformation.zSideInformation.deviceName) {
 							callZSideCount++;
 							var deviceDetailsZside = {
@@ -345,16 +382,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							if ($scope.sideInformation.aSideInformation && $scope.sideInformation.aSideInformation.deviceName) {
 								deviceDetailsZside.associatedDevice = $scope.sideInformation.aSideInformation.deviceName;
 							}
-							var timedOutZEnd = false;
-							setTimeout(function () {
-								timedOutZEnd = true;
-							}, (tiOut));
 							var respAgentZSide = $http({
 								method  : 'POST',
 								url     : urlWorkFlow + '/getDeviceDetails',
 								data    : deviceDetailsZside,
 								headers : { 'Content-Type': 'application/json' },
-								timeout : tiOut
+								timeout : conTimeout
 							});
 							respAgentZSide.success(function(data) {
 								var l3DeviceDetails = data;
@@ -410,12 +443,15 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								$scope.showButtonRefreshZSide = true;
 								$scope.showRefreshZSideLoading = false;
 								$scope.showDeviceErrorZSide = true;
-								if (status == 404) {
-									errorMsg = "The server agent did not respond.";
-								} else if (timedOutZEnd && status == 0 && data == null) {
-									errorMsg = "Connection timeout.";
+								if (status == 0) {
+									var respTime = new Date().getTime() - startTimeZ;
+									if(respTime >= conTimeout) {
+										errorMsg = "Connection timeout.";
+									} else {
+										errorMsg = "Connection to server failed.";
+									}
 								} else {
-									errorMsg = "Error";
+									errorMsg = "Connection to server failed with status: " + status;
 								}
 								$scope.deviceMessageZSideError = errorMsg;
 							});
@@ -513,11 +549,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					}
 				}
 				if (deviceDetails) {
+					var startTime = new Date().getTime();
 					var respAgent = $http({
 						method  : 'POST',
 						url     : urlWorkFlow + '/getDeviceDetails',
 						data    : deviceDetails,
-						headers : { 'Content-Type': 'application/json' }
+						headers : { 'Content-Type': 'application/json' },
+						timeout : conTimeout
 					});
 					respAgent.success(function(data) {
 						var l3DeviceDetails = data;
@@ -599,6 +637,28 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							}
 						}
 						hideLoadingRefresh(type);
+					});
+					respAgent.error(function(data, status) {
+						if (type == "aside") {
+							$scope.showButtonRefreshASide = true;
+							$scope.showRefreshASideLoading = false;
+							$scope.showDeviceErrorASide = true;
+						} else {
+							$scope.showButtonRefreshZSide = true;
+							$scope.showRefreshZSideLoading = false;
+							$scope.showDeviceErrorZSide = true;
+						}
+						if (status == 0) {
+							var respTime = new Date().getTime() - startTime;
+							if(respTime >= conTimeout) {
+								errorMsg = "Connection timeout.";
+							} else {
+								errorMsg = "Connection to server failed.";
+							}
+						} else {
+							errorMsg = "Connection to server failed with status: " + status;
+						}
+						$scope.deviceMessageZSideError = errorMsg;
 					});
 				} else {
 					hideLoadingRefresh(type);

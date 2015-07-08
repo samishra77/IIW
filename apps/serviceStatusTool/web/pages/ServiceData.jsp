@@ -315,7 +315,7 @@
 						</table>
 					</td>
 				</tr>
-				<tr ng-show="showDeviceErrorASide">
+				<tr ng-show="showDeviceErrorZSide">
 					<td class="msg-red" >{{deviceMessageZSideError}}</td>
 				</tr>
 				<tr>
@@ -329,7 +329,7 @@
 						<table class="table table-small-font" style="border :0;" >
 							<tr>
 								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceStatus"></spring:message>:</td>
-								<td style="border-top: 0" >{{aSideDeviceStatus}}</td>
+								<td style="border-top: 0" >{{zSideDeviceStatus}}</td>
 							</tr>
 							<tr>
 								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
