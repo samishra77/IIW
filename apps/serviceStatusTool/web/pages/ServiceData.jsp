@@ -72,7 +72,7 @@
 						<td class="font-strong"><spring:message code="serviceData.status"></spring:message>:</td>
 						<td>{{circuit.status}}</td>
 						<td class="font-strong"><spring:message code="serviceData.inServiceSince"></spring:message>:</td>
-						<td>{{circuit.inServiceSince}}</td>
+						<td><spring:message code="serviceData.notAvailable"/></td>
 					</tr>
 					<tr>
 						<td class="font-strong"><spring:message code="serviceData.customer"></spring:message>:</td>
