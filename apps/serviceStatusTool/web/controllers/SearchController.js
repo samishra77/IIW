@@ -1,4 +1,35 @@
+function findField() {
+	var serviceElem = document.getElementById('Service');
+	var orderElem = document.getElementById('Order');
+	var customerElem = document.getElementById('customer');
+	var addressElem = document.getElementById('address');
+	var cityElem = document.getElementById('city');
+	var address2Elem = document.getElementById('address2');
+	var city2Elem = document.getElementById('city2');
+	var param = null;
+	if(serviceElem.value) {
+		param = serviceElem;
+	} else if(orderElem.value) {
+		param = orderElem;
+	} else if(customerElem.value) {
+		param = customerElem;
+	} else if(addressElem.value) {
+		param = addressElem;
+	} else if(cityElem.value) {
+		param = cityElem;
+	} else if(address2Elem.value) {
+		param = address2Elem;
+	} else if(city2Elem.value) {
+		param = city2Elem;
+	}
+	return param;
+}
+
 function disableFields(elem) {
+	var elemWithValeu = findField();
+	if(elemWithValeu != null && !(elem === elemWithValeu)) {
+		elem = elemWithValeu;
+	}
 	var serviceElem = document.getElementById('Service');
 	var orderElem = document.getElementById('Order');
 	var customerElem = document.getElementById('customer');
