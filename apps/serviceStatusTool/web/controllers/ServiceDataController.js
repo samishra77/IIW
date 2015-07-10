@@ -217,19 +217,38 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				if ($scope.sideInformation.aSideInformation) {
 					if ($scope.sideInformation.aSideInformation.deviceName) {
 						callASideCount++;
-						var deviceDetailsAside = {
-								'requestID'	: callASideCount,
-								'seibelUserID'	: username,
-								'name'       	: $scope.sideInformation.aSideInformation.deviceName,
-								'serviceType' : $scope.circuit.productType,
-								'deviceType'	: {
-									'vendor'	: $scope.sideInformation.aSideInformation.vendor,
-									'model'  	: $scope.sideInformation.aSideInformation.model
-								},
-								'type': 'CPE',
-								'circuitID': $scope.circuit.circuitID,
-								'ip': $scope.sideInformation.aSideInformation.ip
-						};
+						var deviceDetailsAside;
+						if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
+							deviceDetailsAside = {
+									'requestID'	: callASideCount,
+									'seibelUserID'	: username,
+									'name'       	: $scope.sideInformation.aSideInformation.deviceName,
+									'serviceType' : $scope.circuit.productType,
+									'deviceType'	: {
+										'vendor'	: $scope.sideInformation.aSideInformation.vendor,
+										'model'  	: $scope.sideInformation.aSideInformation.model
+									},
+									'type': 'LANLink',
+									"portName" 	: $scope.sideInformation.aSideInformation.port,
+									"ocn" : $scope.circuit.customerOCN,
+									'circuitID': $scope.circuit.circuitID,
+									'ip': $scope.sideInformation.aSideInformation.ip
+							};
+						} else {
+							deviceDetailsAside = {
+									'requestID'	: callASideCount,
+									'seibelUserID'	: username,
+									'name'       	: $scope.sideInformation.aSideInformation.deviceName,
+									'serviceType' : $scope.circuit.productType,
+									'deviceType'	: {
+										'vendor'	: $scope.sideInformation.aSideInformation.vendor,
+										'model'  	: $scope.sideInformation.aSideInformation.model
+									},
+									'type': 'CPE',
+									'circuitID': $scope.circuit.circuitID,
+									'ip': $scope.sideInformation.aSideInformation.ip
+							};
+						}
 						var respAgentASide = $http({
 							method  : 'POST',
 							url     : urlWorkFlow + '/getDeviceDetails',
@@ -504,7 +523,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							deviceDetails.deviceType = new Object();
 							deviceDetails.deviceType.vendor = $scope.sideInformation.aSideInformation.vendor;
 							deviceDetails.deviceType.model = $scope.sideInformation.aSideInformation.model;
-							deviceDetails.type = 'CPE';
+							if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
+								deviceDetails.type = 'LANLink';
+								deviceDetails.portName = $scope.sideInformation.aSideInformation.port;
+								deviceDetails.ocn = $scope.circuit.customerOCN;
+							} else {
+								deviceDetails.type = 'CPE';
+							}
 							deviceDetails.circuitID = $scope.circuit.circuitID;
 						}
 					} else {
