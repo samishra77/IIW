@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.colt.adapters.l2.Adapter;
 import com.colt.adapters.l2.AspenAdapter;
-import com.colt.adapters.l2.FactoryAdapter;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;

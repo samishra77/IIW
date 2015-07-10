@@ -404,9 +404,9 @@ public class SNMPUtil {
 			if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
 				if(portName != null) {
 					if(version != null && version == 3) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifAlias | grep \"" + portName + "\"");
+						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifDescr | grep \"" + portName + "\"");
 					} else if(community != null && !"".equals(community)) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifAlias | grep \"" + portName + "\"");
+						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifDescr | grep \"" + portName + "\"");
 					}
 				} else {
 					ErrorResponse errorResponse = null;
@@ -444,11 +444,15 @@ public class SNMPUtil {
 					}
 					// Collect all interfaces when IfType[Customer string is not configured on the device
 					if(0 == ifAliasMap.size()) {
-						for(String line : outputList) {							
+						for(String line : outputList) {
 							String ifAlias = getIfAlias(line);
 							if(ifAlias != null && !"".equals(ifAlias)) {
-								ifAliasMap.put(ifAlias, new Interface());
-							}							
+								Interface interf = new Interface();
+								ifAliasMap.put(ifAlias, interf);
+								if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
+									interf.setName(getIfValue(line));
+								}
+							}
 						}
 					}
 				}

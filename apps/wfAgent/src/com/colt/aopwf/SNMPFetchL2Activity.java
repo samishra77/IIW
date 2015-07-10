@@ -39,7 +39,8 @@ public class SNMPFetchL2Activity implements IWorkflowProcessActivity {
 					if (deviceDetails.getServiceType() != null && !deviceDetails.getServiceType().equals("")) {
 						serviceType = deviceDetails.getServiceType();
 					}
-					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, community, deviceDetails.getPortName(), deviceDetails.getType(), serviceType, deviceDetails.getOcn());
+					String portname = alterPort(deviceDetails.getPortName(), vendor);
+					IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), snmpVersion, community, portname, deviceDetails.getType(), serviceType, deviceDetails.getOcn());
 					if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 						deviceDetailsResponse.getDeviceDetails().setTime(ddr.getDeviceDetails().getTime());
 						deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());
@@ -70,6 +71,38 @@ public class SNMPFetchL2Activity implements IWorkflowProcessActivity {
 			}
 		}
 		return resp;
+	}
+
+	private String alterPort(String port, String vendor) {
+		String portName = null;
+		if(vendor.equalsIgnoreCase("Accedian")) {
+		 if(port.contains(" ") && port.contains("-")) {
+			 String ar[] = port.split(" ");
+			 if(ar[1].contains("-")) {
+					portName = "SFP-"+ar[1].trim();
+				}
+			 return "SFP-"+ar[1].trim();
+		 }
+		 String var[] = port.split("-");
+		 String name = var[0];		
+		 portName = "PORT-" + name.charAt(name.length()-1);
+		 System.out.println(portName);
+		 
+		 String ar[] = var[0].split(" ");
+		 if(1 < ar.length ) {			
+			if(ar[1].startsWith("0"))
+				ar[1] = ar[1].replace("0", "") ;
+			portName = "PORT-" + ar[1].trim();			
+		 }
+		 System.out.println(portName);
+		 
+		} else if(vendor.equalsIgnoreCase("Actelis")) {
+			port = port.replace("ET", "ETH");
+			return port;
+		}  else if(vendor.equalsIgnoreCase("Overture")) {
+			return "Client";
+		}
+		return portName;
 	}
 
 }

@@ -685,7 +685,11 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 						} else {
 							errorMsg = "Connection to server failed with status: " + status;
 						}
-						$scope.deviceMessageZSideError = errorMsg;
+						if (type == "aside") {
+							$scope.deviceMessageASideError = errorMsg;
+						} else {
+							$scope.deviceMessageZSideError = errorMsg;
+						}
 					});
 				} else {
 					hideLoadingRefresh(type);

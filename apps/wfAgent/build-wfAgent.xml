@@ -61,6 +61,8 @@
 				<include name="common-aptCache.jar"/>
 				<include name="fabric.jar"/>
 				<include name="common-aptBusiness.jar"/>
+				<include name="common-aptServices.jar"/>
+				<include name="common-AspenWrapper.jar"/>
 				<include name="jsch-0.1.52.jar"/>
 				<include name="jackson-annotations-2.5.2.jar"/>
 				<include name="jackson-core-2.5.2.jar"/>
