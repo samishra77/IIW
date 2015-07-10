@@ -364,9 +364,9 @@
 							<tbody>
 								<tr ng-repeat="inferf in zSideInterfaces">
 									<td>{{inferf.name}}</td>
-									<td>{{asideInferf.opStatus}}</td>
-									<td>{{asideInferf.adminStatus}}</td>
-									<td>{{asideInferf.portStatus}}</td>
+									<td>{{inferf.opStatus}}</td>
+									<td>{{inferf.adminStatus}}</td>
+									<td>{{inferf.portStatus}}</td>
 									<td>{{inferf.lastChgTime}}</td>
 								</tr>
 							</tbody>
