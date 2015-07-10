@@ -18,6 +18,7 @@ import com.colt.util.SstConfig;
 import com.colt.util.Util;
 import com.colt.ws.biz.ASideInformation;
 import com.colt.ws.biz.Circuit;
+import com.colt.ws.biz.ProductType;
 import com.colt.ws.biz.Response;
 import com.colt.ws.biz.SideInformation;
 import com.colt.ws.biz.ZSideInformation;
@@ -106,7 +107,7 @@ public class SideInformationCall {
 		return result;
 	}
 
-	public Response retrieveResponseSideInformation(String res) {
+	public Response retrieveResponseSideInformation(String res, String productType) {
 		Response response = new Response();
 		SideInformation sideInformation = null;
 		Util u = new Util();
@@ -136,7 +137,7 @@ public class SideInformationCall {
 				String resultValue = u.getValue(items.get(z).substring(initValue, endValue), "<value>", "</value>");
 				resultValue = resultValue.substring(1, resultValue.length() -1);
 				String[] itemValueArray = resultValue.split(", ");
-				this.populateSideInformation(sideInformation, resultKey, itemValueArray);
+				this.populateSideInformation(sideInformation, resultKey, itemValueArray, productType);
 			}
 			response.setStatus(Response.SUCCESS);
 		} else if (res.contains("errorCode")) {
@@ -157,11 +158,11 @@ public class SideInformationCall {
 		return response;
 	}
 
-	private void populateSideInformation(SideInformation sideInformation, String key, String[] kv) {
+	private void populateSideInformation(SideInformation sideInformation, String key, String[] kv, String productType) {
 		if (key.equals("AEND")) {
 			sideInformation.setaSideInformation(populateASideInformation(kv));
 		} else if (key.equals("ZEND")) {
-			sideInformation.setzSideInformation(populateZSideInformation(kv));
+			sideInformation.setzSideInformation(populateZSideInformation(kv, productType));
 		}
 	}
 
@@ -193,9 +194,13 @@ public class SideInformationCall {
 		return aSideInformation;
 	}
 
-	private ZSideInformation populateZSideInformation(String[] itemValueArray) {
+	private ZSideInformation populateZSideInformation(String[] itemValueArray, String productType) {
 		ZSideInformation zSideInformation = new ZSideInformation();
-		zSideInformation.setType(messages.getProperty("serviceData.zSide.siteType.value"));
+		if(productType != null && ProductType.LANLINK.value().equalsIgnoreCase(productType)) {
+			zSideInformation.setType(messages.getProperty("serviceData.aSide.siteType.value"));
+		} else {
+			zSideInformation.setType(messages.getProperty("serviceData.zSide.siteType.value"));
+		}
 		for (int i = 0; i < itemValueArray.length; i++) {
 			String[] kv = itemValueArray[i].split("=");
 			if (kv[0].equals("port")) {

@@ -146,7 +146,7 @@ public class SearchService {
 		try {
 			SideInformationCall pwv = new SideInformationCall(messages);
 			String pathViewerResponse = pwv.sideInformationCallProcess(circuit);
-			response = pwv.retrieveResponseSideInformation(pathViewerResponse);
+			response = pwv.retrieveResponseSideInformation(pathViewerResponse, circuit.getProductType());
 			if (response.getResult() != null) {
 				usageTracking.setResultsFetched(1);
 			}
