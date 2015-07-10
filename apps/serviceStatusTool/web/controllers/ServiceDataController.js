@@ -227,7 +227,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									'model'  	: $scope.sideInformation.aSideInformation.model
 								},
 								'type': 'CPE',
-								'circuitID': $scope.circuit.circuitID
+								'circuitID': $scope.circuit.circuitID,
+								'ip': $scope.sideInformation.aSideInformation.ip
 						};
 						var respAgentASide = $http({
 							method  : 'POST',
@@ -303,7 +304,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									'type': 'LANLink',
 									"portName" 	: $scope.sideInformation.zSideInformation.port,
 									"ocn" : $scope.circuit.customerOCN,
-									'circuitID': $scope.circuit.circuitID
+									'circuitID': $scope.circuit.circuitID,
+									'ip': $scope.sideInformation.zSideInformation.ip
 							};
 							var respAgentZSide = $http({
 								method  : 'POST',

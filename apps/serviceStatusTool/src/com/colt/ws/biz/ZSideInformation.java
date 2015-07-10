@@ -9,6 +9,7 @@ public class ZSideInformation {
 	private String model;
 	private String deviceName;
 	private String instId;
+	private String ip;
 
 	public String getType() {
 		return type;
@@ -52,5 +53,10 @@ public class ZSideInformation {
 	public void setPort(String port) {
 		this.port = port;
 	}
-
+	public String getIp() {
+		return ip;
+	}
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 }
