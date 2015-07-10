@@ -34,14 +34,16 @@ public class ValidateVendorModelL2Activity implements IWorkflowProcessActivity {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				SNMPUtil snmp = new SNMPUtil(deviceDetails.getType(), deviceDetails.getServiceType());
 				snmp.discoverVendor(deviceDetails.getType(), deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor(), deviceDetailsResponse, deviceDetails.getName());
-				if(snmp.getVersion() == null) {
-					if(deviceDetailsResponse.getErrorResponse() == null) {
-						deviceDetailsResponse.setErrorResponse(new ErrorResponse());
-						deviceDetailsResponse.getErrorResponse().setCode(ErrorResponse.CODE_UNKNOWN);
-						deviceDetailsResponse.getErrorResponse().setMessage(MessagesErrors.getDefaultInstance().getProperty("snmp.queryFailed"));
-					}
-					deviceDetailsResponse.getErrorResponse().getFailedSnmp().add(deviceDetails.getIp());
-					log.debug("SNMP query to device failed: " + deviceDetails.getIp());
+				if (!FactoryAdapter.VENDOR_ATRICA.equals(deviceDetails.getDeviceType().getVendor())) {
+					if(snmp.getVersion() == null) {
+						if(deviceDetailsResponse.getErrorResponse() == null) {
+							deviceDetailsResponse.setErrorResponse(new ErrorResponse());
+							deviceDetailsResponse.getErrorResponse().setCode(ErrorResponse.CODE_UNKNOWN);
+							deviceDetailsResponse.getErrorResponse().setMessage(MessagesErrors.getDefaultInstance().getProperty("snmp.queryFailed"));
+						}
+						deviceDetailsResponse.getErrorResponse().getFailedSnmp().add(deviceDetails.getIp());
+						log.debug("SNMP query to device failed: " + deviceDetails.getIp());
+					} 
 				}
 				input.put("snmpVersion", snmp.getVersion());
 				input.put("community", snmp.getCommunity());
@@ -57,12 +59,12 @@ public class ValidateVendorModelL2Activity implements IWorkflowProcessActivity {
 					inputStreamFile = this.getClass().getResourceAsStream("/conf/agentValidators.xml");
 				}
 				if (deviceDetails != null && deviceDetails.getDeviceType() != null && deviceDetails.getDeviceType().getVendor() != null) {
-					if (FactoryAdapter.VENDOR_ACCEDIAN.equals(deviceDetails.getDeviceType().getVendor()) ||
-							FactoryAdapter.VENDOR_ACTELIS.equals(deviceDetails.getDeviceType().getVendor()) ||
-							FactoryAdapter.VENDOR_OVERTURE.equals(deviceDetails.getDeviceType().getVendor())) {
+					if (FactoryAdapter.VENDOR_ACCEDIAN.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor()) ||
+							FactoryAdapter.VENDOR_ACTELIS.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor()) ||
+							FactoryAdapter.VENDOR_OVERTURE.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor())) {
 						input.put("vendor", deviceDetails.getDeviceType().getVendor());
 						resp = new String[] {"SNMPFETCH_L2"};
-					} else if (FactoryAdapter.VENDOR_ATRICA.equals(deviceDetails.getDeviceType().getVendor())) {
+					} else if (FactoryAdapter.VENDOR_ATRICA.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor())) {
 						resp = new String[] {"EMSAPIFETCH"};
 					}
 				}
