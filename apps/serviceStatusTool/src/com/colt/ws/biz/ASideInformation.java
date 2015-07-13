@@ -9,7 +9,6 @@ public class ASideInformation {
 	private String deviceName;
 	private String xngDeviceName;
 	private String instId;
-	private String ip;
 
 	public String getPort() {
 		return port;
@@ -52,11 +51,5 @@ public class ASideInformation {
 	}
 	public void setInstId(String instId) {
 		this.instId = instId;
-	}
-	public String getIp() {
-		return ip;
-	}
-	public void setIp(String ip) {
-		this.ip = ip;
 	}
 }

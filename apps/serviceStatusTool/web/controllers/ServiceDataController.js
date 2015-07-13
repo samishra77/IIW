@@ -231,8 +231,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									'type': 'LANLink',
 									"portName" 	: $scope.sideInformation.aSideInformation.port,
 									"ocn" : $scope.circuit.customerOCN,
-									'circuitID': $scope.circuit.circuitID,
-									'ip': $scope.sideInformation.aSideInformation.ip
+									'circuitID': $scope.circuit.circuitID
 							};
 						} else {
 							deviceDetailsAside = {
@@ -245,8 +244,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										'model'  	: $scope.sideInformation.aSideInformation.model
 									},
 									'type': 'CPE',
-									'circuitID': $scope.circuit.circuitID,
-									'ip': $scope.sideInformation.aSideInformation.ip
+									'circuitID': $scope.circuit.circuitID
 							};
 						}
 						var respAgentASide = $http({
@@ -323,8 +321,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									'type': 'LANLink',
 									"portName" 	: $scope.sideInformation.zSideInformation.port,
 									"ocn" : $scope.circuit.customerOCN,
-									'circuitID': $scope.circuit.circuitID,
-									'ip': $scope.sideInformation.zSideInformation.ip
+									'circuitID': $scope.circuit.circuitID
 							};
 							var respAgentZSide = $http({
 								method  : 'POST',

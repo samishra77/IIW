@@ -565,20 +565,21 @@ public class AmnDAO extends DAO {
 		return result;
 	}
 
-	public String[] getNetworkObject(String instId) {
-		String sql = "Select Network_Object, IP_ADDRESS_MGMT, IP_ADDRESS_LAN from AMN.IE_EQUIP_INST where Equip_Inst_Id = :instId";
+	public String getNetworkObject(String instId) {
+		String result = "";
+		String sql = "Select Network_Object from AMN.IE_EQUIP_INST where Equip_Inst_Id = :instId";
 		Query query = em.createNativeQuery(sql);
 		query.setParameter("instId", instId);
-		List<Object[]> resultList = query.getResultList();
+		List<String> resultList = query.getResultList();
 		if(resultList != null && resultList.size() > 0) {
-			for(Object[] o : resultList) {
-				String networkObject = (String)o[0] != null ? (String)o[0] : "";
-				String addressMgmt = (String)o[1] != null ? (String)o[1] : "";
-				String addressLan = (String)o[2] != null ? (String)o[2] : "";
-				String result[] = {networkObject, addressMgmt, addressLan};
-				return result;
+			for (int i = 0; i < resultList.size() ; i++) {
+				String resu = (String) resultList.get(i);
+				if (resu != null) {
+					result = resu;
+					break;
+				}
 			}
 		}
-		return null;
+		return result;
 	}
 }
