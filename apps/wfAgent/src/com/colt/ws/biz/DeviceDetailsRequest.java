@@ -19,6 +19,8 @@ public class DeviceDetailsRequest {
 	private String serviceType;
 	private String portName;
 	private String ocn;
+	private String xngNetworkObjectName;
+	private String xngSlotNumber;
 
 	
 	/**
@@ -172,4 +174,29 @@ public class DeviceDetailsRequest {
 	public void setOcn(String ocn) {
 		this.ocn = ocn;
 	}
+	/**
+	 * @return the xngNetworkObjectName
+	 */
+	public String getXngNetworkObjectName() {
+		return xngNetworkObjectName;
+	}
+	/**
+	 * @param ocn the xngNetworkObjectName to set
+	 */
+	public void setXngNetworkObjectName(String xngNetworkObjectName) {
+		this.xngNetworkObjectName = xngNetworkObjectName;
+	}
+	/**
+	 * @return the xngSlotNumber
+	 */
+	public String getXngSlotNumber() {
+		return xngSlotNumber;
+	}
+	/**
+	 * @param ocn the xngSlotNumber to set
+	 */
+	public void setXngSlotNumber(String xngSlotNumber) {
+		this.xngSlotNumber = xngSlotNumber;
+	}
+
 }

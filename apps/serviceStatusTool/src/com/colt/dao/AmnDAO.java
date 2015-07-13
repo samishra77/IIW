@@ -565,6 +565,24 @@ public class AmnDAO extends DAO {
 		return result;
 	}
 
+	public String getNetworkObjectName(String instId) {
+		String result = "";
+		String sql = "Select NETWORK_OBJECT_NAME from AMN.IE_EQUIP_INST where Equip_Inst_Id = :instId";
+		Query query = em.createNativeQuery(sql);
+		query.setParameter("instId", instId);
+		List<String> resultList = query.getResultList();
+		if(resultList != null && resultList.size() > 0) {
+			for (int i = 0; i < resultList.size() ; i++) {
+				String resu = (String) resultList.get(i);
+				if (resu != null) {
+					result = resu;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
 	public String getNetworkObject(String instId) {
 		String result = "";
 		String sql = "Select Network_Object from AMN.IE_EQUIP_INST where Equip_Inst_Id = :instId";

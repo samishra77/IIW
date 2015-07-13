@@ -13,8 +13,8 @@ public class AptUtil {
 
 	private Log log = LogFactory.getLog(AptUtil.class);
 
-	public String retrieveAddressByDeviceNameFromAPT(String deviceName) {
-		String ipAdrress = null;
+	public Device[] retrieveAddressByDeviceNameFromAPT(String deviceName) {
+		Device[] deviceArray = null;
 		try {
 			if(deviceName != null && !"".equals(deviceName)) {
 				String baseUrl = AgentConfig.getDefaultInstance().getProperty("apt.baseUrl");
@@ -25,19 +25,12 @@ public class AptUtil {
 				user.setPassword(userPass);
 
 				IDeviceDAO deviceDAO = (IDeviceDAO) Registry.bind(baseUrl+"/aptCache/services/DeviceDAO.wsdl",IDeviceDAO.class);
-				Device[] deviceArray = deviceDAO.retrieveDevicesByName(user, deviceName);
-				if (deviceArray != null && deviceArray.length > 0) {
-					for (Device dev : deviceArray) {
-						if ( dev.getAddress() != null && !"".equals(dev.getAddress())) {
-							ipAdrress = deviceArray[0].getAddress();
-							break;
-						}
-					}
-				}
+				deviceArray = deviceDAO.retrieveDevicesByName(user, deviceName);
+				return deviceArray;
 			}
 		} catch (Exception e) {
 			log.error(e,e);
 		}
-		return ipAdrress;
+		return deviceArray;
 	}
 }

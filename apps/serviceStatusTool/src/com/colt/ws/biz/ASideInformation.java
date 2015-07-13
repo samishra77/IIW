@@ -8,6 +8,8 @@ public class ASideInformation {
 	private String type;
 	private String deviceName;
 	private String xngDeviceName;
+	private String xngNetworkObjectName;
+	private String xngSlotNumber;
 	private String instId;
 
 	public String getPort() {
@@ -52,4 +54,17 @@ public class ASideInformation {
 	public void setInstId(String instId) {
 		this.instId = instId;
 	}
+	public String getXngNetworkObjectName() {
+		return xngNetworkObjectName;
+	}
+	public void setXngNetworkObjectName(String xngNetworkObjectName) {
+		this.xngNetworkObjectName = xngNetworkObjectName;
+	}
+	public String getXngSlotNumber() {
+		return xngSlotNumber;
+	}
+	public void setXngSlotNumber(String xngSlotNumber) {
+		this.xngSlotNumber = xngSlotNumber;
+	}
+
 }

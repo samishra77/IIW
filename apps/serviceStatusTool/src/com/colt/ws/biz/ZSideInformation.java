@@ -6,6 +6,8 @@ public class ZSideInformation {
 	private String type;
 	private String vendor;
 	private String xngDeviceName;
+	private String xngNetworkObjectName;
+	private String xngSlotNumber;
 	private String model;
 	private String deviceName;
 	private String instId;
@@ -51,6 +53,18 @@ public class ZSideInformation {
 	}
 	public void setPort(String port) {
 		this.port = port;
+	}
+	public String getXngNetworkObjectName() {
+		return xngNetworkObjectName;
+	}
+	public void setXngNetworkObjectName(String xngNetworkObjectName) {
+		this.xngNetworkObjectName = xngNetworkObjectName;
+	}
+	public String getXngSlotNumber() {
+		return xngSlotNumber;
+	}
+	public void setXngSlotNumber(String xngSlotNumber) {
+		this.xngSlotNumber = xngSlotNumber;
 	}
 
 }

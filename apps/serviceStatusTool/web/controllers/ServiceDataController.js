@@ -231,7 +231,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									'type': 'LANLink',
 									"portName" 	: $scope.sideInformation.aSideInformation.port,
 									"ocn" : $scope.circuit.customerOCN,
-									'circuitID': $scope.circuit.circuitID
+									'circuitID': $scope.circuit.circuitID,
+									'xngNetworkObjectName': $scope.sideInformation.aSideInformation.xngNetworkObjectName,
+									'xngSlotNumber': $scope.sideInformation.aSideInformation.xngSlotNumber
 							};
 						} else {
 							deviceDetailsAside = {
@@ -321,7 +323,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									'type': 'LANLink',
 									"portName" 	: $scope.sideInformation.zSideInformation.port,
 									"ocn" : $scope.circuit.customerOCN,
-									'circuitID': $scope.circuit.circuitID
+									'circuitID': $scope.circuit.circuitID,
+									'xngNetworkObjectName': $scope.sideInformation.zSideInformation.xngNetworkObjectName,
+									'xngSlotNumber': $scope.sideInformation.zSideInformation.xngSlotNumber
 							};
 							var respAgentZSide = $http({
 								method  : 'POST',
@@ -524,6 +528,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								deviceDetails.type = 'LANLink';
 								deviceDetails.portName = $scope.sideInformation.aSideInformation.port;
 								deviceDetails.ocn = $scope.circuit.customerOCN;
+								deviceDetails.xngNetworkObjectName = $scope.sideInformation.aSideInformation.xngNetworkObjectName;
+								deviceDetails.xngSlotNumber = $scope.sideInformation.aSideInformation.xngSlotNumber;
 							} else {
 								deviceDetails.type = 'CPE';
 							}
@@ -562,6 +568,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								deviceDetails.type = 'LANLink';
 								deviceDetails.portName = $scope.sideInformation.zSideInformation.port;
 								deviceDetails.ocn = $scope.circuit.customerOCN;
+								deviceDetails.xngNetworkObjectName = $scope.sideInformation.zSideInformation.xngNetworkObjectName;
+								deviceDetails.xngSlotNumber = $scope.sideInformation.zSideInformation.xngSlotNumber;
 							} else {
 								deviceDetails.type = 'PE';
 							}

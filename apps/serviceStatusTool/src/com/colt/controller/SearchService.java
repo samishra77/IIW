@@ -159,6 +159,12 @@ public class SearchService {
 						if (networkObject != null && !"".equals(networkObject)) {
 							si.getzSideInformation().setXngDeviceName(networkObject);
 						}
+						if(ProductType.LANLINK.value().equalsIgnoreCase(circuit.getProductType())) {
+							String xngNetworkObjectName = amnDAO.getNetworkObjectName(si.getzSideInformation().getInstId());
+							if (xngNetworkObjectName != null && !xngNetworkObjectName.equals("")) {
+								si.getzSideInformation().setXngNetworkObjectName(xngNetworkObjectName);
+							}
+						}
 					}
 				}
 				if (si != null && si.getaSideInformation() != null) {
@@ -167,6 +173,12 @@ public class SearchService {
 						String networkObject = amnDAO.getNetworkObject(si.getaSideInformation().getInstId());
 						if (networkObject != null && !"".equals(networkObject)) {
 							si.getaSideInformation().setXngDeviceName(networkObject);
+						}
+						if(ProductType.LANLINK.value().equalsIgnoreCase(circuit.getProductType())) {
+							String xngNetworkObjectName = amnDAO.getNetworkObjectName(si.getaSideInformation().getInstId());
+							if (xngNetworkObjectName != null && !xngNetworkObjectName.equals("")) {
+								si.getaSideInformation().setXngNetworkObjectName(xngNetworkObjectName);
+							}
 						}
 					}
 				}
