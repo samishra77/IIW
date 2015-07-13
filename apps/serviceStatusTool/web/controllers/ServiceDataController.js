@@ -148,6 +148,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			if(data.status == 'fail') {
 				$scope.sideInformationError = true;
 				$scope.sideInformationErrorMessage = data.errorMsg;
+				$scope.showRefreshASideLoading = false;
+				$scope.showRefreshZSideLoading = false;
 			} else {
 				$scope.sideInformation = data.result;
 				if ( ($scope.sideInformation == null) || ($scope.sideInformation.aSideInformation == null && $scope.sideInformation.zSideInformation == null) ) {
