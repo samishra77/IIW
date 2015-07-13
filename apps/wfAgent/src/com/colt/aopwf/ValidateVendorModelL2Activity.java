@@ -33,8 +33,8 @@ public class ValidateVendorModelL2Activity implements IWorkflowProcessActivity {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				SNMPUtil snmp = new SNMPUtil(deviceDetails.getType(), deviceDetails.getServiceType());
-				snmp.discoverVendor(deviceDetails.getType(), deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor(), deviceDetailsResponse, deviceDetails.getName());
-				if (!FactoryAdapter.VENDOR_ATRICA.equals(deviceDetails.getDeviceType().getVendor())) {
+				if (!FactoryAdapter.VENDOR_ATRICA.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor())) {
+					snmp.discoverVendor(deviceDetails.getType(), deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor(), deviceDetailsResponse, deviceDetails.getName());
 					if(snmp.getVersion() == null) {
 						if(deviceDetailsResponse.getErrorResponse() == null) {
 							deviceDetailsResponse.setErrorResponse(new ErrorResponse());

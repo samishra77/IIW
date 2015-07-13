@@ -136,6 +136,7 @@ var SearchController = function ($scope, $http){
 		$scope.showResult = true;
 		$scope.isHidden = true;
 	}
+	setTimeout(disableFields, 0);
 	$scope.doSearch = function doSearch() {
 		$scope.error = false;
 		$scope.msg = false;

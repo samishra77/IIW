@@ -29,10 +29,13 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 							ipAddress = dev.getAddress();
 							break;
 						} else {
-							if (dev.getName().startsWith(devName+"-.")) {
+							if (dev.getName().startsWith(devName+"-")) {
 								ipAddress = dev.getAddress();
 								break;
-							} else if (dev.getName().startsWith(devName+"_.")) {
+							} else if (dev.getName().startsWith(devName+"_")) {
+								ipAddress = dev.getAddress();
+								break;
+							} else if (dev.getName().startsWith(devName+".")) {
 								ipAddress = dev.getAddress();
 								break;
 							} else if (dev.getName().startsWith(devName+"-10G.")) {
