@@ -29,6 +29,9 @@ public class SNMPUtil {
 	private String serviceType;
 	private String community;
 	private String os;
+	public static final String L2_ADMIN_STATUS = ".1.3.6.1.2.1.2.2.1.7.";
+	public static final String L2_OPERATIONAL_STATUS = ".1.3.6.1.2.1.2.2.1.8.";
+	public static final String L2_INTERFACE_STATUS = ".1.3.6.1.4.1.22420.2.9.1.2.1.1.8.";
 
 	private static final String grepCmd;
 
@@ -744,6 +747,70 @@ public class SNMPUtil {
 				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
 				try {
 					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifOperStatus").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
+		}
+	}
+
+	public void retrieveInterfaceL2Status(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String argParam) {
+		try {
+			if(ifAliasMap != null && !ifAliasMap.isEmpty() && deviceIP != null && !"".equals(deviceIP) && argParam != null && !"".equals(argParam)) {
+				String arg = "";
+				for(String ifAlias : ifAliasMap.keySet()) {
+					arg+= argParam + ifAlias + " ";
+				}
+				String command = null;
+				if(version != null && version == 3) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), deviceIP, arg);
+				} else if(community != null && !"".equals(community)) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, deviceIP, arg);
+				}
+				if(command != null && !"".equals(command)) {
+					List<String> outputList = AgentUtil.runLocalCommand(command);
+					if(outputList != null && !outputList.isEmpty()) {
+						String status = "";
+						for(String line : outputList) {
+							String ifAlias = getIfAlias(line);
+							if(ifAliasMap.containsKey(ifAlias)) {
+								String ifStatus = getIfValue(line);
+								if(ifStatus != null) {
+									if(ifStatus.contains("1") || "1".equals(ifStatus)) {
+										status = AgentUtil.UP;
+									} else if(ifStatus.contains("2") || "2".equals(ifStatus)) {
+										status = AgentUtil.DOWN;
+									}
+								}
+								if(L2_ADMIN_STATUS.equals(argParam)) {
+									ifAliasMap.get(ifAlias).setAdminStatus(status);
+								} else if(L2_OPERATIONAL_STATUS.equals(argParam)) {
+									ifAliasMap.get(ifAlias).setOpStatus(status);
+								} else if(L2_INTERFACE_STATUS.equals(argParam)) {
+									ifAliasMap.get(ifAlias).setPortStatus(status);
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				try {
+					String message = "";
+					if(L2_ADMIN_STATUS.equals(argParam)) {
+						message = MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifAdminStatus").trim(), e.toString());
+					} else if(L2_OPERATIONAL_STATUS.equals(argParam)) {
+						message = MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifOperStatus").trim(), e.toString());
+					} else if(L2_INTERFACE_STATUS.equals(argParam)) {
+						message = MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.ifIntefaceStatus").trim(), e.toString());
+					}
+					errorResponse.setMessage(message);
 				} catch (Exception e1) {
 					log.error(e1,e1);
 				}

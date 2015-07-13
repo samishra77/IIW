@@ -23,6 +23,9 @@ public class OvertureAdapter extends Adapter {
 		SNMPUtil snmp = new SNMPUtil(snmpVersion, type, serviceType);
 		snmp.setCommunity(community);
 		Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitId, deviceIP, portName, type, deviceDetailsResponse);
+		snmp.retrieveInterfaceL2Status(ifAliasMap, deviceIP, deviceDetailsResponse, SNMPUtil.L2_ADMIN_STATUS);
+		snmp.retrieveInterfaceL2Status(ifAliasMap, deviceIP, deviceDetailsResponse, SNMPUtil.L2_OPERATIONAL_STATUS);
+		snmp.retrieveInterfaceL2Status(ifAliasMap, deviceIP, deviceDetailsResponse, SNMPUtil.L2_INTERFACE_STATUS);
 		String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceIP, deviceDetailsResponse);
 		if (sysUpTime != null && !"".equals(sysUpTime)) {
 			String sysuptimeFormated = snmp.retrieveSysUpTime(sysUpTime);
