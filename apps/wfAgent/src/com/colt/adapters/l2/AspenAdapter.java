@@ -27,43 +27,54 @@ public class AspenAdapter extends Adapter {
 
 	private Log log = LogFactory.getLog(AccedianAdapter.class);
 
-	public IDeviceDetailsResponse fetch(String circuitId, String deviceIP, Integer snmpVersion, String community, String portName, String type, String serviceType, String ocn) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitId, String deviceIP, Integer snmpVersion, String community, String portName, String type, String serviceType, String ocn, String deviceName) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L2DeviceDetailsResponse();
 		try {
 			DeviceDetail deviceDetail = new DeviceDetail();
 			deviceDetailsResponse.setDeviceDetails(deviceDetail);
 			String baseUrl = AgentConfig.getDefaultInstance().getProperty("apt.baseUrl");
-			IAspen aspen = (IAspen) Registry.bind(baseUrl + "/aptServices/services/Aspen.wsdl",IAspen.class);
-			Endpoint[] endPoints = aspen.getServiceEndpoints(circuitId, ocn);
-			List<Interface> interfaceList = new ArrayList<Interface>();
-			if (endPoints != null && endPoints.length > 0) {
-				for (Endpoint end : endPoints) {
-					String ip = end.getDeviceIP();
-					DeviceInfoResponse deviceInfRes = aspen.getDeviceInfo(ip);
-					String deviceId = null;
-					if(deviceInfRes != null) {
-						DeviceInfo deviceInfo = deviceInfRes.getDeviceInfo();
-						if(deviceInfo != null) {
-							deviceId = deviceInfo.getId();
-						}
-					}
-					DevicePortsResponse devicePortRes =  aspen.getAllDevicePorts(deviceId);
-					if(deviceInfRes != null) {
-						Port[] port = devicePortRes.getPorts();
-						if(port != null && port.length > 0 ){
-							for(int i = 0; i < port.length ; i++) {
-								Interface inf = new Interface();
-								inf.setOpStatus(port[i].getOperStatus());
-								inf.setAdminStatus(port[i].getStatus());
-								inf.setName(port[i].getName());
-								interfaceList.add(inf);
+			String[] ports = portName != null ? portName.split(",") : null;
+			if (ports != null) {
+				IAspen aspen = (IAspen) Registry.bind(baseUrl + "/aptServices/services/Aspen.wsdl",IAspen.class);
+				Endpoint[] endPoints = aspen.getServiceEndpoints(circuitId, ocn);
+				List<Interface> interfaceList = new ArrayList<Interface>();
+				if (endPoints != null && endPoints.length > 0) {
+					for (Endpoint end : endPoints) {
+						log.debug("End Device Name ======> " + end.getDeviceName());
+						if ( deviceName != null && deviceName.equalsIgnoreCase(end.getDeviceName())) {
+							String ip = end.getDeviceIP();
+							DeviceInfoResponse deviceInfRes = aspen.getDeviceInfo(ip);
+							String deviceId = null;
+							if(deviceInfRes != null) {
+								DeviceInfo deviceInfo = deviceInfRes.getDeviceInfo();
+								if(deviceInfo != null) {
+									deviceId = deviceInfo.getId();
+								}
+							}
+							DevicePortsResponse devicePortRes =  aspen.getAllDevicePorts(deviceId);
+							if(deviceInfRes != null) {
+								Port[] port = devicePortRes.getPorts();
+								if(port != null && port.length > 0 ){
+									for(int i = 0; i < port.length ; i++) {
+										for (String p : ports) {
+											log.debug("port ======> " + port[i].getName());
+											if (p.equalsIgnoreCase(port[i].getName())) {
+												Interface inf = new Interface();
+												inf.setOpStatus(port[i].getOperStatus());
+												inf.setAdminStatus(port[i].getStatus());
+												inf.setName(port[i].getName());
+												interfaceList.add(inf);
+											}
+										}
+									}
+								}
 							}
 						}
 					}
 				}
-			}
-			if (!interfaceList.isEmpty()) {
-				deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+				if (!interfaceList.isEmpty()) {
+					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
+				}
 			}
 		} catch (Exception e) {
 			log.error(e,e);
