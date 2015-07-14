@@ -37,7 +37,9 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 				if (username != null && !"".equals(username)) {
 			%>
 				username = "<%=URLEncoder.encode(username, "UTF-8")%>";
-			<% } %>
+			<% } else { %>
+				window.location.href = "<%=SstConfig.getDefaultInstance().getProperty("siebel.url.login.page")%>";
+			<%}%>
 			var workFlowAgentUrlBase = "<%=SstConfig.getDefaultInstance().getProperty("workflowagent.url.base")%>";
 		</script>
 		<script src="<%=request.getContextPath()%>/app.js"></script>
