@@ -30,6 +30,9 @@ public class EMSAPIActivity implements IWorkflowProcessActivity {
 				IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), null, null, deviceDetails.getPortName(), deviceDetails.getType(), null, deviceDetails.getOcn(), deviceDetails.getName());
 				if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());
+					if (ddr.getDeviceIP() != null) {
+						deviceDetailsResponse.setDeviceIP(ddr.getDeviceIP());
+					}
 					if(ddr.getErrorResponse() != null) {
 						if (deviceDetailsResponse.getErrorResponse() != null) {
 							ErrorResponse adapterEr = ddr.getErrorResponse();

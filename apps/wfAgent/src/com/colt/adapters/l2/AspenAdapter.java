@@ -33,40 +33,34 @@ public class AspenAdapter extends Adapter {
 			DeviceDetail deviceDetail = new DeviceDetail();
 			deviceDetailsResponse.setDeviceDetails(deviceDetail);
 			String baseUrl = AgentConfig.getDefaultInstance().getProperty("apt.baseUrl");
-			String[] ports = portName != null ? portName.split(",") : null;
-			if (ports != null) {
-				IAspen aspen = (IAspen) Registry.bind(baseUrl + "/aptServices/services/Aspen.wsdl",IAspen.class);
-				Endpoint[] endPoints = aspen.getServiceEndpoints(circuitId, ocn);
-				List<Interface> interfaceList = new ArrayList<Interface>();
-				if (endPoints != null && endPoints.length > 0) {
-					for (Endpoint end : endPoints) {
-						log.debug("End Device Name ======> " + end.getDeviceName());
-						if ( deviceName != null && deviceName.equalsIgnoreCase(end.getDeviceName())) {
-							String ip = end.getDeviceIP();
-							DeviceInfoResponse deviceInfRes = aspen.getDeviceInfo(ip);
-							String deviceId = null;
-							if(deviceInfRes != null) {
-								DeviceInfo deviceInfo = deviceInfRes.getDeviceInfo();
-								if(deviceInfo != null) {
-									deviceId = deviceInfo.getId();
-								}
+			IAspen aspen = (IAspen) Registry.bind(baseUrl + "/aptServices/services/Aspen.wsdl",IAspen.class);
+			Endpoint[] endPoints = aspen.getServiceEndpoints(circuitId, ocn);
+			List<Interface> interfaceList = new ArrayList<Interface>();
+			if (endPoints != null && endPoints.length > 0) {
+				for (Endpoint end : endPoints) {
+					log.debug("End Device Name ======> " + end.getDeviceName());
+					if ( deviceName != null && deviceName.equalsIgnoreCase(end.getDeviceName())) {
+						String ip = end.getDeviceIP();
+						deviceDetailsResponse.setDeviceIP(ip);
+						DeviceInfoResponse deviceInfRes = aspen.getDeviceInfo(ip);
+						String deviceId = null;
+						if(deviceInfRes != null) {
+							DeviceInfo deviceInfo = deviceInfRes.getDeviceInfo();
+							if(deviceInfo != null) {
+								deviceId = deviceInfo.getId();
 							}
-							DevicePortsResponse devicePortRes =  aspen.getAllDevicePorts(deviceId);
-							if(deviceInfRes != null) {
-								Port[] port = devicePortRes.getPorts();
-								if(port != null && port.length > 0 ){
-									for(int i = 0; i < port.length ; i++) {
-										for (String p : ports) {
-											log.debug("port ======> " + port[i].getName());
-											if (p.equalsIgnoreCase(port[i].getName())) {
-												Interface inf = new Interface();
-												inf.setOpStatus(port[i].getOperStatus());
-												inf.setAdminStatus(port[i].getStatus());
-												inf.setName(port[i].getName());
-												interfaceList.add(inf);
-											}
-										}
-									}
+						}
+						DevicePortsResponse devicePortRes =  aspen.getAllDevicePorts(deviceId);
+						if(deviceInfRes != null) {
+							Port[] port = devicePortRes.getPorts();
+							if(port != null && port.length > 0 ){
+								for(int i = 0; i < port.length ; i++) {
+									log.debug("port ======> " + port[i].getName());
+									Interface inf = new Interface();
+									inf.setOpStatus(port[i].getOperStatus());
+									inf.setAdminStatus(port[i].getStatus());
+									inf.setName(port[i].getName());
+									interfaceList.add(inf);
 								}
 							}
 						}
