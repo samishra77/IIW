@@ -3,6 +3,7 @@ package com.colt.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import com.colt.adapters.l2.FactoryAdapter;
 
 public class AgentUtil {
 
@@ -218,6 +221,46 @@ public class AgentUtil {
 			}
 			if(foundDigit) {
 				resp = interfaceNameDescription.substring(index, interfaceNameDescription.length());
+			}
+		}
+		return resp;
+	}
+
+	public static String[] retrieveAliasesByVendor(String vendor) {
+		List<String> aliasListResp = new ArrayList<String>();
+		try {
+			if(vendor != null && !"".equals(vendor)) {
+				aliasListResp.add(vendor);
+				String aliases = null;
+				if(FactoryAdapter.VENDOR_ACCEDIAN.equalsIgnoreCase(vendor)) {
+					aliases = DeviceCommand.getDefaultInstance().getProperty("vendor.accedian.aliases").trim();
+				} else if(FactoryAdapter.VENDOR_ACTELIS.equalsIgnoreCase(vendor)) {
+					aliases = DeviceCommand.getDefaultInstance().getProperty("vendor.actelis.aliases").trim();
+				} else if(FactoryAdapter.VENDOR_OVERTURE.equalsIgnoreCase(vendor)) {
+					aliases = DeviceCommand.getDefaultInstance().getProperty("vendor.overture.aliases").trim();
+				}
+				List<String> aliasList = null;
+				if(aliases != null && !"".equals(aliases)) {
+					aliasList = AgentUtil.splitByDelimiters(aliases, ", ");
+				}
+				if(aliasList != null && !aliasList.isEmpty()) {
+					aliasListResp.addAll(aliasList);
+				}
+			}
+		} catch (IOException e) {
+			log.error(e,e);
+		}
+		return aliasListResp.toArray(new String[aliasListResp.size()]);
+	}
+
+	public static boolean verifyLineInList(String[] listArray, String line) {
+		boolean resp = false;
+		if(listArray != null && listArray.length > 0 && line != null && !"".equals(line)) {
+			for(String itemArray : listArray) {
+				if(line.toUpperCase().contains(itemArray.toUpperCase())) {
+					resp = true;
+					break;
+				}
 			}
 		}
 		return resp;

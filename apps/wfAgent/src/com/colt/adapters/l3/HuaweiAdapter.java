@@ -19,7 +19,7 @@ public class HuaweiAdapter extends Adapter {
 		if(deviceIP != null && !"".equals(deviceIP) && circuitID != null && !"".equals(circuitID) && snmpVersion != null) {
 			SNMPUtil snmp = new SNMPUtil(snmpVersion);
 			snmp.setCommunity(community);
-			Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitID, deviceIP, null, null, deviceDetailsResponse);
+			Map<String, Interface> ifAliasMap = snmp.retrieveIfAlias(circuitID, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceName(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceIpAddress(ifAliasMap, deviceIP, deviceDetailsResponse);
 			snmp.retrieveInterfaceOperStatus(ifAliasMap, deviceIP, deviceDetailsResponse);

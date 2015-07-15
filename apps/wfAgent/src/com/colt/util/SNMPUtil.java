@@ -85,6 +85,10 @@ public class SNMPUtil {
 	}
 
 	public void discoverVendor(String type, String ipAddress, String model, String vendor, IDeviceDetailsResponse deviceDetailsResponse, String deviceName) {
+		String[] aliases = null;
+		if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
+			aliases = AgentUtil.retrieveAliasesByVendor(vendor);
+		}
 		boolean isSameVendor = false;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
@@ -104,7 +108,9 @@ public class SNMPUtil {
 											if(this.version == null) {
 												this.version = 2;
 											}
-											if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
+											if(aliases != null && AgentUtil.verifyLineInList(aliases, line)) {
+												isSameVendor = true;
+											} else if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
 												isSameVendor = true;
 											} else {
 												log.debug("Vendor didn't match for: " + vendor);
@@ -141,7 +147,9 @@ public class SNMPUtil {
 							for(String line : outputList) {
 								if(line.contains("= STRING:")) {
 									this.version = 3;
-									if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
+									if(aliases != null && AgentUtil.verifyLineInList(aliases, line)) {
+										isSameVendor = true;
+									} else if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
 										isSameVendor = true;
 									} else {
 										
