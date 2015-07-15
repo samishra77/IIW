@@ -28,10 +28,13 @@ public class ReceiveDeviceDetailsActivity implements IWorkflowProcessActivity {
 					// Empty
 				}
 			}
-			if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getType()) && 
-					deviceDetails.getDeviceType() != null && FactoryAdapter.VENDOR_ATRICA.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor())) {
-				resp = new String[] {"FETCH_DEVICE_DONE", "PING_SUCCESS"};
-			} else if(deviceDetails.getIp() != null && !"".equals(deviceDetails.getIp())) {
+			if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getType())){
+				if (FactoryAdapter.VENDOR_ATRICA.equalsIgnoreCase(deviceDetails.getDeviceType().getVendor())) {
+					resp = new String[] {"FETCH_DEVICE_DONE", "PING_SUCCESS"};
+				} else if (deviceDetails.getXngNetworkObjectName() == null && deviceDetails.getIp() != null) {
+					resp = new String[] {"FETCH_DEVICE_DONE"};
+				}
+			} else if(!"".equals(deviceDetails.getIp())) {
 				resp = new String[] {"FETCH_DEVICE_DONE"};
 			}
 		}

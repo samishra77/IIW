@@ -232,6 +232,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									"portName" 	: $scope.sideInformation.aSideInformation.port,
 									"ocn" : $scope.circuit.customerOCN,
 									'circuitID': $scope.circuit.circuitID,
+									'ip': $scope.sideInformation.aSideInformation.ip,
 									'xngNetworkObjectName': $scope.sideInformation.aSideInformation.xngNetworkObjectName,
 									'xngSlotNumber': $scope.sideInformation.aSideInformation.xngSlotNumber
 							};
@@ -273,6 +274,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.deviceMessageASideError = l3DeviceDetails.errorResponse.message;
 									}
 									$scope.aSideManagementIPAddress = l3DeviceDetails.deviceIP;
+									if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
+										if (l3DeviceDetails.deviceIP) {
+											$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
+											$scope.sideInformation.aSideInformation.xngSlotNumber = null;
+										}
+									}
 								}
 							} else {
 								$scope.showDeviceErrorASide = true;
@@ -324,6 +331,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									"portName" 	: $scope.sideInformation.zSideInformation.port,
 									"ocn" : $scope.circuit.customerOCN,
 									'circuitID': $scope.circuit.circuitID,
+									'ip': $scope.sideInformation.zSideInformation.ip,
 									'xngNetworkObjectName': $scope.sideInformation.zSideInformation.xngNetworkObjectName,
 									'xngSlotNumber': $scope.sideInformation.zSideInformation.xngSlotNumber
 							};
@@ -351,6 +359,10 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 											$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
 										}
 										$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
+										if (l3DeviceDetails.deviceIP) {
+											$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
+											$scope.sideInformation.zSideInformation.xngSlotNumber = null;
+										}
 									}
 								} else {
 									$scope.showDeviceErrorZSide = true;
@@ -611,9 +623,19 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.aSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
 										$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
 										$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+										if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
+											if (l3DeviceDetails.deviceIP) {
+												$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
+												$scope.sideInformation.aSideInformation.xngSlotNumber = null;
+											}
+										}
 									} else if (type == "zside") {
 										if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 											$scope.zSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+											if (l3DeviceDetails.deviceIP) {
+												$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
+												$scope.sideInformation.zSideInformation.xngSlotNumber = null;
+											}
 										} else {
 											if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
 												if (l3DeviceDetails.deviceName) {

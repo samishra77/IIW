@@ -11,6 +11,7 @@ public class ASideInformation {
 	private String xngNetworkObjectName;
 	private String xngSlotNumber;
 	private String instId;
+	private String ip;
 
 	public String getPort() {
 		return port;
@@ -65,6 +66,12 @@ public class ASideInformation {
 	}
 	public void setXngSlotNumber(String xngSlotNumber) {
 		this.xngSlotNumber = xngSlotNumber;
+	}
+	public String getIp() {
+		return ip;
+	}
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 
 }

@@ -11,6 +11,7 @@ public class ZSideInformation {
 	private String model;
 	private String deviceName;
 	private String instId;
+	private String ip;
 
 	public String getType() {
 		return type;
@@ -66,5 +67,10 @@ public class ZSideInformation {
 	public void setXngSlotNumber(String xngSlotNumber) {
 		this.xngSlotNumber = xngSlotNumber;
 	}
-
+	public String getIp() {
+		return ip;
+	}
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 }

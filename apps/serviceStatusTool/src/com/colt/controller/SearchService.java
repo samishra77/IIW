@@ -155,14 +155,21 @@ public class SearchService {
 				if (si != null && si.getzSideInformation() != null) {
 					if (si.getzSideInformation().getInstId() != null && !"".equals(si.getzSideInformation().getInstId())) {
 						AmnDAO amnDAO = new AmnDAO(em, messages, username);
-						String networkObject = amnDAO.getNetworkObject(si.getzSideInformation().getInstId());
-						if (networkObject != null && !"".equals(networkObject)) {
-							si.getzSideInformation().setXngDeviceName(networkObject);
-						}
-						if(ProductType.LANLINK.value().equalsIgnoreCase(circuit.getProductType())) {
-							String xngNetworkObjectName = amnDAO.getNetworkObjectName(si.getzSideInformation().getInstId());
-							if (xngNetworkObjectName != null && !xngNetworkObjectName.equals("")) {
-								si.getzSideInformation().setXngNetworkObjectName(xngNetworkObjectName);
+						String[] object = amnDAO.getNetworkObject(si.getzSideInformation().getInstId());
+						if (object != null && object.length > 0) {
+							if(!"".equals(object[0])) {
+								si.getzSideInformation().setXngDeviceName(object[0]);
+							}
+							if(ProductType.LANLINK.value().equalsIgnoreCase(circuit.getProductType())) {
+								if(object[1] != null && !"".equals(object[1])) {
+									si.getzSideInformation().setIp(object[1]);
+								} else if(object[2] != null && !"".equals(object[2])) {
+									si.getzSideInformation().setIp(object[2]);
+								}
+								String xngNetworkObjectName = amnDAO.getNetworkObjectName(si.getzSideInformation().getInstId());
+								if (xngNetworkObjectName != null && !xngNetworkObjectName.equals("")) {
+									si.getzSideInformation().setXngNetworkObjectName(xngNetworkObjectName);
+								}
 							}
 						}
 					}
@@ -170,14 +177,21 @@ public class SearchService {
 				if (si != null && si.getaSideInformation() != null) {
 					if (si.getaSideInformation().getInstId() != null && !"".equals(si.getaSideInformation().getInstId())) {
 						AmnDAO amnDAO = new AmnDAO(em, messages, username);
-						String networkObject = amnDAO.getNetworkObject(si.getaSideInformation().getInstId());
-						if (networkObject != null && !"".equals(networkObject)) {
-							si.getaSideInformation().setXngDeviceName(networkObject);
-						}
-						if(ProductType.LANLINK.value().equalsIgnoreCase(circuit.getProductType())) {
-							String xngNetworkObjectName = amnDAO.getNetworkObjectName(si.getaSideInformation().getInstId());
-							if (xngNetworkObjectName != null && !xngNetworkObjectName.equals("")) {
-								si.getaSideInformation().setXngNetworkObjectName(xngNetworkObjectName);
+						String[] object = amnDAO.getNetworkObject(si.getaSideInformation().getInstId());
+						if (object != null && object.length > 0) {
+							if(!"".equals(object[0])) {
+								si.getaSideInformation().setXngDeviceName(object[0]);
+							}
+							if(ProductType.LANLINK.value().equalsIgnoreCase(circuit.getProductType())) {
+								if(object[1] != null && !"".equals(object[1])) {
+									si.getaSideInformation().setIp(object[1]);
+								} else if(object[2] != null && !"".equals(object[2])) {
+									si.getaSideInformation().setIp(object[2]);
+								}
+								String xngNetworkObjectName = amnDAO.getNetworkObjectName(si.getaSideInformation().getInstId());
+								if (xngNetworkObjectName != null && !xngNetworkObjectName.equals("")) {
+									si.getaSideInformation().setXngNetworkObjectName(xngNetworkObjectName);
+								}
 							}
 						}
 					}
@@ -185,6 +199,19 @@ public class SearchService {
 			}
 			response = processDevNameASideInformation(response, circuit, username);
 			response = processDevNameZSideInformation(response, circuit, username);
+			if(ProductType.LANLINK.value().equalsIgnoreCase(circuit.getProductType())) {
+				SideInformation si = (SideInformation) response.getResult();
+				if (si != null && si.getaSideInformation() != null) {
+					if (si.getaSideInformation().getXngNetworkObjectName() == null ) {
+						si.getaSideInformation().setXngNetworkObjectName(si.getaSideInformation().getDeviceName());
+					}
+				}
+				if (si != null && si.getzSideInformation() != null) {
+					if (si.getzSideInformation().getXngNetworkObjectName() == null ){
+						si.getzSideInformation().setXngNetworkObjectName(si.getzSideInformation().getDeviceName());
+					}
+				}
+			}
 		} catch (Exception e) {
 			log.error("[" + username + "] " + e, e);
 			response = new Response();
