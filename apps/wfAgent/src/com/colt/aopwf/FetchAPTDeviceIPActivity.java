@@ -6,7 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.colt.apt.business.Device;
-import com.colt.util.AgentConfig;
 import com.colt.util.AptUtil;
 import com.colt.util.MessagesErrors;
 import com.colt.ws.biz.DeviceDetail;
@@ -87,6 +86,10 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 							deviceArray = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getName() + "*");
 							ipAddress = getIpAddress(deviceArray, deviceDetails, deviceDetails.getName() + "*");
 						}
+					}
+
+					if (ipAddress == null || ipAddress.equals("")) {
+						ipAddress = deviceDetails.getIp();
 					}
 
 					if(ipAddress != null && !"".equals(ipAddress)) {
