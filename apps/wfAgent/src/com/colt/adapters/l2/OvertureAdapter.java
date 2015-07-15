@@ -14,7 +14,7 @@ import com.colt.ws.biz.L2DeviceDetailsResponse;
 
 public class OvertureAdapter extends Adapter {
 
-	private Log log = LogFactory.getLog(AccedianAdapter.class);
+	private Log log = LogFactory.getLog(OvertureAdapter.class);
 
 	public IDeviceDetailsResponse fetch(String circuitId, String deviceIP, Integer snmpVersion, String community, String portName, String type, String serviceType, String ocn, String deviceName) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L2DeviceDetailsResponse();
