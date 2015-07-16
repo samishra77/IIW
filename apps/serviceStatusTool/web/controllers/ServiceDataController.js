@@ -204,7 +204,6 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		serviceDetailsAndTickets();
 	}
 
-	var conTimeout = 30000;
 	function sideInformationFromDevice() {
 		var urlWorkFlow = workFlowAgentUrlBase + "/ws";
 		$scope.showDeviceErrorASide = false;

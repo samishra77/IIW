@@ -41,6 +41,7 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 				window.location.href = "<%=SstConfig.getDefaultInstance().getProperty("siebel.url.login.page")%>";
 			<%}%>
 			var workFlowAgentUrlBase = "<%=SstConfig.getDefaultInstance().getProperty("workflowagent.url.base")%>";
+			var conTimeout = "<%=SstConfig.getDefaultInstance().getProperty("workflowagent.timeout")%>";
 		</script>
 		<script src="<%=request.getContextPath()%>/app.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/SearchController.js"></script>
