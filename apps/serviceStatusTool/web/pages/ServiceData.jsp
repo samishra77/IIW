@@ -261,7 +261,6 @@
 									<td ng-if="!viewLanLinkZSideInformation"><spring:message code="serviceData.aSide.customerInterfaces.title.status"></spring:message></td>
 									<td ng-if="viewLanLinkZSideInformation"><spring:message code="serviceData.aSide.customerInterfaces.title.opStatus"></spring:message></td>
 									<td ng-if="viewLanLinkZSideInformation"><spring:message code="serviceData.aSide.customerInterfaces.title.adminStatus"></spring:message></td>
-									<td ng-if="viewLanLinkZSideInformation"><spring:message code="serviceData.aSide.customerInterfaces.title.portStatus"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange"></spring:message></td>
 								</tr>
 							</thead>
@@ -272,7 +271,6 @@
 									<td ng-if="!viewLanLinkZSideInformation">{{asideInferf.status}}</td>
 									<td ng-if="viewLanLinkZSideInformation">{{asideInferf.opStatus}}</td>
 									<td ng-if="viewLanLinkZSideInformation">{{asideInferf.adminStatus}}</td>
-									<td ng-if="viewLanLinkZSideInformation">{{asideInferf.portStatus}}</td>
 									<td>{{asideInferf.lastChgTime}}</td>
 								</tr>
 							</tbody>
@@ -357,7 +355,6 @@
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.name"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.opStatus"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.adminStatus"></spring:message></td>
-									<td><spring:message code="serviceData.aSide.customerInterfaces.title.portStatus"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange"></spring:message></td>
 								</tr>
 							</thead>
@@ -366,7 +363,6 @@
 									<td>{{inferf.name}}</td>
 									<td>{{inferf.opStatus}}</td>
 									<td>{{inferf.adminStatus}}</td>
-									<td>{{inferf.portStatus}}</td>
 									<td>{{inferf.lastChgTime}}</td>
 								</tr>
 							</tbody>
