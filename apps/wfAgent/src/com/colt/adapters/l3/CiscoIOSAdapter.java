@@ -1,6 +1,5 @@
 package com.colt.adapters.l3;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
 import java.util.ArrayList;

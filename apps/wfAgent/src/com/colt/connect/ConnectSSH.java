@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.colt.util.LGEncryption;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -205,7 +206,7 @@ public class ConnectSSH  extends ConnectDevice {
 					if(flag)
 					{
 						System.out.println("Password  is : " + columns[1].trim());
-						password = columns[1].trim();
+						password = LGEncryption.decrypt(columns[1].trim());
 					}
 					else
 					{

@@ -13,6 +13,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.telnet.TelnetClient;
 
+import com.colt.adapters.l3.FactoryAdapter;
+import com.colt.util.LGEncryption;
+
+
+
 /**
  * @author Aricent
  * Class to connect through telnet
@@ -208,19 +213,32 @@ public class ConnectTelnet extends ConnectDevice {
 			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
 		}
 
+		boolean isPassword = false;
+		int counter = 0;
+		String password = null;
 		while ((line = br.readLine()) != null) {
 			if (!line.trim().equals("")) {
 				columns = line.split(",");
+				if (columns[0].trim().equals("waitfor") && columns[1].trim().equals("word:") && counter < 3) {
+					isPassword = true;
+				} else if(isPassword) {
+					password = LGEncryption.decrypt(columns[1].trim());
+				}
 				if (columns[0].trim().equals("waitfor")) {
 					this.waitfor(columns[1].trim());
 				}
 				if (columns[0].trim().equals("write")) {
-					this.write(columns[1].trim());
-					//this.write("colt123");
+					if(!isPassword) {
+						this.write(columns[1].trim());
+					} else {
+						this.write(password);
+						isPassword = false;
+					}
 				}
 				if (columns[0].trim().equals("sendCmd")) {
 					this.sendCmd(columns[1].trim(),columns[2].trim());
 				}
+				counter++;
 			}
 		}
 	}

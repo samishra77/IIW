@@ -1,7 +1,7 @@
 waitfor,name:|login:
 write,autoprov
 waitfor,word:
-write,c0lte1c0m
+write,CxwGFhM9JYRT7sqRpJI+Xg==
 waitfor,#|>
 sendCmd,set cli screen-length 0,#|>
 sendCmd,set cli screen-width 250,#|>

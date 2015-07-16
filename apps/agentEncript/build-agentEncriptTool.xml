@@ -1,0 +1,42 @@
+<project basedir="." name="agentEncriptTool">
+	<property name="root" value="../.."/>
+	<property name="root-agentEncriptTool" value="script"/>
+	<property name="build" value="build"/>
+	<property name="build.compile" value="build/agentEncriptTool"/>
+
+	<path id="build.classpath">
+		<fileset dir="${root}/lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="cleanAll" description="Deletes the build dir.">
+		<delete dir="build"/>
+	</target>
+
+	<target name="compile" description="Compiles webapp.">
+		<mkdir dir="${build.compile}"/>
+
+		<copy todir="${build}">
+			<fileset dir="${root-agentEncriptTool}">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+
+		<javac includeantruntime="false" srcdir="src/"
+			destdir="${build.compile}/"
+			debug="true"
+			debuglevel="lines,vars,source"
+			includes="**/*.java"
+			classpathref="build.classpath"/>
+	</target>
+
+	<target name="generateJAR" depends="compile" description="Generates JAR file">
+		<jar destfile="${build}/agentEncriptTool.jar">
+			<manifest>
+				<attribute name="Main-Class" value="com.colt.encript.LGEncryptDecrypt"/>
+			</manifest>
+			<zipfileset dir="${build.compile}"/>
+		</jar>
+	</target>
+</project>

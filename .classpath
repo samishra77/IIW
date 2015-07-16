@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="apps/serviceStatusTool/src"/>
+	<classpathentry kind="src" path="apps/agentEncript/src"/>
 	<classpathentry kind="src" path="apps/wfAgent/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hibernate-jpa-2.0-api.jar"/>
