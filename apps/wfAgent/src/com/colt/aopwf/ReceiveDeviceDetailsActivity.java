@@ -34,7 +34,7 @@ public class ReceiveDeviceDetailsActivity implements IWorkflowProcessActivity {
 				} else if (deviceDetails.getXngNetworkObjectName() == null && deviceDetails.getIp() != null) {
 					resp = new String[] {"FETCH_DEVICE_DONE"};
 				}
-			} else if(!"".equals(deviceDetails.getIp())) {
+			} else if(deviceDetails.getIp() != null && !"".equals(deviceDetails.getIp())) {
 				resp = new String[] {"FETCH_DEVICE_DONE"};
 			}
 		}
