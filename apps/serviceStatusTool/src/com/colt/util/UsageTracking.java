@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -70,8 +71,16 @@ public class UsageTracking {
 		DateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
 		String dateFormated = formatter.format(date);
 		String result = "";
-		result = dateFormated + "," + username + "," + operation + "," + params + "," + duration() + "," + resultsFetched + "," + status +"\n";
+		result = "\"" + dateFormated + "\",\"" + processEscape(username) + "\",\"" + processEscape(operation) + "\",\"" + processEscape(params) + "\",\"" + 
+				processEscape(duration()) + "\",\"" + resultsFetched + "\",\"" + processEscape(status) +"\"\n";
 		return result;
+	}
+
+	private String processEscape(String param) {
+		if(param != null && !"".equals(param)) {
+			param = StringUtils.replace(param, "\"", "\"\"");
+		}
+		return param;
 	}
 
 	public long getResultsFetched() {
