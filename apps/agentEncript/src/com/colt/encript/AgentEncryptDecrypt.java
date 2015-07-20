@@ -1,6 +1,6 @@
 package com.colt.encript;
 
-public class LGEncryptDecrypt {
+public class AgentEncryptDecrypt {
 
 	public static void main(String[] args) throws Exception{
 
@@ -12,7 +12,7 @@ public class LGEncryptDecrypt {
 		}
 
 		if(password != null && !"".equals(password)) {
-			String passwordEnc = LGEncryption.encrypt(password);
+			String passwordEnc = AgentEncryption.encrypt(password);
 			System.out.println("Plain Password: " + password);
 			System.out.println("Encrypted Password: " + passwordEnc);
 		} else {

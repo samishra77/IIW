@@ -1,7 +1,7 @@
 waitfor,name:|login:
 write,autoprov
 waitfor,word:
-write,CxwGFhM9JYRT7sqRpJI+Xg==
+write,JOcp5ix+lACjhkT8qrG5jQ==
 waitfor,#|>
 sendCmd,term len 0,#|>
 sendCmd,term width 250,#|>

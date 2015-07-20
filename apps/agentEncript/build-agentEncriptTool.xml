@@ -34,7 +34,7 @@
 	<target name="generateJAR" depends="compile" description="Generates JAR file">
 		<jar destfile="${build}/agentEncriptTool.jar">
 			<manifest>
-				<attribute name="Main-Class" value="com.colt.encript.LGEncryptDecrypt"/>
+				<attribute name="Main-Class" value="com.colt.encript.AgentEncryptDecrypt"/>
 			</manifest>
 			<zipfileset dir="${build.compile}"/>
 		</jar>

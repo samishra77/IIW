@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.telnet.TelnetClient;
 
 import com.colt.adapters.l3.FactoryAdapter;
-import com.colt.util.LGEncryption;
+import com.colt.util.AgentEncryption;
 
 
 
@@ -222,7 +222,7 @@ public class ConnectTelnet extends ConnectDevice {
 				if (columns[0].trim().equals("waitfor") && columns[1].trim().equals("word:") && counter < 3) {
 					isPassword = true;
 				} else if(isPassword) {
-					password = LGEncryption.decrypt(columns[1].trim());
+					password = AgentEncryption.decrypt(columns[1].trim());
 				}
 				if (columns[0].trim().equals("waitfor")) {
 					this.waitfor(columns[1].trim());

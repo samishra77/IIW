@@ -1,4 +1,4 @@
-package com.colt.encript;
+package com.colt.util;
 
 import java.security.Key;
 
@@ -8,10 +8,10 @@ import javax.crypto.spec.SecretKeySpec;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-public class LGEncryption {
+public class AgentEncryption {
 
 	private static final String ALGO = "AES";
-	private static final byte[] keyValue =  new byte[] { 'L', 'o', 'o', 'k', 'i', 'n', 'g','G', 'l', 'a', 's','s', 'P', 'a', 's', 's' };
+	private static final byte[] keyValue =  new byte[] { 'W', 'r', 'k','F', 'l', 'o', 'w','A', 'g', 'e','n', 't', 'P','a', 's', 's' };
 
 	public static String encrypt(String Data) throws Exception {
 		Key key = generateKey();
