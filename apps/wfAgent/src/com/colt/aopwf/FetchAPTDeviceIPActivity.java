@@ -43,6 +43,11 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 						}
 					}
 				}
+
+				if ((ipAddress == null || ipAddress.equals("")) && deviceDetails.getType().equals("LANLink")) {
+					ipAddress = deviceDetails.getIp();
+				}
+
 				if(ipAddress != null && !"".equals(ipAddress)) {
 					deviceDetails.setIp(ipAddress);
 					resp = new String[] {"FETCH_DEVICE_DONE"};
