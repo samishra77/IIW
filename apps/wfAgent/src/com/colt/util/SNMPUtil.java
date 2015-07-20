@@ -86,7 +86,6 @@ public class SNMPUtil {
 
 	public void discoverVendor(String type, String ipAddress, String model, String vendor, IDeviceDetailsResponse deviceDetailsResponse, String deviceName) {
 		boolean isSameVendor = false;
-		String labelVendor = null;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
 				String community = this.snmpCommunity().trim();
@@ -105,23 +104,10 @@ public class SNMPUtil {
 											if(this.version == null) {
 												this.version = 2;
 											}
-											if(line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.ACCEDIAN_LABELS.AMN.name()) ||
-													line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.ACCEDIAN_LABELS.AMO.name()) ||
-													line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.ACCEDIAN_LABELS.FDX.name())) {
-												labelVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN;
-											} else if (line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.OVERTURE_LABELS.ISG.name()) ||
-													line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.OVERTURE_LABELS.Overture.name())) {
-												labelVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE;
-											}	
-
-											if(vendor != null && vendor.equalsIgnoreCase(labelVendor)) {
-												isSameVendor = true;
-											} 
-											
 											if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
 												isSameVendor = true;
 											} else {
-												if(null != labelVendor)	log.debug("Vendor didn't match for: " + vendor);
+												log.debug("Vendor didn't match for: " + vendor);
 											}
 											if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
 												if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
@@ -154,25 +140,11 @@ public class SNMPUtil {
 						if(outputList != null && !outputList.isEmpty()) {
 							for(String line : outputList) {
 								if(line.contains("= STRING:")) {
-									this.version = 3;									
-									if(line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.ACCEDIAN_LABELS.AMN.name()) ||
-											line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.ACCEDIAN_LABELS.AMO.name()) ||
-											line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.ACCEDIAN_LABELS.FDX.name())) {
-										labelVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN;										
-									} else if (line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.OVERTURE_LABELS.ISG.name()) ||
-											line.toUpperCase().contains(com.colt.adapters.l2.FactoryAdapter.OVERTURE_LABELS.Overture.name())) {
-										labelVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE;										
-									}	
-									
-									if(vendor != null && vendor.equalsIgnoreCase(labelVendor)) {
-										isSameVendor = true;
-									} else {										
-										log.debug("Vendor didn't match for: " + vendor);
-									}
-									
+									this.version = 3;
 									if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
 										isSameVendor = true;
-									} else {										
+									} else {
+										
 										log.debug("Vendor didn't match for: " + vendor);
 									}
 									if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
