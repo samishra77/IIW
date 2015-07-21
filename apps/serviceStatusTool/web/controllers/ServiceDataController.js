@@ -279,6 +279,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
 											$scope.sideInformation.aSideInformation.xngSlotNumber = null;
+											if(l3DeviceDetails.vendor) {
+												$scope.sideInformation.aSideInformation.vendor = l3DeviceDetails.vendor;
+											}
+											if(l3DeviceDetails.model) {
+												$scope.sideInformation.aSideInformation.model = l3DeviceDetails.model;
+											}
 										}
 									}
 								}
@@ -363,6 +369,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
 											$scope.sideInformation.zSideInformation.xngSlotNumber = null;
+										}
+										if(l3DeviceDetails.vendor) {
+											$scope.sideInformation.zSideInformation.vendor = l3DeviceDetails.vendor;
+										}
+										if(l3DeviceDetails.model) {
+											$scope.sideInformation.zSideInformation.model = l3DeviceDetails.model;
 										}
 									}
 								} else {
@@ -629,6 +641,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 												$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
 												$scope.sideInformation.aSideInformation.xngSlotNumber = null;
 											}
+											if(l3DeviceDetails.vendor) {
+												$scope.sideInformation.aSideInformation.vendor = l3DeviceDetails.vendor;
+											}
+											if(l3DeviceDetails.model) {
+												$scope.sideInformation.aSideInformation.model = l3DeviceDetails.model;
+											}
 										}
 									} else if (type == "zside") {
 										if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
@@ -636,6 +654,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 											if (l3DeviceDetails.deviceIP) {
 												$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
 												$scope.sideInformation.zSideInformation.xngSlotNumber = null;
+											}
+											if(l3DeviceDetails.vendor) {
+												$scope.sideInformation.zSideInformation.vendor = l3DeviceDetails.vendor;
+											}
+											if(l3DeviceDetails.model) {
+												$scope.sideInformation.zSideInformation.model = l3DeviceDetails.model;
 											}
 										} else {
 											if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {

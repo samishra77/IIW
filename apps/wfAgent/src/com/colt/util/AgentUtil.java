@@ -253,12 +253,12 @@ public class AgentUtil {
 		return aliasListResp.toArray(new String[aliasListResp.size()]);
 	}
 
-	public static boolean verifyLineInList(String[] listArray, String line) {
-		boolean resp = false;
+	public static String verifyLineInList(String[] listArray, String line) {
+		String resp = null;
 		if(listArray != null && listArray.length > 0 && line != null && !"".equals(line)) {
 			for(String itemArray : listArray) {
 				if(line.toUpperCase().contains(itemArray.toUpperCase())) {
-					resp = true;
+					resp = itemArray;
 					break;
 				}
 			}

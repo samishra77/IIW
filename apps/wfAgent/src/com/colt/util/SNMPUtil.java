@@ -85,10 +85,6 @@ public class SNMPUtil {
 	}
 
 	public void discoverVendor(String type, String ipAddress, String model, String vendor, IDeviceDetailsResponse deviceDetailsResponse, String deviceName) {
-		String[] aliases = null;
-		if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
-			aliases = AgentUtil.retrieveAliasesByVendor(vendor);
-		}
 		boolean isSameVendor = false;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
@@ -108,24 +104,48 @@ public class SNMPUtil {
 											if(this.version == null) {
 												this.version = 2;
 											}
-											if(aliases != null && AgentUtil.verifyLineInList(aliases, line)) {
-												isSameVendor = true;
-											} else if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
-												isSameVendor = true;
-											} else {
-												log.debug("Vendor didn't match for: " + vendor);
-											}
-											if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
-												if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
-													this.setOs(FactoryAdapter.JUNIPER_ERX);
+											if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
+												String[] aliases = AgentUtil.retrieveAliasesByVendor(vendor);
+												String alias = AgentUtil.verifyLineInList(aliases, line);
+												if(alias == null) {
+													String deviceVendor = null;
+													if(com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE.equalsIgnoreCase(vendor)) {
+														aliases = AgentUtil.retrieveAliasesByVendor(com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN);
+														deviceVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN;
+													} else if(com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN.equalsIgnoreCase(vendor)) {
+														aliases = AgentUtil.retrieveAliasesByVendor(com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE);
+														deviceVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE;
+													}
+													alias = AgentUtil.verifyLineInList(aliases, line);
+													if(aliases != null && alias != null && !"".equals(alias)) {
+														String deviceModel = getIfValue(line);
+														deviceDetailsResponse.setModel(deviceModel);
+														deviceDetailsResponse.setVendor(deviceVendor);
+														isSameVendor = true;
+													} else {
+														log.debug("Vendor didn't match for: " + vendor);
+													}
 												} else {
-													this.setOs(FactoryAdapter.JUNIPER_JUNOS);
+													isSameVendor = true;
 												}
-											} else if(line.toUpperCase().contains(FactoryAdapter.VENDOR_CISCO.toUpperCase())) {
-												if(line.toUpperCase().contains(FactoryAdapter.CISCO_XR.toUpperCase())) {
-													this.setOs(FactoryAdapter.CISCO_XR);
+											} else {
+												if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
+													isSameVendor = true;
 												} else {
-													this.setOs(FactoryAdapter.CISCO_IOS);
+													log.debug("Vendor didn't match for: " + vendor);
+												}
+												if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
+													if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
+														this.setOs(FactoryAdapter.JUNIPER_ERX);
+													} else {
+														this.setOs(FactoryAdapter.JUNIPER_JUNOS);
+													}
+												} else if(line.toUpperCase().contains(FactoryAdapter.VENDOR_CISCO.toUpperCase())) {
+													if(line.toUpperCase().contains(FactoryAdapter.CISCO_XR.toUpperCase())) {
+														this.setOs(FactoryAdapter.CISCO_XR);
+													} else {
+														this.setOs(FactoryAdapter.CISCO_IOS);
+													}
 												}
 											}
 											break;
@@ -147,25 +167,48 @@ public class SNMPUtil {
 							for(String line : outputList) {
 								if(line.contains("= STRING:")) {
 									this.version = 3;
-									if(aliases != null && AgentUtil.verifyLineInList(aliases, line)) {
-										isSameVendor = true;
-									} else if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
-										isSameVendor = true;
-									} else {
-										
-										log.debug("Vendor didn't match for: " + vendor);
-									}
-									if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
-										if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
-											this.setOs(FactoryAdapter.JUNIPER_ERX);
+									if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
+										String[] aliases = AgentUtil.retrieveAliasesByVendor(vendor);
+										String alias = AgentUtil.verifyLineInList(aliases, line);
+										if(alias == null) {
+											String deviceVendor = null;
+											if(com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE.equalsIgnoreCase(vendor)) {
+												aliases = AgentUtil.retrieveAliasesByVendor(com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN);
+												deviceVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN;
+											} else if(com.colt.adapters.l2.FactoryAdapter.VENDOR_ACCEDIAN.equalsIgnoreCase(vendor)) {
+												aliases = AgentUtil.retrieveAliasesByVendor(com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE);
+												deviceVendor = com.colt.adapters.l2.FactoryAdapter.VENDOR_OVERTURE;
+											}
+											alias = AgentUtil.verifyLineInList(aliases, line);
+											if(aliases != null && alias != null && !"".equals(alias)) {
+												String deviceModel = getIfValue(line);
+												deviceDetailsResponse.setModel(deviceModel);
+												deviceDetailsResponse.setVendor(deviceVendor);
+												isSameVendor = true;
+											} else {
+												log.debug("Vendor didn't match for: " + vendor);
+											}
 										} else {
-											this.setOs(FactoryAdapter.JUNIPER_JUNOS);
+											isSameVendor = true;
 										}
-									} else if(line.toUpperCase().contains(FactoryAdapter.VENDOR_CISCO.toUpperCase())) {
-										if(line.toUpperCase().contains(FactoryAdapter.CISCO_XR.toUpperCase())) {
-											this.setOs(FactoryAdapter.CISCO_XR);
+									} else {
+										if(vendor != null && line.toUpperCase().contains(vendor.toUpperCase())) {
+											isSameVendor = true;
 										} else {
-											this.setOs(FactoryAdapter.CISCO_IOS);
+											log.debug("Vendor didn't match for: " + vendor);
+										}
+										if(line.toUpperCase().contains(FactoryAdapter.VENDOR_JUNIPER.toUpperCase())) {
+											if(line.toUpperCase().contains(FactoryAdapter.JUNIPER_ERX.toUpperCase())) {
+												this.setOs(FactoryAdapter.JUNIPER_ERX);
+											} else {
+												this.setOs(FactoryAdapter.JUNIPER_JUNOS);
+											}
+										} else if(line.toUpperCase().contains(FactoryAdapter.VENDOR_CISCO.toUpperCase())) {
+											if(line.toUpperCase().contains(FactoryAdapter.CISCO_XR.toUpperCase())) {
+												this.setOs(FactoryAdapter.CISCO_XR);
+											} else {
+												this.setOs(FactoryAdapter.CISCO_IOS);
+											}
 										}
 									}
 									break;

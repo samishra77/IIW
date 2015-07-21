@@ -3,6 +3,23 @@ package com.colt.ws.biz;
 public interface IDeviceDetailsResponse {
 
 	/**
+	 * @return the vendor
+	 */
+	public String getVendor();
+	/**
+	 * @param vendor the vendor to set
+	 */
+	public void setVendor(String vendor);
+	/**
+	 * @return the model
+	 */
+	public String getModel();
+	/**
+	 * @param model the model to set
+	 */
+	public void setModel(String model);
+
+	/**
 	 * @return the associatedDeviceIp
 	 */
 	public String getAssociatedDeviceIp();
