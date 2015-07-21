@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.colt.connect.ConnectDevice;
 import com.colt.util.AgentUtil;
+import com.colt.util.ConnectionFactory;
 import com.colt.util.DeviceCommand;
 import com.colt.util.MessagesErrors;
 import com.colt.ws.biz.DeviceDetail;
@@ -28,22 +29,14 @@ public class CiscoIOSAdapter extends Adapter {
 		DeviceDetail deviceDetail = new DeviceDetail();
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 		if(deviceIP != null && !"".equals(deviceIP) && circuitID != null && !"".equals(circuitID)) {
+			ConnectionFactory connFactory = new ConnectionFactory();
 			ConnectDevice connectDevice = null;
 			try {
-				connectDevice = new ConnectDevice();
-				connectDevice.connect(deviceIP, 30, "telnet");
-			} catch (Exception e) {
-				try {
-					connectDevice.disconnect();
-					connectDevice = new ConnectDevice();
-					connectDevice.connect(deviceIP, 30, "ssh");
-				} catch (Exception e2) {
-					throw e2;
+				connectDevice = connFactory.getConnection(deviceIP, os, deviceDetailsResponse);
+				if ((deviceDetailsResponse.getErrorResponse() == null) || (deviceDetailsResponse.getErrorResponse() != null && deviceDetailsResponse.getErrorResponse().getFailedConn().isEmpty()) ) {
+					connectDevice.prepareForCommands(FactoryAdapter.VENDOR_CISCO);
+					executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse, community);
 				}
-			}
-			try {
-				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_CISCO);
-				executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse, community);
 			} catch (Exception e) {
 				log.error(e,e);
 				if(deviceDetailsResponse.getErrorResponse() == null) {
@@ -54,7 +47,9 @@ public class CiscoIOSAdapter extends Adapter {
 				}
 				deviceDetailsResponse.getErrorResponse().getFailedConn().add(deviceIP);
 			} finally {
-				connectDevice.disconnect();
+				if(connectDevice != null) {
+					connectDevice.disconnect();
+				}
 			}
 		}
 		return deviceDetailsResponse;

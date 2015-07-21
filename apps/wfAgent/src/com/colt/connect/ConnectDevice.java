@@ -15,14 +15,14 @@ public class ConnectDevice {
 		log = LogFactory.getLog(this.getClass());
 	}
 
-	public void connect(String server, int _timeout, String connectProtocol) throws Exception {
+	public void connect(String server, int _timeout, String connectProtocol, String os) throws Exception {
 		if("telnet".equalsIgnoreCase(connectProtocol)){
 			connectDevice = new ConnectTelnet();
 		}
 		if("ssh".equalsIgnoreCase(connectProtocol)){
 			connectDevice = new ConnectSSH();
 		}
-		connectDevice.connect(server, _timeout, connectProtocol);
+		connectDevice.connect(server, _timeout, connectProtocol, os);
 	}
 
 	public String waitfor(String pattern) throws Exception {

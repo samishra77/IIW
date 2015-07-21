@@ -51,10 +51,51 @@ public class ConnectSSH  extends ConnectDevice {
 		jsch = new JSch();
 	}
 
-	public void connect(String server, int _timeout, String connectProtocol) throws Exception {
+	public void connect(String server, int _timeout, String connectProtocol, String os) throws Exception {
 		try {
 			this.server = server;
 			this._timeout = _timeout;
+			String line;
+			String[] columns;
+			BufferedReader br = null;
+			if (os != null) {
+				br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+			} else {
+				br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+			}
+
+			this.vendor = vendor.toLowerCase();
+			boolean flag = false;
+			int counter = 0;
+			while ((line = br.readLine()) != null) {
+				if (!line.trim().equals("")) {
+					counter = counter + 1;
+					columns = line.split(",");
+					if (columns[0].trim().equals("write") && !columns[1].trim().startsWith("screen") && counter < 5) {
+						if(flag)
+						{
+							System.out.println("Password  is : " + columns[1].trim());
+							password = AgentEncryption.decrypt(columns[1].trim());
+						}
+						else
+						{
+							System.out.println("Username is : " + columns[1].trim());
+							username = columns[1].trim();
+							flag = true;
+						}
+					}
+				}
+			}
+			ssh = new SSHTools(server,username,password);
+
+			session = ssh.getSshSession();
+			session.connect();
+
+			channel = session.openChannel("shell");
+			channel.connect();
+
+			in = channel.getInputStream();
+			out = new PrintStream(channel.getOutputStream());
 		} catch (Exception e) {
 			log.error(server + ": " + e.getMessage(), e);
 			throw e;
@@ -186,51 +227,10 @@ public class ConnectSSH  extends ConnectDevice {
 	}
 
 	public void prepareForCommands(String vendor, String os) throws Exception {
-		String line;
 		String[] columns;
-		BufferedReader br = null;
-		if (os != null) {
-			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
-		} else {
-			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
-		}
-
-		this.vendor = vendor.toLowerCase();
-		boolean flag = false;
-		int counter = 0;
-		while ((line = br.readLine()) != null) {
-			if (!line.trim().equals("")) {
-				counter = counter + 1;
-				columns = line.split(",");
-				if (columns[0].trim().equals("write") && !columns[1].trim().startsWith("screen") && counter < 5) {
-					if(flag)
-					{
-						System.out.println("Password  is : " + columns[1].trim());
-						password = AgentEncryption.decrypt(columns[1].trim());
-					}
-					else
-					{
-						System.out.println("Username is : " + columns[1].trim());
-						username = columns[1].trim();
-						flag = true;
-					}
-				}
-			}
-		}
-		ssh = new SSHTools(server,username,password);
-
-		session = ssh.getSshSession();
-		session.connect();
-
-		channel = session.openChannel("shell");
-		channel.connect();
-
-		in = channel.getInputStream();
-		out = new PrintStream(channel.getOutputStream());
-
 		BufferedReader brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device." + vendor.toLowerCase())));
 
-		counter = 0;
+		int counter = 0;
 		String lineConf;
 		while ((lineConf = brConf.readLine()) != null) {
 			if (!lineConf.trim().equals("")) {

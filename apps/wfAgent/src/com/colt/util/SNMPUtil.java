@@ -269,17 +269,8 @@ public class SNMPUtil {
 		if(deviceIP != null && !"".equals(deviceIP)) {
 			ConnectDevice connectDevice = null;
 			try {
-				try {
-					connectDevice = new ConnectDevice();
-					connectDevice.connect(deviceIP, 30, "telnet");
-				} catch (Exception e) {
-					try {
-						connectDevice = new ConnectDevice();
-						connectDevice.connect(deviceIP, 30, "ssh");
-					} catch (Exception e2) {
-						throw e2;
-					}
-				}
+				ConnectionFactory connFactory = new ConnectionFactory();
+				connectDevice = connFactory.getConnection(deviceIP, os, deviceDetailsResponse);
 
 				String prepareCommands = null;
 				String endTag = null;

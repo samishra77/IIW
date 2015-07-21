@@ -1,6 +1,5 @@
 package com.colt.adapters.l3;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.MessageFormat;
@@ -20,6 +19,7 @@ import org.w3c.dom.NodeList;
 import com.colt.connect.ConnectDevice;
 import com.colt.util.AgentConfig;
 import com.colt.util.AgentUtil;
+import com.colt.util.ConnectionFactory;
 import com.colt.util.DeviceCommand;
 import com.colt.util.MessagesErrors;
 import com.colt.ws.biz.DeviceDetail;
@@ -57,20 +57,10 @@ public class JunosERXAdapter extends Adapter {
 		DeviceDetail deviceDetail = new DeviceDetail();
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);
 		if(deviceIP != null && !"".equals(deviceIP) ) {
+			ConnectionFactory connFactory = new ConnectionFactory();
 			ConnectDevice connectDevice = null;
 			try {
-				connectDevice = new ConnectDevice();
-				connectDevice.connect(deviceIP, 30, "telnet");
-			} catch (Exception e) {
-				try {
-					connectDevice.disconnect();
-					connectDevice = new ConnectDevice();
-					connectDevice.connect(deviceIP, 30, "ssh");
-				} catch (Exception e2) {
-					throw e2;
-				}
-			}
-			try {
+				connectDevice = connFactory.getConnection(deviceIP, os, deviceDetailsResponse);
 				String devName = null;
 				String devNameBkp = null;
 				String ipDevBkp = null;
@@ -480,10 +470,12 @@ public class JunosERXAdapter extends Adapter {
 
 	private void retrieveInterfaces(ConnectDevice connectDevice, IDeviceDetailsResponse deviceDetailsResponse, String serviceId, String serviceType, String cpeMgmtIp, String ipDevBkp, String os, String devNameBkp) {
 		List<Interface> interfaceList = new ArrayList<Interface>();
+		ConnectDevice connectDeviceBkp = null;
 		try {
 			String interfName = null;
 			String interfIp = null;
 			String lastStatus = null;
+			
 			if ("IPVPN".toString().equalsIgnoreCase(serviceType)) {
 				if (serviceId.contains("/")) {
 					serviceId = serviceId.substring(0,serviceId.indexOf("/"));
@@ -497,8 +489,8 @@ public class JunosERXAdapter extends Adapter {
 					}
 				}
 				if ((interfName == null || interfName.trim().equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
-					ConnectDevice connectDeviceBkp = new ConnectDevice();
-					connectDeviceBkp.connect(ipDevBkp, 30, "telnet");
+					ConnectionFactory connFactory = new ConnectionFactory();
+					connectDeviceBkp = connFactory.getConnection(ipDevBkp, os, deviceDetailsResponse);
 					connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
 					if ( vrf != null ) {
 						interfName = getInterface(connectDeviceBkp, serviceType, vrf, cpeMgmtIp);
@@ -525,8 +517,8 @@ public class JunosERXAdapter extends Adapter {
 							interfIp = getInterfaceIp(connectDevice, interfName);
 						}
 						if ((interfName == null || interfName.equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
-							ConnectDevice connectDeviceBkp = new ConnectDevice();
-							connectDeviceBkp.connect(ipDevBkp, 30, "telnet");
+							ConnectionFactory connFactory = new ConnectionFactory();
+							connectDeviceBkp = connFactory.getConnection(ipDevBkp, os, deviceDetailsResponse);
 							connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
 							interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, false);
 							if (interfName != null && !"".equals(interfName)) {
@@ -594,6 +586,9 @@ public class JunosERXAdapter extends Adapter {
 				}
 				deviceDetailsResponse.setErrorResponse(errorResponse);
 			}
+		}
+		if(connectDeviceBkp != null) {
+			connectDeviceBkp.disconnect();
 		}
 	}
 

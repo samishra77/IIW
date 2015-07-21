@@ -46,7 +46,7 @@ public class ConnectTelnet extends ConnectDevice {
 	}
 
 	@Override
-	public void connect(String server, int _timeout, String connectProtocol) throws Exception {
+	public void connect(String server, int _timeout, String connectProtocol, String os) throws Exception {
 		try {
 			log.debug("Telnet connection to " + server);
 			telnet.connect(server, 23);
