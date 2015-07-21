@@ -34,6 +34,7 @@ public class CiscoIOSAdapter extends Adapter {
 				connectDevice.connect(deviceIP, 30, "telnet");
 			} catch (Exception e) {
 				try {
+					connectDevice.disconnect();
 					connectDevice = new ConnectDevice();
 					connectDevice.connect(deviceIP, 30, "ssh");
 				} catch (Exception e2) {
@@ -52,6 +53,8 @@ public class CiscoIOSAdapter extends Adapter {
 					deviceDetailsResponse.setErrorResponse(errorResponse);
 				}
 				deviceDetailsResponse.getErrorResponse().getFailedConn().add(deviceIP);
+			} finally {
+				connectDevice.disconnect();
 			}
 		}
 		return deviceDetailsResponse;
