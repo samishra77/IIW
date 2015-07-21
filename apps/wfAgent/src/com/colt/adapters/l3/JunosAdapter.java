@@ -33,7 +33,7 @@ public class JunosAdapter extends Adapter {
 			ConnectDevice connectDevice = null;
 			try {
 				connectDevice = connFactory.getConnection(deviceIP, os, deviceDetailsResponse);
-				if ((deviceDetailsResponse.getErrorResponse() == null) || (deviceDetailsResponse.getErrorResponse() != null && deviceDetailsResponse.getErrorResponse().getFailedConn().isEmpty()) ) {
+				if (connectDevice != null) {
 					connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
 					executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse, community);
 				}
@@ -47,7 +47,9 @@ public class JunosAdapter extends Adapter {
 				}
 				deviceDetailsResponse.getErrorResponse().getFailedConn().add(deviceIP);
 			} finally {
-				connectDevice.disconnect();
+				if(connectDevice != null) {
+					connectDevice.disconnect();
+				}
 			}
 		}
 		return deviceDetailsResponse;

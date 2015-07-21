@@ -283,7 +283,7 @@ public class SNMPUtil {
 					vendor = "junos";
 				}
 
-				if(prepareCommands != null && endTag != null) {
+				if(prepareCommands != null && endTag != null && connectDevice != null) {
 					connectDevice.prepareForCommands(prepareCommands);
 					String command = DeviceCommand.getDefaultInstance().getProperty("validate.cli.showVersion").trim();
 					if(command != null && !"".equals(command)) {

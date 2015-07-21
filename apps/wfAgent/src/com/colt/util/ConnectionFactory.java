@@ -18,11 +18,13 @@ public class ConnectionFactory {
 		try {
 			connectDevice = new ConnectDevice();
 			connectDevice.connect(deviceIP, 30, "ssh", os);
+			return connectDevice;
 		} catch (Exception e) {
 			try {
 				connectDevice.disconnect();
 				connectDevice = new ConnectDevice();
 				connectDevice.connect(deviceIP, 30, "telnet", os);
+				return connectDevice;
 			} catch (Exception e2) {
 				connectDevice.disconnect();
 				log.error(e,e);

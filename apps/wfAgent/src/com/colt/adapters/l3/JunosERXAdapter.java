@@ -103,8 +103,10 @@ public class JunosERXAdapter extends Adapter {
 						log.error(e,e);
 					}
 				}
-				connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
-				executeCommands(connectDevice, deviceIP, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp, os, devNameBkp);
+				if(connectDevice != null) {
+					connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
+					executeCommands(connectDevice, deviceIP, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp, os, devNameBkp);
+				}
 			} catch (Exception e) {
 				log.error(e,e);
 				if(deviceDetailsResponse.getErrorResponse() == null) {
@@ -115,7 +117,9 @@ public class JunosERXAdapter extends Adapter {
 				}
 				deviceDetailsResponse.getErrorResponse().getFailedConn().add(deviceIP);
 			} finally {
-				connectDevice.disconnect();
+				if(connectDevice != null) {
+					connectDevice.disconnect();
+				}
 			}
 		}
 		return deviceDetailsResponse;
