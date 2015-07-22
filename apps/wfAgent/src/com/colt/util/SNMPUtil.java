@@ -122,6 +122,7 @@ public class SNMPUtil {
 														deviceDetailsResponse.setModel(deviceModel);
 														deviceDetailsResponse.setVendor(deviceVendor);
 														isSameVendor = true;
+														log.debug("Vendor/Model updated to " + deviceVendor + "/" + deviceModel);
 													} else {
 														log.debug("Vendor didn't match for: " + vendor);
 													}
@@ -269,9 +270,6 @@ public class SNMPUtil {
 		if(deviceIP != null && !"".equals(deviceIP)) {
 			ConnectDevice connectDevice = null;
 			try {
-				ConnectionFactory connFactory = new ConnectionFactory();
-				connectDevice = connFactory.getConnection(deviceIP, os, deviceDetailsResponse);
-
 				String prepareCommands = null;
 				String endTag = null;
 				if(FactoryAdapter.VENDOR_CISCO.equalsIgnoreCase(vendor)) {
@@ -282,9 +280,11 @@ public class SNMPUtil {
 					endTag = "#|>";
 					vendor = "junos";
 				}
+				ConnectionFactory connFactory = new ConnectionFactory();
+				connectDevice = connFactory.getConnection(deviceIP, prepareCommands, os, deviceDetailsResponse);
 
 				if(prepareCommands != null && endTag != null && connectDevice != null) {
-					connectDevice.prepareForCommands(prepareCommands);
+					connectDevice.prepareForCommands();
 					String command = DeviceCommand.getDefaultInstance().getProperty("validate.cli.showVersion").trim();
 					if(command != null && !"".equals(command)) {
 						String output = connectDevice.applyCommands(command, endTag);

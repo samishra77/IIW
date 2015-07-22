@@ -28,7 +28,6 @@ import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.Interface;
 import com.colt.ws.biz.L3DeviceDetailsResponse;
 
-
 public class JunosERXAdapter extends Adapter {
 
 	private Log log = LogFactory.getLog(JunosERXAdapter.class);
@@ -60,7 +59,7 @@ public class JunosERXAdapter extends Adapter {
 			ConnectionFactory connFactory = new ConnectionFactory();
 			ConnectDevice connectDevice = null;
 			try {
-				connectDevice = connFactory.getConnection(deviceIP, os, deviceDetailsResponse);
+				connectDevice = connFactory.getConnection(deviceIP, FactoryAdapter.VENDOR_JUNIPER, os, deviceDetailsResponse);
 				String devName = null;
 				String devNameBkp = null;
 				String ipDevBkp = null;
@@ -104,7 +103,7 @@ public class JunosERXAdapter extends Adapter {
 					}
 				}
 				if(connectDevice != null) {
-					connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
+					connectDevice.prepareForCommands();
 					executeCommands(connectDevice, deviceIP, deviceDetailsResponse, serviceId, serviceType, cpeMgmtIp, ipDevBkp, os, devNameBkp);
 				}
 			} catch (Exception e) {
@@ -494,8 +493,8 @@ public class JunosERXAdapter extends Adapter {
 				}
 				if ((interfName == null || interfName.trim().equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
 					ConnectionFactory connFactory = new ConnectionFactory();
-					connectDeviceBkp = connFactory.getConnection(ipDevBkp, os, deviceDetailsResponse);
-					connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
+					connectDeviceBkp = connFactory.getConnection(ipDevBkp, FactoryAdapter.VENDOR_JUNIPER, os, deviceDetailsResponse);
+					connectDeviceBkp.prepareForCommands();
 					if ( vrf != null ) {
 						interfName = getInterface(connectDeviceBkp, serviceType, vrf, cpeMgmtIp);
 						if (interfName != null && !"".equals(interfName)) {
@@ -522,8 +521,8 @@ public class JunosERXAdapter extends Adapter {
 						}
 						if ((interfName == null || interfName.equals("")) && ipDevBkp != null && !ipDevBkp.trim().equals("")) {
 							ConnectionFactory connFactory = new ConnectionFactory();
-							connectDeviceBkp = connFactory.getConnection(ipDevBkp, os, deviceDetailsResponse);
-							connectDeviceBkp.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER, os);
+							connectDeviceBkp = connFactory.getConnection(ipDevBkp, FactoryAdapter.VENDOR_JUNIPER, os, deviceDetailsResponse);
+							connectDeviceBkp.prepareForCommands();
 							interfName = getInterfaceIpaccess(connectDeviceBkp, cpeMgmtIp, false);
 							if (interfName != null && !"".equals(interfName)) {
 								lastStatus = getLastStatus(connectDeviceBkp, interfName);

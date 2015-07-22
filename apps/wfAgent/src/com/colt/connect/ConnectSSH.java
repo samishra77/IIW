@@ -19,17 +19,16 @@ import com.jcraft.jsch.Session;
 /**
  * @author Intelinet
  */
-
 public class ConnectSSH  extends ConnectDevice {
 	protected Log log;
 	protected JSch jsch;
 	protected SSHTools ssh;
-	private String vendor = "";
+	private String vendor = null;
+	private String os = null;
 	protected Channel channel=null;
 	protected Session session=null;
 	private String username;
 	private String password;
-	private String server=null;
 	private int _timeout;
 	protected InputStream in;
 	protected PrintStream out;
@@ -51,20 +50,25 @@ public class ConnectSSH  extends ConnectDevice {
 		jsch = new JSch();
 	}
 
-	public void connect(String server, int _timeout, String connectProtocol, String os) throws Exception {
+	public void connect(String server, int _timeout, String connectProtocol, String vendor, String os) throws Exception {
 		try {
-			this.server = server;
+			log.debug("SSH connection to " + server);
+			this.vendor = vendor.toLowerCase();
+			this.os = os;
 			this._timeout = _timeout;
 			String line;
 			String[] columns;
 			BufferedReader br = null;
 			if (os != null) {
-				br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+				try {
+					br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+				} catch(Exception e) {
+					br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+				}
 			} else {
 				br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
 			}
 
-			this.vendor = vendor.toLowerCase();
 			boolean flag = false;
 			int counter = 0;
 			while ((line = br.readLine()) != null) {
@@ -100,7 +104,6 @@ public class ConnectSSH  extends ConnectDevice {
 			log.error(server + ": " + e.getMessage(), e);
 			throw e;
 		}
-
 	}
 
 	public String waitfor(String pattern) throws Exception {
@@ -116,31 +119,38 @@ public class ConnectSSH  extends ConnectDevice {
 		StringBuilder sb = new StringBuilder();
 		char ch;
 
-		while (true) {
-			if (in.available() > 0) {
-				sleepCount = 0;
-				ch = (char)in.read();
-				//log.debug("char received: "+ch+"      (in.available():"+in.available());
-				outstream.write(ch);
-				sb.append( ch );
-			}
-			else {
-				sleepCount++;
-				if ( sleepCount>waitForSleepCountMax ) {
+		try {
+			while (true) {
+				if (in.available() > 0) {
+					sleepCount = 0;
+					ch = (char)in.read();
+					//log.debug("char received: "+ch+"      (in.available():"+in.available());
+					outstream.write(ch);
+					sb.append( ch );
+				}
+				else {
+					sleepCount++;
+					if ( sleepCount>waitForSleepCountMax ) {
+						throw new Exception("Timeout");
+					}
+					if (sleepCount == waitForSleepCountMax) {
+						log.debug("waitfor() waiting for data... (sleepCount="+sleepCount+")");
+					}
+					Thread.sleep(waitForSleepInterval);
+				}
+				if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {
 					throw new Exception("Timeout");
 				}
-				log.debug("waitfor() waiting for data... (sleepCount="+sleepCount+")");
-				Thread.sleep(waitForSleepInterval);
+				m = p.matcher(sb.toString());
+				if( m.find() ) {
+					String result = sb.toString();
+					log.debug(result);
+					return result;
+				}
 			}
-			if (System.currentTimeMillis()-startTime > waitForMaximumRunTime) {
-				throw new Exception("Timeout");
-			}
-			m = p.matcher(sb.toString());
-			if( m.find() ) {
-				String result = sb.toString();
-				log.debug(result);
-				return result;
-			}
+		} catch(Exception e) {
+			log.debug("Data before exception: " + sb.toString());
+			throw e;
 		}
 	}
 
@@ -152,7 +162,6 @@ public class ConnectSSH  extends ConnectDevice {
 	public String sendCmd(String command, String nexttoken) throws Exception {
 		write( command );
 		return waitfor( nexttoken );
-
 	}
 
 	public void disconnect() {
@@ -169,13 +178,11 @@ public class ConnectSSH  extends ConnectDevice {
 	 * @throws Exception
 	 */
 	private String readBuffer(String pattern) throws Exception {
-		int k;
 		int sleepCount = 0;
 		char ch;
 		Pattern p = Pattern.compile(pattern);
 		Matcher m;
 		StringBuilder sb = new StringBuilder();
-		long startTime = System.currentTimeMillis();
 		while (true) {
 			if (in.available() > 0) {
 				sleepCount = 0;
@@ -190,7 +197,9 @@ public class ConnectSSH  extends ConnectDevice {
 					log.info("readBuffer() exceeded sleepCountMax");
 					break;
 				}
-				log.debug("readBuffer() waiting for data... (sleepCount="+sleepCount+")");
+				if (sleepCount == waitForSleepCountMax) {
+					log.debug("readBuffer() waiting for data... (sleepCount="+sleepCount+")");
+				}
 				Thread.sleep(waitForSleepInterval);
 			}
 			m = p.matcher(sb.toString());
@@ -210,25 +219,27 @@ public class ConnectSSH  extends ConnectDevice {
 	}
 
 	public String applyCommands(String commands, String endTag) throws Exception {
-		if("cisco".equals(this.vendor) || "alu".equals(this.vendor)){
-			endTag = "#";
-		}
-		if("huawei".equals(this.vendor)){
-			endTag = ">";
-		}
 		write(commands);
 		//Thread.sleep(1000);
 		return waitfor(endTag);
-
 	}
 
 	public String getOutput() {
 		return outstream.toString();
 	}
 
-	public void prepareForCommands(String vendor, String os) throws Exception {
+	public void prepareForCommands() throws Exception {
 		String[] columns;
-		BufferedReader brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device." + vendor.toLowerCase())));
+		BufferedReader brConf;
+		if (os != null) {
+			try {
+				brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+			} catch(Exception e) {
+				brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+			}
+		} else {
+			brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+		}
 
 		int counter = 0;
 		String lineConf;
@@ -246,21 +257,15 @@ public class ConnectSSH  extends ConnectDevice {
 					if (columns[0].trim().equals("sendCmd")) {
 						this.sendCmd(columns[1].trim(),columns[2].trim());
 					}
-
 				}
 			}
 		}
-	}
-
-	public void prepareForCommands(String vendor) throws Exception {
-		prepareForCommands(vendor, null);
 	}
 
 	public String sendBREAK(String nexttoken) throws Exception {
 		out.write((char)26);
 		out.flush();
 		return waitfor(nexttoken);
-
 	}
 
 	public void setWaitForTimeDetails(int maxRunTime, int sleepInterval, int sleepCountMax) {
@@ -268,80 +273,6 @@ public class ConnectSSH  extends ConnectDevice {
 		waitForSleepInterval = sleepInterval;
 		waitForSleepCountMax = sleepCountMax;
 	}
-
-//	public static void main(String args[]) {
-//		String output = "";
-//		try {
-//			ConnectSSH telnetdev = new ConnectSSH();
-//			telnetdev.connect("192.168.0.5", 1000);
-//			telnetdev.prepareForCommands("juniper");
-//			output = telnetdev.applyCommands("show system uptime", ">");
-//			String[] array = output.split("\r\n");
-//			if(array != null && array.length > 0) {
-//				List<String> values = null;
-//				for(String line : array) {
-//					if(line.contains("up") && line.contains("day")) {
-//						line = line.trim();
-//						String[] lineArray = line.split(" ");
-//						values = new ArrayList<String>();
-//						for(String l : lineArray) {
-//							if(!" ".equals(l) && !"".equals(l)) {
-//								values.add(l.trim());
-//							}
-//						}
-//						if(!values.isEmpty()) {
-//							String day = "";
-//							String hour = "";
-//							String minute = "";
-//							if(values.get(4) != null && values.get(4).contains(":") && values.get(4).contains(",")) {
-//								String aux = values.get(4).replace(",", "");
-//								String[] hourMinute = aux.split(":");
-//								if(hourMinute != null && hourMinute.length > 1) {
-//									int hourNumber = 0;
-//									if(hourMinute[0] != null && !"".equals(hourMinute[0])) {
-//										hourNumber = Integer.valueOf(hourMinute[0]);
-//										if(hourNumber != 1) {
-//											hour = hourNumber + " hours ";
-//										} else {
-//											hour = hourNumber + " hour ";
-//										}
-//									}
-//									int minuteNumber = 0;
-//									if(hourMinute[1] != null && !"".equals(hourMinute[1])) {
-//										minuteNumber = Integer.valueOf(hourMinute[1]);
-//										if(minuteNumber != 1) {
-//											minute = minuteNumber + " minutes";
-//										} else {
-//											minute = minuteNumber + " minute";
-//										}
-//									}
-//									
-//								}
-//							}
-//							int dayNumber = 0;
-//							if(values.get(2) != null) {
-//								dayNumber = Integer.valueOf(values.get(2));
-//								if(dayNumber != 1) {
-//									day = dayNumber + " days ";
-//								} else {
-//									day = dayNumber + " day ";
-//								}
-//							}
-//							
-//							String result = day + hour + minute;
-//							break;
-//						}
-//					}
-//				}
-//			}
-//			
-//			System.out.println("Command Response :: " + output);
-//			telnetdev.disconnect();
-//		}
-//		catch (Exception e) {
-//			System.out.println("Excepetion occured "+e.getMessage());
-//		}
-//	}
 
 }
 

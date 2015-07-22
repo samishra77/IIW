@@ -32,9 +32,9 @@ public class JunosAdapter extends Adapter {
 			ConnectionFactory connFactory = new ConnectionFactory();
 			ConnectDevice connectDevice = null;
 			try {
-				connectDevice = connFactory.getConnection(deviceIP, os, deviceDetailsResponse);
+				connectDevice = connFactory.getConnection(deviceIP, FactoryAdapter.VENDOR_JUNIPER, os, deviceDetailsResponse);
 				if (connectDevice != null) {
-					connectDevice.prepareForCommands(FactoryAdapter.VENDOR_JUNIPER);
+					connectDevice.prepareForCommands();
 					executeCommands(connectDevice, wanIP, deviceIP, circuitID, snmpVersion, deviceDetailsResponse, community);
 				}
 			} catch (Exception e) {

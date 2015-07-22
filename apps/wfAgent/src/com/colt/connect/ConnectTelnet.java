@@ -13,10 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.telnet.TelnetClient;
 
-import com.colt.adapters.l3.FactoryAdapter;
 import com.colt.util.AgentEncryption;
-
-
 
 /**
  * @author Aricent
@@ -25,6 +22,8 @@ import com.colt.util.AgentEncryption;
 public class ConnectTelnet extends ConnectDevice {
 	protected Log log;
 	protected TelnetClient telnet;
+	private String vendor = null;
+	private String os = null;
 	protected InputStream in;
 	protected PrintStream out;
 	private final int CONNECTTIMEOUT = 15; // *1000 = 15 seconds
@@ -46,9 +45,11 @@ public class ConnectTelnet extends ConnectDevice {
 	}
 
 	@Override
-	public void connect(String server, int _timeout, String connectProtocol, String os) throws Exception {
+	public void connect(String server, int _timeout, String connectProtocol, String vendor, String os) throws Exception {
 		try {
 			log.debug("Telnet connection to " + server);
+			this.vendor = vendor.toLowerCase();
+			this.os = os;
 			telnet.connect(server, 23);
 			int auxtimeout = (_timeout > IDLETIMEOUT) ? _timeout:IDLETIMEOUT;
 			telnet.setSoTimeout(auxtimeout*1000);
@@ -133,7 +134,6 @@ public class ConnectTelnet extends ConnectDevice {
 	 * @throws Exception
 	 */
 	private String readBuffer(String pattern) throws Exception {
-		int k;
 		int sleepCount = 0;
 		//		final int maximumRunTime = 270000; // (REF#112 Increased to multiple of 3) spends maximum 90 seconds reading input
 		//		final int sleepInterval = 500;  // each sleep interval is 0.5 second
@@ -143,7 +143,6 @@ public class ConnectTelnet extends ConnectDevice {
 		Matcher m;
 		char ch;
 		StringBuilder sb = new StringBuilder();
-		long startTime = System.currentTimeMillis();
 		while (true) {
 			if (in.available() > 0) {
 				sleepCount = 0;
@@ -203,12 +202,16 @@ public class ConnectTelnet extends ConnectDevice {
 		return outstream.toString();
 	}
 
-	public void prepareForCommands(String vendor, String os) throws Exception {
+	public void prepareForCommands() throws Exception {
 		String line;
 		String[] columns;
 		BufferedReader br = null;
 		if (os != null) {
-			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+			try {
+				br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+			} catch(Exception e) {
+				br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+			}
 		} else {
 			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
 		}
@@ -243,15 +246,10 @@ public class ConnectTelnet extends ConnectDevice {
 		}
 	}
 
-	public void prepareForCommands(String vendor) throws Exception {
-		prepareForCommands(vendor, null);
-	}
-
 	public String sendBREAK(String nexttoken) throws Exception {
 		out.write((char)26);
 		out.flush();
 		return waitfor(nexttoken);
-
 	}
 
 	public void setWaitForTimeDetails(int maxRunTime, int sleepInterval, int sleepCountMax) {

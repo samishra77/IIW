@@ -6,7 +6,6 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author Intelinet
  */
-
 public class ConnectDevice {
 	protected Log log;
 	protected ConnectDevice connectDevice;
@@ -15,14 +14,14 @@ public class ConnectDevice {
 		log = LogFactory.getLog(this.getClass());
 	}
 
-	public void connect(String server, int _timeout, String connectProtocol, String os) throws Exception {
+	public void connect(String server, int _timeout, String connectProtocol, String vendor, String os) throws Exception {
 		if("telnet".equalsIgnoreCase(connectProtocol)){
 			connectDevice = new ConnectTelnet();
 		}
 		if("ssh".equalsIgnoreCase(connectProtocol)){
 			connectDevice = new ConnectSSH();
 		}
-		connectDevice.connect(server, _timeout, connectProtocol, os);
+		connectDevice.connect(server, _timeout, connectProtocol, vendor, os);
 	}
 
 	public String waitfor(String pattern) throws Exception {
@@ -33,7 +32,6 @@ public class ConnectDevice {
 		connectDevice.write(word);
 	}
 
-
 	public String sendCmd(String command, String nexttoken) throws Exception {
 		connectDevice.sendCmd(command, nexttoken);
 		return connectDevice.waitfor( nexttoken );
@@ -42,10 +40,6 @@ public class ConnectDevice {
 	public void disconnect() {
 		connectDevice.disconnect();
 	}
-
-	/**
-	 * @throws Exception
-	 */
 
 	public String applyCommands(String commands) throws Exception {
 		return applyCommands(commands, null);
@@ -57,19 +51,13 @@ public class ConnectDevice {
 
 	public String getOutput() {
 		return connectDevice.getOutput();
-
 	}
 
-	public void prepareForCommands(String vendor, String os) throws Exception {
-		connectDevice.prepareForCommands(vendor, os);
-	}
-
-	public void prepareForCommands(String vendor) throws Exception {
-		connectDevice.prepareForCommands(vendor);
+	public void prepareForCommands() throws Exception {
+		connectDevice.prepareForCommands();
 	}
 
 	public String sendBREAK(String nexttoken) throws Exception {
-
 		return connectDevice.sendBREAK(nexttoken);
 	}
 
@@ -77,4 +65,3 @@ public class ConnectDevice {
 		connectDevice.setWaitForTimeDetails(maxRunTime,sleepInterval,sleepCountMax);
 	}
 }
-

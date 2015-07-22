@@ -13,17 +13,17 @@ public class ConnectionFactory {
 
 	private Log log = LogFactory.getLog(ConnectionFactory.class);
 
-	public ConnectDevice getConnection(String deviceIP, String os, IDeviceDetailsResponse deviceDetailsResponse) throws IOException {
+	public ConnectDevice getConnection(String deviceIP, String vendor, String os, IDeviceDetailsResponse deviceDetailsResponse) throws IOException {
 		ConnectDevice connectDevice = null;
 		try {
 			connectDevice = new ConnectDevice();
-			connectDevice.connect(deviceIP, 30, "ssh", os);
+			connectDevice.connect(deviceIP, 30, "ssh", vendor, os);
 			return connectDevice;
 		} catch (Exception e) {
 			try {
 				connectDevice.disconnect();
 				connectDevice = new ConnectDevice();
-				connectDevice.connect(deviceIP, 30, "telnet", os);
+				connectDevice.connect(deviceIP, 30, "telnet", vendor, os);
 				return connectDevice;
 			} catch (Exception e2) {
 				connectDevice.disconnect();
