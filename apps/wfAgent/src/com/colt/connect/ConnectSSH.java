@@ -107,6 +107,11 @@ public class ConnectSSH  extends ConnectDevice {
 	}
 
 	public String waitfor(String pattern) throws Exception {
+		String[] retArray = waitforPattern(pattern);
+		return retArray[0];
+	}
+
+	public String[] waitforPattern(String pattern) throws Exception {
 		System.out.println("Waiting for :: " + pattern);
 		if (pattern==null || "".equals(pattern)) {
 			return null;
@@ -143,9 +148,12 @@ public class ConnectSSH  extends ConnectDevice {
 				}
 				m = p.matcher(sb.toString());
 				if( m.find() ) {
+					String[] retArray = new String[2];
 					String result = sb.toString();
 					log.debug(result);
-					return result;
+					retArray[0] = result;
+					retArray[1] = m.group();
+					return retArray;
 				}
 			}
 		} catch(Exception e) {
@@ -228,6 +236,51 @@ public class ConnectSSH  extends ConnectDevice {
 		return outstream.toString();
 	}
 
+	public void prepareForCommandsFullPrepare() throws Exception {
+		String[] columns;
+		BufferedReader brConf;
+		if (os != null) {
+			try {
+				brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase()+ "." + os)));
+			} catch(Exception e) {
+				brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+			}
+		} else {
+			brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
+		}
+		int counter = 0;
+		String lineConf;
+		boolean isPassword = false;
+		while ((lineConf = brConf.readLine()) != null) {
+			if (!lineConf.trim().equals("")) {
+				if(counter > 0) {
+					columns = lineConf.split(",");
+					if (columns[0].trim().equals("waitfor") && columns[1].trim().equals("word:") && counter < 3) {
+						isPassword = true;
+					} else if(isPassword) {
+						password = AgentEncryption.decrypt(columns[1].trim());
+					}
+					if (columns[0].trim().equals("waitfor")) {
+						this.waitfor(columns[1].trim());
+					}
+					if (columns[0].trim().equals("write")) {
+						if(!isPassword) {
+							this.write(columns[1].trim());
+						} else {
+							this.write(password);
+							isPassword = false;
+						}
+					}
+					if (columns[0].trim().equals("sendCmd")) {
+						this.sendCmd(columns[1].trim(),columns[2].trim());
+					}
+				}
+				counter++;
+			}
+		}
+		brConf.close();
+	}
+	
 	public void prepareForCommands() throws Exception {
 		String[] columns;
 		BufferedReader brConf;
@@ -240,16 +293,20 @@ public class ConnectSSH  extends ConnectDevice {
 		} else {
 			brConf = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/conf/prepare-device."+vendor.toLowerCase())));
 		}
-
 		int counter = 0;
 		String lineConf;
 		while ((lineConf = brConf.readLine()) != null) {
 			if (!lineConf.trim().equals("")) {
-				counter+=1;
+				counter++;
 				if(counter > 4) {
 					columns = lineConf.split(",");
 					if (columns[0].trim().equals("waitfor")) {
-						this.waitfor(columns[1].trim());
+						String[] waitArray = this.waitforPattern(columns[1].trim());
+						//Some ERX devices don't recognize the ssh username. They read it like telnet, the user has to enter the username after the prompt is displayed.
+						if ( waitArray[1] != null &&  (waitArray[1].equalsIgnoreCase("name:") || waitArray[1].equalsIgnoreCase("login:")) ) {
+							prepareForCommandsFullPrepare();
+							break;
+						}
 					}
 					if (columns[0].trim().equals("write")) {
 						this.write(columns[1].trim());
@@ -260,6 +317,7 @@ public class ConnectSSH  extends ConnectDevice {
 				}
 			}
 		}
+		brConf.close();
 	}
 
 	public String sendBREAK(String nexttoken) throws Exception {
