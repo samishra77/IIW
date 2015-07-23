@@ -530,6 +530,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					if ($scope.aSideManagementIPAddress) {
 						deviceDetails = new Object();
 						deviceDetails.ip = $scope.aSideManagementIPAddress;
+						deviceDetails.name = $scope.sideInformation.aSideInformation.deviceName;
 					} else if ($scope.sideInformation.aSideInformation.deviceName) {
 						deviceDetails = new Object();
 						deviceDetails.name = $scope.sideInformation.aSideInformation.deviceName;
