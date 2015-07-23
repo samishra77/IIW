@@ -84,7 +84,11 @@ public class SNMPUtil {
 		return version;
 	}
 
-	public void discoverVendor(String type, String ipAddress, String model, String vendor, IDeviceDetailsResponse deviceDetailsResponse, String deviceName) {
+	public void discoverVendor(DeviceDetailsRequest deviceDetails, IDeviceDetailsResponse deviceDetailsResponse) {
+		String type = deviceDetails.getType();
+		String ipAddress = deviceDetails.getIp();
+		String vendor = deviceDetails.getDeviceType().getVendor();
+		String deviceName = deviceDetails.getName();
 		boolean isSameVendor = false;
 		try {
 			if(ipAddress != null && !"".equals(ipAddress)) {
@@ -119,6 +123,8 @@ public class SNMPUtil {
 													alias = AgentUtil.verifyLineInList(aliases, line);
 													if(aliases != null && alias != null && !"".equals(alias)) {
 														String deviceModel = getIfValue(line);
+														deviceDetails.getDeviceType().setModel(deviceModel);
+														deviceDetails.getDeviceType().setVendor(deviceVendor);
 														deviceDetailsResponse.setModel(deviceModel);
 														deviceDetailsResponse.setVendor(deviceVendor);
 														isSameVendor = true;
@@ -183,6 +189,8 @@ public class SNMPUtil {
 											alias = AgentUtil.verifyLineInList(aliases, line);
 											if(aliases != null && alias != null && !"".equals(alias)) {
 												String deviceModel = getIfValue(line);
+												deviceDetails.getDeviceType().setModel(deviceModel);
+												deviceDetails.getDeviceType().setVendor(deviceVendor);
 												deviceDetailsResponse.setModel(deviceModel);
 												deviceDetailsResponse.setVendor(deviceVendor);
 												isSameVendor = true;

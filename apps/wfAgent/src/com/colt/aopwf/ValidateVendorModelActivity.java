@@ -9,7 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.colt.util.AgentConfig;
-import com.colt.util.AgentUtil;
 import com.colt.util.MessagesErrors;
 import com.colt.util.SNMPUtil;
 import com.colt.ws.biz.DeviceDetailsRequest;
@@ -41,7 +40,7 @@ public class ValidateVendorModelActivity implements IWorkflowProcessActivity {
 				} else {
 					snmp = new SNMPUtil(deviceDetails.getType(), deviceDetails.getServiceType());
 				}
-				snmp.discoverVendor(deviceDetails.getType(), deviceDetails.getIp(), deviceDetails.getDeviceType().getModel(), deviceDetails.getDeviceType().getVendor(), deviceDetailsResponse, deviceDetails.getName());
+				snmp.discoverVendor(deviceDetails, deviceDetailsResponse);
 				if(snmp.getVersion() == null && DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetails.getType())) {
 					if(deviceDetailsResponse.getErrorResponse() == null) {
 						deviceDetailsResponse.setErrorResponse(new ErrorResponse());
