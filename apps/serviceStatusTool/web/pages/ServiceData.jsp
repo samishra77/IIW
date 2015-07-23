@@ -218,7 +218,8 @@
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
-								<td>{{sideInformation.aSideInformation.port}}</td>
+								<td ng-if="!viewLanLinkZSideInformation">{{sideInformation.aSideInformation.port}}</td>
+								<td ng-if="viewLanLinkZSideInformation">{{sideInformation.aSideInformation.portSlot}}</td>
 							</tr>
 						</table>
 					</td>
@@ -314,7 +315,7 @@
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
-								<td>{{sideInformation.zSideInformation.port}}</td>
+								<td>{{sideInformation.zSideInformation.portSlot}}</td>
 							</tr>
 						</table>
 					</td>

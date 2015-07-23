@@ -12,7 +12,14 @@ public class ZSideInformation {
 	private String deviceName;
 	private String instId;
 	private String ip;
+	private String portSlot;
 
+	public String getPortSlot() {
+		return portSlot;
+	}
+	public void setPortSlot(String portSlot) {
+		this.portSlot = portSlot;
+	}
 	public String getType() {
 		return type;
 	}

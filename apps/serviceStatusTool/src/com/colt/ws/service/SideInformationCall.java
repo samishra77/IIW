@@ -160,13 +160,13 @@ public class SideInformationCall {
 
 	private void populateSideInformation(SideInformation sideInformation, String key, String[] kv, String productType) {
 		if (key.equals("AEND")) {
-			sideInformation.setaSideInformation(populateASideInformation(kv));
+			sideInformation.setaSideInformation(populateASideInformation(kv,productType));
 		} else if (key.equals("ZEND")) {
 			sideInformation.setzSideInformation(populateZSideInformation(kv, productType));
 		}
 	}
 
-	private ASideInformation populateASideInformation(String[] itemValueArray) {
+	private ASideInformation populateASideInformation(String[] itemValueArray, String productType) {
 		ASideInformation aSideInformation = new ASideInformation();
 		aSideInformation.setType(messages.getProperty("serviceData.aSide.siteType.value"));
 		for (int i = 0; i < itemValueArray.length; i++) {
@@ -193,6 +193,13 @@ public class SideInformationCall {
 			if (kv[0].equals("slot")) {
 				aSideInformation.setXngSlotNumber(kv[1]);
 			}
+		}
+		if(productType != null && ProductType.LANLINK.value().equalsIgnoreCase(productType)) {
+			String newPort = aSideInformation.getPort();
+			if(aSideInformation.getXngSlotNumber() != null && !"".equals(aSideInformation.getXngSlotNumber())) {
+				newPort = newPort + "/" + aSideInformation.getXngSlotNumber();
+			}
+			aSideInformation.setPortSlot(newPort);
 		}
 		return aSideInformation;
 	}
@@ -228,6 +235,13 @@ public class SideInformationCall {
 			if (kv[0].equals("slot")) {
 				zSideInformation.setXngSlotNumber(kv[1]);
 			}
+		}
+		if(productType != null && ProductType.LANLINK.value().equalsIgnoreCase(productType)) {
+			String newPort = zSideInformation.getPort();
+			if(zSideInformation.getXngSlotNumber() != null && !"".equals(zSideInformation.getXngSlotNumber())) {
+				newPort = newPort + "/" + zSideInformation.getXngSlotNumber();
+			}
+			zSideInformation.setPortSlot(newPort);
 		}
 		return zSideInformation;
 	}
