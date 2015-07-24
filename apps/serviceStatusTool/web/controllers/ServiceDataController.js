@@ -161,7 +161,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				} else {
 					$scope.aViewPortLanLinkAtrica = false;
 				}
-				if ("ATRICA" == $scope.sideInformation.zSideInformation.vendor.toUpperCase() &&
+				if ($scope.sideInformation.zSideInformation != null &&
 						$scope.sideInformation.zSideInformation.vendor != null &&
 						"ATRICA" == $scope.sideInformation.zSideInformation.vendor.toUpperCase()) {
 					$scope.zViewPortLanLinkAtrica = true;
