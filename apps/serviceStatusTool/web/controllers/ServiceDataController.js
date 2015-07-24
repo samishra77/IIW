@@ -54,6 +54,8 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		$scope.showTicketLoading = true;
 		$scope.viewSideInformation = false;
 		$scope.viewLanLinkZSideInformation = false;
+		$scope.aViewPortLanLinkAtrica = false;
+		$scope.zViewPortLanLinkAtrica = false;
 		var resp = $http({
 		  method  : 'POST',
 		  url     : urlBase + '/getServiceDetail?username=' + username,
@@ -152,9 +154,25 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				$scope.showRefreshZSideLoading = false;
 			} else {
 				$scope.sideInformation = data.result;
+				if ($scope.sideInformation.aSideInformation != null &&
+						$scope.sideInformation.aSideInformation.vendor != null &&
+						"ATRICA" == $scope.sideInformation.aSideInformation.vendor.toUpperCase()) {
+					$scope.aViewPortLanLinkAtrica = true;
+				} else {
+					$scope.aViewPortLanLinkAtrica = false;
+				}
+				if ("ATRICA" == $scope.sideInformation.zSideInformation.vendor.toUpperCase() &&
+						$scope.sideInformation.zSideInformation.vendor != null &&
+						"ATRICA" == $scope.sideInformation.zSideInformation.vendor.toUpperCase()) {
+					$scope.zViewPortLanLinkAtrica = true;
+				} else {
+					$scope.zViewPortLanLinkAtrica = false;
+				}
 				if ( ($scope.sideInformation == null) || ($scope.sideInformation.aSideInformation == null && $scope.sideInformation.zSideInformation == null) ) {
 					$scope.viewSideInformation = false;
 					$scope.viewLanLinkZSideInformation = false;
+					$scope.aViewPortLanLinkAtrica = false;
+					$scope.zViewPortLanLinkAtrica = false;
 					$scope.sideInformationError = true;
 					$scope.sideInformationErrorMessage = "Status Information not found.";
 				} else {

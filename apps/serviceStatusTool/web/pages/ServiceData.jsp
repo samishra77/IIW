@@ -217,9 +217,10 @@
 								<td>{{aSideManagementIPAddress}}</td>
 							</tr>
 							<tr>
-								<td class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
-								<td ng-if="!viewLanLinkZSideInformation">{{sideInformation.aSideInformation.port}}</td>
-								<td ng-if="viewLanLinkZSideInformation">{{sideInformation.aSideInformation.portSlot}}</td>
+								<td ng-if="!aViewPortLanLinkAtrica" class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
+								<td ng-if="!aViewPortLanLinkAtrica">{{sideInformation.aSideInformation.port}}</td>
+								<td ng-if="aViewPortLanLinkAtrica" class="font-strong"><spring:message code="serviceData.aSide.portSlot"></spring:message></td>
+								<td ng-if="aViewPortLanLinkAtrica">{{sideInformation.aSideInformation.portSlot}}</td>
 							</tr>
 						</table>
 					</td>
@@ -241,8 +242,8 @@
 								<td style="border-top: 0" >{{aSideDeviceStatus}}</td>
 							</tr>
 							<tr>
-								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
-								<td style="border-top: 0">{{aSideDeviceUpTime}}</td>
+								<td ng-if="!aViewPortLanLinkAtrica" class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
+								<td ng-if="!aViewPortLanLinkAtrica" style="border-top: 0">{{aSideDeviceUpTime}}</td>
 							</tr>
 						</table>
 					</td>
@@ -314,8 +315,10 @@
 								<td>{{zSideManagementIPAddress}}</td>
 							</tr>
 							<tr>
-								<td class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
-								<td>{{sideInformation.zSideInformation.portSlot}}</td>
+								<td ng-if="!zViewPortLanLinkAtrica" class="font-strong"><spring:message code="serviceData.aSide.portName"></spring:message></td>
+								<td ng-if="!zViewPortLanLinkAtrica">{{sideInformation.zSideInformation.port}}</td>
+								<td ng-if="zViewPortLanLinkAtrica" class="font-strong"><spring:message code="serviceData.zSide.portSlot"></spring:message></td>
+								<td ng-if="zViewPortLanLinkAtrica">{{sideInformation.zSideInformation.portSlot}}</td>
 							</tr>
 						</table>
 					</td>
@@ -337,8 +340,8 @@
 								<td style="border-top: 0" >{{zSideDeviceStatus}}</td>
 							</tr>
 							<tr>
-								<td class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
-								<td style="border-top: 0">{{zSideDeviceUpTime}}</td>
+								<td ng-if="!zViewPortLanLinkAtrica" class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
+								<td ng-if="!zViewPortLanLinkAtrica" style="border-top: 0">{{zSideDeviceUpTime}}</td>
 							</tr>
 						</table>
 					</td>

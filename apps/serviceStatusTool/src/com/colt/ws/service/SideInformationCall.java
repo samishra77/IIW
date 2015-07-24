@@ -194,13 +194,11 @@ public class SideInformationCall {
 				aSideInformation.setXngSlotNumber(kv[1]);
 			}
 		}
-		if(productType != null && ProductType.LANLINK.value().equalsIgnoreCase(productType)) {
-			String newPort = aSideInformation.getPort();
-			if(aSideInformation.getXngSlotNumber() != null && !"".equals(aSideInformation.getXngSlotNumber())) {
-				newPort = newPort + "/" + aSideInformation.getXngSlotNumber();
-			}
-			aSideInformation.setPortSlot(newPort);
+		String newPort = aSideInformation.getPort();
+		if(aSideInformation.getXngSlotNumber() != null && !"".equals(aSideInformation.getXngSlotNumber())) {
+			newPort = aSideInformation.getXngSlotNumber() + "/" + newPort;
 		}
+		aSideInformation.setPortSlot(newPort);
 		return aSideInformation;
 	}
 
@@ -236,13 +234,11 @@ public class SideInformationCall {
 				zSideInformation.setXngSlotNumber(kv[1]);
 			}
 		}
-		if(productType != null && ProductType.LANLINK.value().equalsIgnoreCase(productType)) {
-			String newPort = zSideInformation.getPort();
-			if(zSideInformation.getXngSlotNumber() != null && !"".equals(zSideInformation.getXngSlotNumber())) {
-				newPort = newPort + "/" + zSideInformation.getXngSlotNumber();
-			}
-			zSideInformation.setPortSlot(newPort);
+		String newPort = zSideInformation.getPort();
+		if(zSideInformation.getXngSlotNumber() != null && !"".equals(zSideInformation.getXngSlotNumber())) {
+			newPort = zSideInformation.getXngSlotNumber() + "/" + newPort;
 		}
+		zSideInformation.setPortSlot(newPort);
 		return zSideInformation;
 	}
 }
