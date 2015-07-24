@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -22,6 +23,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.colt.adapters.l2.FactoryAdapter;
+import com.colt.ws.biz.DeviceDetailsRequest;
+import com.colt.ws.biz.IDeviceDetailsResponse;
+import com.colt.ws.biz.L2DeviceDetailsResponse;
+import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class AgentUtil {
 
@@ -264,6 +269,20 @@ public class AgentUtil {
 			}
 		}
 		return resp;
+	}
+
+	public static IDeviceDetailsResponse discoverDeviceDetailsResponse(Map<String,Object> input) {
+		IDeviceDetailsResponse deviceDetailsResponse = null;
+		if(input != null && input.containsKey("deviceDetails")) {
+			DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
+			if( deviceDetails.getType() != null && 
+					(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType()) || DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetails.getType())) ) {
+				deviceDetailsResponse = new L3DeviceDetailsResponse();
+			} else if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getType())) {
+				deviceDetailsResponse = new L2DeviceDetailsResponse();
+			}
+		}
+		return deviceDetailsResponse;
 	}
 }
 

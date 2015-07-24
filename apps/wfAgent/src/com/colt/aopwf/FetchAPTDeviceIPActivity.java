@@ -4,13 +4,14 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.colt.util.AgentUtil;
 import com.colt.util.AptUtil;
 import com.colt.util.MessagesErrors;
 import com.colt.ws.biz.DeviceDetail;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
-import com.colt.ws.biz.L3DeviceDetailsResponse;
 
 public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 
@@ -52,7 +53,7 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 					deviceDetails.setIp(ipAddress);
 					resp = new String[] {"FETCH_DEVICE_DONE"};
 				} else {
-					IDeviceDetailsResponse deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
+					IDeviceDetailsResponse deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
 					DeviceDetail dd = new DeviceDetail();
 					ErrorResponse errorResponse = new ErrorResponse();
 					errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("apt.mgmtIPNotFound"));
@@ -64,7 +65,7 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 			}
 		} catch (Exception e) {
 			log.error(e,e);
-			IDeviceDetailsResponse deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
+			IDeviceDetailsResponse deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
 			DeviceDetail dd = new DeviceDetail();
 			ErrorResponse errorResponse = new ErrorResponse();
 			errorResponse.setMessage(e.toString());

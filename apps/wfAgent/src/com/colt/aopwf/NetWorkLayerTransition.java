@@ -22,16 +22,13 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 	@Override
 	public String[] process(Map<String, Object> input) {
 		String[] resp = null;
-		IDeviceDetailsResponse deviceDetailsResponse = null;
+		IDeviceDetailsResponse deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
 		try {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
-				if( deviceDetails.getType() != null && 
-						(DeviceDetailsRequest.TYPE_PE.equalsIgnoreCase(deviceDetails.getType()) || DeviceDetailsRequest.TYPE_CPE.equalsIgnoreCase(deviceDetails.getType())) ) {
-					deviceDetailsResponse = new L3DeviceDetailsResponse();
+				if(deviceDetailsResponse instanceof L3DeviceDetailsResponse) {
 					resp = new String[] {"L3DEVICE"};
-				} else if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(deviceDetails.getType())) {
-					deviceDetailsResponse = new L2DeviceDetailsResponse();
+				} else if(deviceDetailsResponse instanceof L2DeviceDetailsResponse) {
 					resp = new String[] {"L2DEVICE"};
 				}
 				if(deviceDetailsResponse != null) {
@@ -50,9 +47,6 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 			}
 		} catch (Exception e) {
 			log.error(e,e);
-			if(deviceDetailsResponse == null) {
-				deviceDetailsResponse = (IDeviceDetailsResponse) new L3DeviceDetailsResponse();
-			}
 			DeviceDetail deviceDetails = new DeviceDetail();
 			ErrorResponse errorResponse = new ErrorResponse();
 			String message = "";
