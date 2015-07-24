@@ -31,7 +31,7 @@ public class Feedback {
 			Date d = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			b = new BufferedWriter(new FileWriter(file, true));
-			b.write(sdf.format(d.getTime()) + " [" + username + "]" + "\n" + sugestion + "\n======================================================");
+			b.write(sdf.format(d.getTime()) + " [" + username + "]" + "\r\n" + sugestion + "\r\n======================================================\r\n");
 			b.newLine();
 			b.flush();
 			response.setStatus(Response.SUCCESS);
