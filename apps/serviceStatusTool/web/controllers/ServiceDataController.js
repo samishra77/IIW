@@ -225,7 +225,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 	}
 
 	function sideInformationFromDevice() {
-		var urlWorkFlow = contextPath + '/wfAgent/ws';
+		var urlWorkFlow = "";
+		if(isProxy != "true") {
+			urlWorkFlow = workFlowAgentUrlBase + "/ws";
+		} else {
+			urlWorkFlow = contextPath + "/wfAgent/ws";
+		}
 		$scope.showDeviceErrorASide = false;
 		$scope.showDeviceErrorZSide = false;
 		$scope.showZEndPhysicalInterface = true;
@@ -533,7 +538,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 
 	$scope.doDeviceRefresh = function doDeviceRefresh(type) {
 		callRefreshCount++;
-		var urlWorkFlow = contextPath + '/wfAgent/ws';
+		var urlWorkFlow = "";
+		if(isProxy != "true") {
+			urlWorkFlow = workFlowAgentUrlBase + "/ws";
+		} else {
+			urlWorkFlow = contextPath + "/wfAgent/ws";
+		}
 		if (type == "aside") {
 			$scope.showRefreshASideLoading = true;
 		} else if (type == "zside") {

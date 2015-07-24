@@ -40,6 +40,9 @@ response.setHeader("X-UA-Compatible","IE=Edge");
 			<% } else { %>
 				window.location.href = "<%=SstConfig.getDefaultInstance().getProperty("siebel.url.login.page")%>";
 			<%}%>
+			var isProxy = "<%=SstConfig.getDefaultInstance().getProperty("workflowagent.url.useProxy")%>";
+			var workFlowAgentUrlBase = "<%=SstConfig.getDefaultInstance().getProperty("workflowagent.url.base")%>";
+			var conTimeout = "<%=SstConfig.getDefaultInstance().getProperty("workflowagent.timeout")%>";
 		</script>
 		<script src="<%=request.getContextPath()%>/app.js"></script>
 		<script src="<%=request.getContextPath()%>/controllers/ServiceDataController.js"></script>
