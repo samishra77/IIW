@@ -300,7 +300,6 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 									if (l3DeviceDetails.deviceIP) {
 										$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
-										$scope.sideInformation.aSideInformation.xngSlotNumber = null;
 										if(l3DeviceDetails.vendor) {
 											$scope.sideInformation.aSideInformation.vendor = l3DeviceDetails.vendor;
 										}
@@ -390,7 +389,6 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
 									if (l3DeviceDetails.deviceIP) {
 										$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
-										$scope.sideInformation.zSideInformation.xngSlotNumber = null;
 									}
 									if(l3DeviceDetails.vendor) {
 										$scope.sideInformation.zSideInformation.vendor = l3DeviceDetails.vendor;
@@ -660,7 +658,6 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
-											$scope.sideInformation.aSideInformation.xngSlotNumber = null;
 										}
 										if(l3DeviceDetails.vendor) {
 											$scope.sideInformation.aSideInformation.vendor = l3DeviceDetails.vendor;
@@ -674,7 +671,6 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.zSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
-											$scope.sideInformation.zSideInformation.xngSlotNumber = null;
 										}
 										if(l3DeviceDetails.vendor) {
 											$scope.sideInformation.zSideInformation.vendor = l3DeviceDetails.vendor;
