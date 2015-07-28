@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.colt.util.SstConfig;
 import com.colt.util.Util;
@@ -24,6 +25,8 @@ import com.colt.ws.biz.SideInformation;
 import com.colt.ws.biz.ZSideInformation;
 
 public class SideInformationCall {
+
+	private Log log = LogFactory.getLog(SideInformationCall.class);
 
 	protected Properties messages;
 
@@ -195,8 +198,24 @@ public class SideInformationCall {
 			}
 		}
 		String newPort = aSideInformation.getPort();
+		StringBuilder newPortBuffer = new StringBuilder(); 
 		if(aSideInformation.getXngSlotNumber() != null && !"".equals(aSideInformation.getXngSlotNumber())) {
-			newPort = aSideInformation.getXngSlotNumber() + "/" + newPort;
+			String newSlot = aSideInformation.getXngSlotNumber();
+			for (int i = 0; i < newPort.length(); i++) {
+				if(Character.isDigit(newPort.charAt(i))) {
+					newPortBuffer.append(newPort.charAt(i));
+				}
+			}
+			if (newPortBuffer.length() > 0) {
+				try {
+					newPort = String.valueOf(Integer.valueOf(newPortBuffer.toString()));
+					newSlot = String.valueOf(Integer.valueOf(newSlot));
+				} catch (Exception e) {
+					log.error(e,e);
+					newPort = aSideInformation.getPort();
+				}
+			}
+			newPort = newSlot+ "/" + newPort;
 		}
 		aSideInformation.setPortSlot(newPort);
 		return aSideInformation;
@@ -235,8 +254,24 @@ public class SideInformationCall {
 			}
 		}
 		String newPort = zSideInformation.getPort();
+		StringBuilder newPortBuffer = new StringBuilder();
 		if(zSideInformation.getXngSlotNumber() != null && !"".equals(zSideInformation.getXngSlotNumber())) {
-			newPort = zSideInformation.getXngSlotNumber() + "/" + newPort;
+			String newSlot = zSideInformation.getXngSlotNumber();
+			for (int i = 0; i < newPort.length(); i++) {
+				if(Character.isDigit(newPort.charAt(i))) {
+					newPortBuffer.append(newPort.charAt(i));
+				}
+			}
+			if (newPortBuffer.length() > 0) {
+				try {
+					newPort = String.valueOf(Integer.valueOf(newPortBuffer.toString()));
+					newSlot = String.valueOf(Integer.valueOf(newSlot));
+				} catch (Exception e) {
+					log.error(e,e);
+					newPort = zSideInformation.getPort();
+				}
+			}
+			newPort = newSlot+ "/" + newPort;
 		}
 		zSideInformation.setPortSlot(newPort);
 		return zSideInformation;

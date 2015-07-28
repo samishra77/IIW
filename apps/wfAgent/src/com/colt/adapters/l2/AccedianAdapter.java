@@ -16,7 +16,7 @@ public class AccedianAdapter extends Adapter {
 	private Log log = LogFactory.getLog(AccedianAdapter.class);
 
 	@Override
-	public IDeviceDetailsResponse fetch(String circuitId, String deviceIP, Integer snmpVersion, String community, String portName, String type, String serviceType, String ocn, String deviceName) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitId, String deviceIP, Integer snmpVersion, String community, String portName, String slotNumber, String type, String serviceType, String ocn, String deviceName) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L2DeviceDetailsResponse();
 		DeviceDetail deviceDetail = new DeviceDetail();
 		deviceDetailsResponse.setDeviceDetails(deviceDetail);

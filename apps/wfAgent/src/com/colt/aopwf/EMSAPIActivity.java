@@ -27,7 +27,7 @@ public class EMSAPIActivity implements IWorkflowProcessActivity {
 			try {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
 				Adapter adapter = new AspenAdapter();
-				IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), null, null, deviceDetails.getPortName(), deviceDetails.getType(), null, deviceDetails.getOcn(), deviceDetails.getName());
+				IDeviceDetailsResponse ddr = adapter.fetch(deviceDetailsResponse.getCircuitID(), deviceDetailsResponse.getDeviceIP(), null, null, deviceDetails.getPortName(), deviceDetails.getXngSlotNumber(), deviceDetails.getType(), null, deviceDetails.getOcn(), deviceDetails.getName());
 				if(ddr != null && ddr.getDeviceDetails() != null && deviceDetailsResponse.getDeviceDetails() != null) {
 					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(ddr.getDeviceDetails().getInterfaces());
 					if (ddr.getDeviceIP() != null) {

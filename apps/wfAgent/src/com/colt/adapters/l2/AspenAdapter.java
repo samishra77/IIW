@@ -27,7 +27,7 @@ public class AspenAdapter extends Adapter {
 
 	private Log log = LogFactory.getLog(AspenAdapter.class);
 
-	public IDeviceDetailsResponse fetch(String circuitId, String deviceIP, Integer snmpVersion, String community, String portName, String type, String serviceType, String ocn, String deviceName) throws Exception {
+	public IDeviceDetailsResponse fetch(String circuitId, String deviceIP, Integer snmpVersion, String community, String portName, String slotNumber, String type, String serviceType, String ocn, String deviceName) throws Exception {
 		IDeviceDetailsResponse deviceDetailsResponse = new L2DeviceDetailsResponse();
 		try {
 			DeviceDetail deviceDetail = new DeviceDetail();
@@ -36,6 +36,8 @@ public class AspenAdapter extends Adapter {
 			IAspen aspen = (IAspen) Registry.bind(baseUrl + "/aptServices/services/Aspen.wsdl",IAspen.class);
 			Endpoint[] endPoints = aspen.getServiceEndpoints(circuitId, ocn);
 			List<Interface> interfaceList = new ArrayList<Interface>();
+			List<Interface> interfaceFilterList = new ArrayList<Interface>();
+			String filterInterfaceName = processSlotPort(portName, slotNumber);
 			if (endPoints != null && endPoints.length > 0) {
 				for (Endpoint end : endPoints) {
 					log.debug("End Device Name ======> " + end.getDeviceName());
@@ -61,12 +63,17 @@ public class AspenAdapter extends Adapter {
 									inf.setAdminStatus(port[i].getStatus());
 									inf.setName(port[i].getName());
 									interfaceList.add(inf);
+									if(filterInterfaceName != null && inf.getName() != null && inf.getName().startsWith(filterInterfaceName + " ")) {
+										interfaceFilterList.add(inf);
+									}
 								}
 							}
 						}
 					}
 				}
-				if (!interfaceList.isEmpty()) {
+				if(!interfaceFilterList.isEmpty()) {
+					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceFilterList);
+				} else if (!interfaceList.isEmpty()) {
 					deviceDetailsResponse.getDeviceDetails().getInterfaces().addAll(interfaceList);
 				}
 			}
@@ -84,5 +91,29 @@ public class AspenAdapter extends Adapter {
 			}
 		}
 		return deviceDetailsResponse;
+	}
+
+	private String processSlotPort(String portName, String slotNumber) {
+		String resp = portName;
+		if(portName != null && !"".equals(portName) && slotNumber != null && !"".equals(slotNumber)) {
+			String newSlot = slotNumber;
+			StringBuffer newPort = new StringBuffer();
+			for (int i = 0; i < portName.length(); i++) {
+				if(Character.isDigit(portName.charAt(i))) {
+					newPort.append(portName.charAt(i));
+				}
+			}
+			if (newPort.length() > 0) {
+				try {
+					resp = String.valueOf(Integer.valueOf(newPort.toString()));
+					newSlot = String.valueOf(Integer.valueOf(newSlot));
+				} catch (Exception e) {
+					log.error(e,e);
+					resp = portName;
+				}
+			}
+			resp = newSlot + "/" + resp;
+		}
+		return resp;
 	}
 }
