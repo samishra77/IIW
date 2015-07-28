@@ -154,14 +154,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				$scope.showRefreshZSideLoading = false;
 			} else {
 				$scope.sideInformation = data.result;
-				if ($scope.sideInformation.aSideInformation != null &&
+				if ($scope.sideInformation != null && $scope.sideInformation.aSideInformation != null &&
 						$scope.sideInformation.aSideInformation.vendor != null &&
 						"ATRICA" == $scope.sideInformation.aSideInformation.vendor.toUpperCase()) {
 					$scope.aViewPortLanLinkAtrica = true;
 				} else {
 					$scope.aViewPortLanLinkAtrica = false;
 				}
-				if ($scope.sideInformation.zSideInformation != null &&
+				if ($scope.sideInformation != null && $scope.sideInformation.zSideInformation != null &&
 						$scope.sideInformation.zSideInformation.vendor != null &&
 						"ATRICA" == $scope.sideInformation.zSideInformation.vendor.toUpperCase()) {
 					$scope.zViewPortLanLinkAtrica = true;
