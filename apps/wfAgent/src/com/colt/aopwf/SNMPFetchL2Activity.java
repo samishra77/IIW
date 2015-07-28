@@ -97,7 +97,7 @@ public class SNMPFetchL2Activity implements IWorkflowProcessActivity {
 		 System.out.println(portName);
 		 
 		} else if(vendor.equalsIgnoreCase("Actelis")) {
-			port = port.replace("ET", "ETH");
+			port = port.replace("ET ", "ETH-");
 			return port;
 		}  else if(vendor.equalsIgnoreCase("Overture")) {
 			return "Client";
