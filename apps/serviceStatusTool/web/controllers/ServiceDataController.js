@@ -2,6 +2,8 @@ var callRefreshCount = 0;
 var callZSideCount = 0;
 var callASideCount = 0;
 var ServiceDataController = function ($scope,$routeParams,$http) {
+	$scope.isMisMatchA = false;
+	$scope.isMisMatchZ = false;
 	var urlBase = contextPath + "/ws";
 	var orderNumber = findOrderNumberByURL();
 	if (orderNumber) {
@@ -301,10 +303,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									if (l3DeviceDetails.deviceIP) {
 										$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
 										if(l3DeviceDetails.vendor) {
-											$scope.sideInformation.aSideInformation.vendor = l3DeviceDetails.vendor;
+											$scope.isMisMatchA = true;
+											$scope.vendorDeviceA = l3DeviceDetails.vendor;
 										}
 										if(l3DeviceDetails.model) {
-											$scope.sideInformation.aSideInformation.model = l3DeviceDetails.model;
+											$scope.isMisMatchA = true;
+											$scope.modelDeviceA = l3DeviceDetails.model;
 										}
 									}
 								}
@@ -391,10 +395,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
 									}
 									if(l3DeviceDetails.vendor) {
-										$scope.sideInformation.zSideInformation.vendor = l3DeviceDetails.vendor;
+										$scope.isMisMatchZ = true;
+										$scope.vendorDeviceZ = l3DeviceDetails.vendor;
 									}
 									if(l3DeviceDetails.model) {
-										$scope.sideInformation.zSideInformation.model = l3DeviceDetails.model;
+										$scope.isMisMatchZ = true;
+										$scope.modelDeviceZ = l3DeviceDetails.model;
 									}
 								}
 							} else {
@@ -566,8 +572,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 						deviceDetails.seibelUserID = username;
 						deviceDetails.serviceType = $scope.circuit.productType; 
 						deviceDetails.deviceType = new Object();
-						deviceDetails.deviceType.vendor = $scope.sideInformation.aSideInformation.vendor;
-						deviceDetails.deviceType.model = $scope.sideInformation.aSideInformation.model;
+						if($scope.isMisMatchA) {
+							deviceDetails.deviceType.vendor = $scope.vendorDeviceA;
+							deviceDetails.deviceType.model = $scope.modelDeviceA;
+						} else {
+							deviceDetails.deviceType.vendor = $scope.sideInformation.aSideInformation.vendor;
+							deviceDetails.deviceType.model = $scope.sideInformation.aSideInformation.model;
+						}
 						if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 							deviceDetails.type = 'LANLink';
 							deviceDetails.portName = $scope.sideInformation.aSideInformation.port;
@@ -600,8 +611,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 						deviceDetails.serviceType = $scope.circuit.productType;
 						deviceDetails.serviceId = $scope.circuit.serviceId;
 						deviceDetails.deviceType = new Object();
-						deviceDetails.deviceType.vendor = $scope.sideInformation.zSideInformation.vendor;
-						deviceDetails.deviceType.model = $scope.sideInformation.zSideInformation.model;
+						if($scope.isMisMatchZ) {
+							deviceDetails.deviceType.vendor = $scope.vendorDeviceZ;
+							deviceDetails.deviceType.model = $scope.modelDeviceZ;
+						} else {
+							deviceDetails.deviceType.vendor = $scope.sideInformation.zSideInformation.vendor;
+							deviceDetails.deviceType.model = $scope.sideInformation.zSideInformation.model;
+						}
 						if ($scope.sideInformation.aSideInformation && $scope.sideInformation.aSideInformation.deviceName) {
 							deviceDetails.associatedDevice = $scope.sideInformation.aSideInformation.deviceName;
 						}
@@ -659,24 +675,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
 										}
-										if(l3DeviceDetails.vendor) {
-											$scope.sideInformation.aSideInformation.vendor = l3DeviceDetails.vendor;
-										}
-										if(l3DeviceDetails.model) {
-											$scope.sideInformation.aSideInformation.model = l3DeviceDetails.model;
-										}
 									}
 								} else if (type == "zside") {
 									if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 										$scope.zSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
-										}
-										if(l3DeviceDetails.vendor) {
-											$scope.sideInformation.zSideInformation.vendor = l3DeviceDetails.vendor;
-										}
-										if(l3DeviceDetails.model) {
-											$scope.sideInformation.zSideInformation.model = l3DeviceDetails.model;
 										}
 									} else {
 										if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {

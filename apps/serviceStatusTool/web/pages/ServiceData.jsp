@@ -206,7 +206,12 @@
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.vendor"></spring:message> / <spring:message code="serviceData.aSide.model"></spring:message> </td>
-								<td><label style="font-weight: normal">{{sideInformation.aSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.aSideInformation.model}}</label></td>
+								<td ng-if="!isMisMatchA" ><label style="font-weight: normal">{{sideInformation.aSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.aSideInformation.model}}</label></td>
+								<td ng-if="isMisMatchA" >
+									<label style="font-weight: normal">{{sideInformation.aSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.aSideInformation.model}}</label>
+									 =&gt; 
+									<label style="font-weight: normal">{{vendorDeviceA}}</label> / <label style="font-weight: normal;"> {{modelDeviceA}}</label>
+								</td>
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.xngDeviceName"></spring:message></td>
@@ -304,7 +309,12 @@
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.vendor"></spring:message> / <spring:message code="serviceData.aSide.model"></spring:message> </td>
-								<td><label style="font-weight: normal">{{sideInformation.zSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.zSideInformation.model}}</label></td>
+								<td ng-if="!isMisMatchZ"><label style="font-weight: normal">{{sideInformation.zSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.zSideInformation.model}}</label></td>
+								<td ng-if="isMisMatchZ">
+									<label style="font-weight: normal">{{sideInformation.zSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.zSideInformation.model}}</label>
+									 =&gt; 
+									<label style="font-weight: normal">{{vendorDeviceZ}}</label> / <label style="font-weight: normal;"> {{modelDeviceZ}}</label>
+								</td>
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.xngDeviceName"></spring:message></td>
