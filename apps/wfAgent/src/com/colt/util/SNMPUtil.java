@@ -447,32 +447,18 @@ public class SNMPUtil {
 	}
 
 	public Map<String, Interface> retrieveIfAlias(String circuitID, String ipAddress, IDeviceDetailsResponse deviceDetailsResponse) {
-		return retrieveIfAlias(circuitID, ipAddress, null, null, deviceDetailsResponse);
+		return retrieveIfAlias(circuitID, ipAddress, null, deviceDetailsResponse);
 	}
 
-	public Map<String, Interface> retrieveIfAlias(String circuitID, String ipAddress, String portName, String type, IDeviceDetailsResponse deviceDetailsResponse) {
+	public Map<String, Interface> retrieveIfAlias(String circuitID, String ipAddress, String type, IDeviceDetailsResponse deviceDetailsResponse) {
 		Map<String, Interface> ifAliasMap = null;
 		try {
 			String command = null;
 			if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
-				if(portName != null) {
-					if(version != null && version == 3) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifDescr | grep \"" + portName + "\"");
-					} else if(community != null && !"".equals(community)) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifDescr | grep \"" + portName + "\"");
-					}
-				} else {
-					ErrorResponse errorResponse = null;
-					if (deviceDetailsResponse.getErrorResponse() == null) {
-						errorResponse = new ErrorResponse();
-						errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
-						try {
-							errorResponse.setMessage(MessagesErrors.getDefaultInstance().getProperty("error.snmp.portName").trim());
-						} catch (Exception e1) {
-							log.error(e1,e1);
-						}
-						deviceDetailsResponse.setErrorResponse(errorResponse);
-					}
+				if(version != null && version == 3) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), ipAddress, "ifDescr");
+				} else if(community != null && !"".equals(community)) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, ipAddress, "ifDescr");
 				}
 			} else {
 				if(version != null && version == 3) {

@@ -2,14 +2,20 @@ package com.colt.aopwf;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.colt.adapters.l2.Adapter;
 import com.colt.adapters.l2.FactoryAdapter;
+import com.colt.adapters.l2.OvertureAdapter;
 import com.colt.ws.biz.DeviceDetailsRequest;
 import com.colt.ws.biz.ErrorResponse;
 import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.ws.biz.L2DeviceDetailsResponse;
 
 public class SNMPFetchL2Activity implements IWorkflowProcessActivity {
+
+	private Log log = LogFactory.getLog(SNMPFetchL2Activity.class);
 
 	public String[] process(Map<String,Object> input) {
 		return snmpFetchL2(input);
@@ -62,6 +68,7 @@ public class SNMPFetchL2Activity implements IWorkflowProcessActivity {
 					resp = new String[] {"SENDRESPONSE"};
 				}
 			} catch (Exception e) {
+				log.error(e,e);
 				if(deviceDetailsResponse.getErrorResponse() == null) {
 					ErrorResponse errorResponse = new ErrorResponse();
 					errorResponse.setMessage(e.toString());
