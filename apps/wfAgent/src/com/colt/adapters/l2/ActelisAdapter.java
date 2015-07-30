@@ -44,7 +44,11 @@ public class ActelisAdapter extends Adapter {
 					ifAliasMap = ifAliasMapPortName;
 				}
 			}
-			snmp.retrieveInterfaceL2Status(ifAliasMap, deviceIP, deviceDetailsResponse, SNMPUtil.L2_ADMIN_STATUS);
+			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
+				for(String ifAlias : ifAliasMap.keySet()) {
+					snmp.retrieveInterfaceL2Status(ifAliasMap, deviceIP, deviceDetailsResponse, SNMPUtil.L2_ADMIN_STATUS, SNMPUtil.L2_ADMIN_STATUS + ifAlias);
+				}
+			}
 			if(ifAliasMap != null && !ifAliasMap.isEmpty() && interfPortName == null) {
 				Iterator<Map.Entry<String,Interface>> iter = ifAliasMap.entrySet().iterator();
 				//show just interfaces with admin status UP
@@ -55,13 +59,19 @@ public class ActelisAdapter extends Adapter {
 					}
 				}
 			}
-			snmp.retrieveInterfaceL2Status(ifAliasMap, deviceIP, deviceDetailsResponse, SNMPUtil.L2_OPERATIONAL_STATUS);
+			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {
+				for(String ifAlias : ifAliasMap.keySet()) {
+					snmp.retrieveInterfaceL2Status(ifAliasMap, deviceIP, deviceDetailsResponse, SNMPUtil.L2_OPERATIONAL_STATUS, SNMPUtil.L2_OPERATIONAL_STATUS + ifAlias);
+				}
+			}
 			String sysUpTime = snmp.retrieveInterfaceSysUpTime(deviceIP, deviceDetailsResponse);
 			if (sysUpTime != null && !"".equals(sysUpTime)) {
 				String sysuptimeFormated = snmp.retrieveSysUpTime(sysUpTime);
-				if (sysuptimeFormated != null && !"".equals(sysuptimeFormated)) {
+				if (sysuptimeFormated != null && !"".equals(sysuptimeFormated) && ifAliasMap != null && !ifAliasMap.isEmpty()) {
 					deviceDetailsResponse.getDeviceDetails().setTime(sysuptimeFormated);
-					snmp.retrieveInterfaceLastStatusChange(ifAliasMap, deviceIP, type, deviceDetailsResponse, sysuptimeFormated);
+					for(String ifAlias : ifAliasMap.keySet()) {
+						snmp.retrieveInterfaceLastStatusChangeL2(ifAliasMap, deviceIP, deviceDetailsResponse, sysuptimeFormated, "ifLastChange." + ifAlias);
+					}
 				}
 			}
 			if(ifAliasMap != null && !ifAliasMap.isEmpty()) {

@@ -639,10 +639,6 @@ public class SNMPUtil {
 	}
 
 	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String sysUpTimeWithSeconds) {
-		retrieveInterfaceLastStatusChange(ifAliasMap, deviceIP, null, deviceDetailsResponse, sysUpTimeWithSeconds);
-	}
-
-	public void retrieveInterfaceLastStatusChange(Map<String, Interface> ifAliasMap, String deviceIP, String type, IDeviceDetailsResponse deviceDetailsResponse, String sysUpTimeWithSeconds) {
 		try {
 			if(ifAliasMap != null && !ifAliasMap.isEmpty() && sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds)) {
 				String arg = "";
@@ -650,18 +646,56 @@ public class SNMPUtil {
 					arg+= "ifLastChange." + ifAlias + " ";
 				}
 				String command = null;
-				if(DeviceDetailsRequest.TYPE_LAN_LINK.equalsIgnoreCase(type)) {
-					if(version != null && version == 3) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), deviceIP, arg);
-					} else if(community != null && !"".equals(community)) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, deviceIP, arg);
+				if(version != null && version == 3) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
+				} else if(community != null && !"".equals(community)) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
+				}
+				if(command != null && !"".equals(command)) {
+					List<String> outputList = AgentUtil.runLocalCommand(command);
+					if(outputList != null && !outputList.isEmpty()) {
+						for(String line : outputList) {
+							String ifAlias = getIfAlias(line);
+							if(ifAliasMap.containsKey(ifAlias)) {
+								String ifLastStatusChange = getTimeToString(line);
+								if(ifLastStatusChange != null && !"".equals(ifLastStatusChange)) {
+									String lastStatusChangeTime = convertTimeticks(ifLastStatusChange);
+									if(lastStatusChangeTime != null && !"".equals(lastStatusChangeTime)) {
+										String result = calc(sysUpTimeWithSeconds, lastStatusChangeTime);
+										if (result != null) {
+											ifAliasMap.get(ifAlias).setLastChgTime(result);
+										}
+									}
+								}
+							}
+						}
 					}
-				} else {
-					if(version != null && version == 3) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpget").trim(), deviceIP, arg);
-					} else if(community != null && !"".equals(community)) {
-						command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpget").trim(), community, deviceIP, arg);
-					}
+				}
+			}
+		} catch (Exception e) {
+			log.error(e,e);
+			if (deviceDetailsResponse.getErrorResponse() == null) {
+				ErrorResponse errorResponse = new ErrorResponse();
+				errorResponse = new ErrorResponse();
+				errorResponse.setCode(ErrorResponse.CODE_UNKNOWN);
+				try {
+					errorResponse.setMessage(MessageFormat.format(MessagesErrors.getDefaultInstance().getProperty("error.snmp.iflastchange").trim(), e.toString()));
+				} catch (Exception e1) {
+					log.error(e1,e1);
+				}
+				deviceDetailsResponse.setErrorResponse(errorResponse);
+			}
+		}
+	}
+
+	public void retrieveInterfaceLastStatusChangeL2(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String sysUpTimeWithSeconds, String arg) {
+		try {
+			if(ifAliasMap != null && !ifAliasMap.isEmpty() && sysUpTimeWithSeconds != null && !"".equals(sysUpTimeWithSeconds)) {
+				String command = null;
+				if(version != null && version == 3) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), deviceIP, arg);
+				} else if(community != null && !"".equals(community)) {
+					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v2.snmpwalk").trim(), community, deviceIP, arg);
 				}
 				if(command != null && !"".equals(command)) {
 					List<String> outputList = AgentUtil.runLocalCommand(command);
@@ -791,13 +825,9 @@ public class SNMPUtil {
 		}
 	}
 
-	public void retrieveInterfaceL2Status(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String argParam) {
+	public void retrieveInterfaceL2Status(Map<String, Interface> ifAliasMap, String deviceIP, IDeviceDetailsResponse deviceDetailsResponse, String argParam, String arg) {
 		try {
 			if(ifAliasMap != null && !ifAliasMap.isEmpty() && deviceIP != null && !"".equals(deviceIP) && argParam != null && !"".equals(argParam)) {
-				String arg = "";
-				for(String ifAlias : ifAliasMap.keySet()) {
-					arg+= argParam + ifAlias + " ";
-				}
 				String command = null;
 				if(version != null && version == 3) {
 					command = MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("v3.snmpwalk").trim(), deviceIP, arg);
