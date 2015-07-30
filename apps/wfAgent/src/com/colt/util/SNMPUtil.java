@@ -632,7 +632,8 @@ public class SNMPUtil {
 		calendar.add(GregorianCalendar.MINUTE, -diffMins);
 		String h = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
 		String m = String.valueOf(calendar.get(Calendar.MINUTE));
-		if (((calendar.getTime().getTime() - diffCalendar.getTime().getTime()) / (60*60*24*1000)) > 10) {
+		long result = ((calendar.getTime().getTime() - diffCalendar.getTime().getTime()) / (60*60*24*1000));
+		if (result > 10 || result < 0) {
 			return MessagesErrors.getDefaultInstance().getProperty("error.cli.moreTenDays");
 		}
 		return (calendar.getTime().getTime() - diffCalendar.getTime().getTime()) / (60*60*24*1000) + "d " + h + "h "+ m + "m";
