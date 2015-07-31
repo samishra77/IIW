@@ -35,8 +35,8 @@ public class SNMPFetchL2Activity implements IWorkflowProcessActivity {
 				String vendor = (String) input.get("vendor");
 				FactoryAdapter factoryAdapter = new FactoryAdapter();
 				Adapter adapter = factoryAdapter.getAdapter(vendor);
-				if(adapter != null) {
-					Integer snmpVersion = (Integer) input.get("snmpVersion");
+				Integer snmpVersion = (Integer) input.get("snmpVersion");
+				if(adapter != null && snmpVersion != null) {
 					String community = null;
 					String serviceType = null;
 					if(input.containsKey("community")) {
