@@ -356,6 +356,7 @@ public class JunosERXAdapter extends Adapter {
 	}
 
 	private static String getInterfaceIp (ConnectDevice connectDevice, String interfaceName) throws Exception {
+		interfaceName = processInterfaNameForCommand(interfaceName);
 		String ret= null;
 		String command =  MessageFormat.format(DeviceCommand.getDefaultInstance().getProperty("junos.erx.ppp.interface").trim(), interfaceName);
 		if(command != null && !"".equals(command)) {
@@ -460,9 +461,10 @@ public class JunosERXAdapter extends Adapter {
 	}
 
 	private String getLastStatus(ConnectDevice connectDevice, String interfName) throws Exception {
-		String status = getStatusUpOrDown(connectDevice,interfName );
+		interfName = processInterfaNameForCommand(interfName);
+		String status = getStatusUpOrDown(connectDevice, interfName);
 		if (status != null && status.equals(AgentUtil.UP)) {
-			String lastChangeSeconds = getLastChg(connectDevice,interfName);
+			String lastChangeSeconds = getLastChg(connectDevice, interfName);
 			int day = (int)TimeUnit.SECONDS.toDays(Long.parseLong(lastChangeSeconds));
 			long hours = TimeUnit.SECONDS.toHours(Long.parseLong(lastChangeSeconds)) - (day *24);
 			long minute = TimeUnit.SECONDS.toMinutes(Long.parseLong(lastChangeSeconds)) - (TimeUnit.SECONDS.toHours(Long.parseLong(lastChangeSeconds))* 60);
@@ -595,4 +597,11 @@ public class JunosERXAdapter extends Adapter {
 		}
 	}
 
+	private static String processInterfaNameForCommand(String interfaceName) {
+		String ret = interfaceName;
+		if(interfaceName != null && interfaceName.contains("[")) {
+			ret = interfaceName.substring(0, interfaceName.indexOf("["));
+		}
+		return ret;
+	}
 }
