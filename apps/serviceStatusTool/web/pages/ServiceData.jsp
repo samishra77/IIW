@@ -247,7 +247,10 @@
 								<td style="border-top: 0" >{{aSideDeviceStatus}}</td>
 							</tr>
 							<tr>
-								<td ng-if="!aViewPortLanLinkAtrica" class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
+								<td ng-if="!aViewPortLanLinkAtrica" class="font-strong" style="border-top: 0;">
+									<label ng-if="isAccedianOvertureA" class="msgInconsistencie">*</label>
+									<spring:message code="serviceData.aSide.deviceUptime"></spring:message>:
+								</td>
 								<td ng-if="!aViewPortLanLinkAtrica" style="border-top: 0">{{aSideDeviceUpTime}}</td>
 							</tr>
 						</table>
@@ -268,7 +271,10 @@
 									<td ng-if="!viewLanLinkZSideInformation"><spring:message code="serviceData.aSide.customerInterfaces.title.status"></spring:message></td>
 									<td ng-if="viewLanLinkZSideInformation"><spring:message code="serviceData.aSide.customerInterfaces.title.opStatus"></spring:message></td>
 									<td ng-if="viewLanLinkZSideInformation"><spring:message code="serviceData.aSide.customerInterfaces.title.adminStatus"></spring:message></td>
-									<td ng-if="!aViewPortLanLinkAtrica"><spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange"></spring:message></td>
+									<td ng-if="!aViewPortLanLinkAtrica">
+										<label ng-if="isAccedianOvertureA" class="msgInconsistencie">*</label>
+										<spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange">
+									</spring:message></td>
 								</tr>
 							</thead>
 							<tbody>
@@ -282,6 +288,7 @@
 								</tr>
 							</tbody>
 						</table>
+						<label ng-if="isAccedianOvertureA" class="msgInconsistencie"><spring:message code="serviceData.inconsistencie.sysUpTime"></spring:message></label>
 					</td>
 				</tr>
 			</table>
@@ -350,7 +357,10 @@
 								<td style="border-top: 0" >{{zSideDeviceStatus}}</td>
 							</tr>
 							<tr>
-								<td ng-if="!zViewPortLanLinkAtrica" class="font-strong" style="border-top: 0;"><spring:message code="serviceData.aSide.deviceUptime"></spring:message>:</td>
+								<td ng-if="!zViewPortLanLinkAtrica" class="font-strong" style="border-top: 0;">
+									<label ng-if="isAccedianOvertureZ" class="msgInconsistencie">*</label>
+									<spring:message code="serviceData.aSide.deviceUptime"></spring:message>:
+								</td>
 								<td ng-if="!zViewPortLanLinkAtrica" style="border-top: 0">{{zSideDeviceUpTime}}</td>
 							</tr>
 						</table>
@@ -369,7 +379,10 @@
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.name"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.opStatus"></spring:message></td>
 									<td><spring:message code="serviceData.aSide.customerInterfaces.title.adminStatus"></spring:message></td>
-									<td ng-if="!zViewPortLanLinkAtrica"><spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange"></spring:message></td>
+									<td ng-if="!zViewPortLanLinkAtrica">
+										<label ng-if="isAccedianOvertureZ" class="msgInconsistencie">*</label>
+										<spring:message code="serviceData.aSide.customerInterfaces.title.lastStateChange">
+									</spring:message></td>
 								</tr>
 							</thead>
 							<tbody>
@@ -381,6 +394,7 @@
 								</tr>
 							</tbody>
 						</table>
+						<label ng-if="isAccedianOvertureZ" class="msgInconsistencie"><spring:message code="serviceData.inconsistencie.sysUpTime"></spring:message></label>
 					</td>
 				</tr>
 			</table>

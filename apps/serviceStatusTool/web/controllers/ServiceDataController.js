@@ -4,6 +4,8 @@ var callASideCount = 0;
 var ServiceDataController = function ($scope,$routeParams,$http) {
 	$scope.isMisMatchA = false;
 	$scope.isMisMatchZ = false;
+	$scope.isAccedianOvertureA = false;
+	$scope.isAccedianOvertureZ = false;
 	var urlBase = contextPath + "/ws";
 	var orderNumber = findOrderNumberByURL();
 	if (orderNumber) {
@@ -311,6 +313,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 											$scope.modelDeviceA = l3DeviceDetails.model;
 										}
 									}
+									if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
+										$scope.isAccedianOvertureA = true;
+									}
 								}
 							}
 						} else {
@@ -402,6 +407,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										$scope.isMisMatchZ = true;
 										$scope.modelDeviceZ = l3DeviceDetails.model;
 									}
+								}
+								if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
+									$scope.isAccedianOvertureZ = true;
 								}
 							} else {
 								$scope.showDeviceErrorZSide = true;
@@ -675,12 +683,18 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
 										}
+										if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
+											$scope.isAccedianOvertureA = true;
+										}
 									}
 								} else if (type == "zside") {
 									if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
 										$scope.zSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
 										if (l3DeviceDetails.deviceIP) {
 											$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
+										}
+										if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
+											$scope.isAccedianOvertureZ = true;
 										}
 									} else {
 										if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
