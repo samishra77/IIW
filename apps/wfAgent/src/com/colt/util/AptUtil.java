@@ -31,7 +31,8 @@ public class AptUtil {
 						address = deviceArray[0].getAddress();
 					}
 				} else {
-					 address = deviceDAO.retrieveIpaddressByDeviceName(user, deviceName, type, networkObjectName, xngSlotNumber);
+					xngSlotNumber = processSlot(xngSlotNumber);
+					address = deviceDAO.retrieveIpaddressByDeviceName(user, deviceName, type, networkObjectName, xngSlotNumber);
 				}
 				return address;
 			}
@@ -39,5 +40,19 @@ public class AptUtil {
 			log.error(e,e);
 		}
 		return null;
+	}
+
+	private String processSlot(String slotNumber) {
+		if(slotNumber != null && !"".equals(slotNumber)) {
+			try {
+				int slot = Integer.valueOf(slotNumber);
+				if(slot == 0) {
+					slotNumber = null;
+				}
+			} catch (Exception e) {
+				// Empty
+			}
+		}
+		return slotNumber;
 	}
 }
