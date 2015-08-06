@@ -397,7 +397,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'circuitID': $scope.circuit.circuitID,
 								'ip': $scope.sideInformation.zSideInformation.ip,
 								'xngNetworkObjectName': $scope.sideInformation.zSideInformation.xngNetworkObjectName,
-								'xngSlotNumber': $scope.sideInformation.zSideInformation.xngSlotNumber
+								'xngSlotNumber': slotNumber
 						};
 						var respAgentZSide = $http({
 							method  : 'POST',
