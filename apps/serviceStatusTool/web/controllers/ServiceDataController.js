@@ -228,6 +228,21 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		serviceDetailsAndTickets();
 	}
 
+	function processSlotNumber(xngSlotNumber) {
+		if(xngSlotNumber) {
+			var slot = '';
+			for (i = 0; i < xngSlotNumber.length; i++) {
+				if(!isNaN(xngSlotNumber.charAt(i))) {
+					slot +=	xngSlotNumber.charAt(i);
+				}
+			}
+			if(slot != '') {
+				xngSlotNumber = parseInt(slot);
+			}
+		}
+		return xngSlotNumber;
+	}
+
 	function sideInformationFromDevice() {
 		var urlWorkFlow = "";
 		if(isProxy != "true") {
@@ -246,6 +261,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					callASideCount++;
 					var deviceDetailsAside;
 					if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
+						var slotNumber;
+						if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN") {
+							slotNumber = processSlotNumber($scope.sideInformation.aSideInformation.xngSlotNumber);
+						} else {
+							slotNumber = $scope.sideInformation.aSideInformation.xngSlotNumber;
+						}
 						deviceDetailsAside = {
 								'requestID'	: callASideCount,
 								'seibelUserID'	: username,
@@ -261,7 +282,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'circuitID': $scope.circuit.circuitID,
 								'ip': $scope.sideInformation.aSideInformation.ip,
 								'xngNetworkObjectName': $scope.sideInformation.aSideInformation.xngNetworkObjectName,
-								'xngSlotNumber': $scope.sideInformation.aSideInformation.xngSlotNumber
+								'xngSlotNumber': slotNumber
 						};
 					} else {
 						deviceDetailsAside = {
@@ -355,6 +376,12 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 					var startTimeZ = new Date().getTime();
 					if ($scope.sideInformation.zSideInformation.deviceName) {
 						callZSideCount++;
+						var slotNumber;
+						if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN") {
+							slotNumber = processSlotNumber($scope.sideInformation.zSideInformation.xngSlotNumber);
+						} else {
+							slotNumber = $scope.sideInformation.zSideInformation.xngSlotNumber;
+						}
 						var deviceDetailsZside = {
 								'requestID'	: callZSideCount,
 								'seibelUserID'	: username,
@@ -592,7 +619,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							deviceDetails.portName = $scope.sideInformation.aSideInformation.port;
 							deviceDetails.ocn = $scope.circuit.customerOCN;
 							deviceDetails.xngNetworkObjectName = $scope.sideInformation.aSideInformation.xngNetworkObjectName;
-							deviceDetails.xngSlotNumber = $scope.sideInformation.aSideInformation.xngSlotNumber;
+							var slotNumber;
+							if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN") {
+								slotNumber = processSlotNumber($scope.sideInformation.aSideInformation.xngSlotNumber);
+							} else {
+								slotNumber = $scope.sideInformation.aSideInformation.xngSlotNumber;
+							}
+							deviceDetails.xngSlotNumber = slotNumber;
 						} else {
 							deviceDetails.type = 'CPE';
 						}
@@ -637,7 +670,13 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 							deviceDetails.portName = $scope.sideInformation.zSideInformation.port;
 							deviceDetails.ocn = $scope.circuit.customerOCN;
 							deviceDetails.xngNetworkObjectName = $scope.sideInformation.zSideInformation.xngNetworkObjectName;
-							deviceDetails.xngSlotNumber = $scope.sideInformation.zSideInformation.xngSlotNumber;
+							var slotNumber;
+							if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN") {
+								slotNumber = processSlotNumber($scope.sideInformation.zSideInformation.xngSlotNumber);
+							} else {
+								slotNumber = $scope.sideInformation.zSideInformation.xngSlotNumber;
+							}
+							deviceDetails.xngSlotNumber = slotNumber;
 						} else {
 							deviceDetails.type = 'PE';
 						}
