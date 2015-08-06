@@ -46,6 +46,7 @@
 			<fileset dir="${root}/lib" >
 				<include name="spring-web-4.1.6.RELEASE.jar"/>
 				<include name="commons-logging-4.0.6.jar"/>
+				<include name="commons-lang-2.1.jar"/>
 				<include name="spring-beans-4.1.6.RELEASE.jar"/>
 				<include name="aopalliance-1.0.jar"/>
 				<include name="spring-core-4.1.6.RELEASE.jar"/>

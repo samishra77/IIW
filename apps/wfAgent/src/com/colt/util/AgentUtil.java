@@ -17,6 +17,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -284,5 +285,40 @@ public class AgentUtil {
 		}
 		return deviceDetailsResponse;
 	}
+
+	public String getStringFromInputStream(InputStream is) {
+		BufferedReader br = null;
+		StringBuilder sb = new StringBuilder();
+
+		String line;
+		try {
+			br = new BufferedReader(new InputStreamReader(is));
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+			}     
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	public String getValue(String result,String startTag,String endTag) {
+		if(result != null && result.contains(startTag)) {
+			String a[] = result.split(startTag);	       
+			String results[] = a[1].split(endTag);
+			return StringEscapeUtils.unescapeXml(results[0]);
+		} else {
+			return null;
+		}
+	}
+
 }
 
