@@ -128,6 +128,10 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		window.open(URL, '_blank');
 	}
 
+	var supportedLanlinkVendorAList = null;
+	var supportedLanlinkVendorZList = null;
+	var supportedIpServiceVendorAList = null;
+	var supportedIpServiceVendorZList = null;
 	$scope.doSideInformation = function doSideInformation() {
 		$scope.showSideLoading = true;
 		$scope.sideInformationError = false;
@@ -158,6 +162,10 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				$scope.showRefreshZSideLoading = false;
 			} else {
 				$scope.sideInformation = data.result;
+				supportedLanlinkVendorAList = data.supportedLanlinkVendorAList;
+				supportedLanlinkVendorZList = data.supportedLanlinkVendorZList;
+				supportedIpServiceVendorAList = data.supportedIpServiceVendorAList;
+				supportedIpServiceVendorZList = data.supportedIpServiceVendorZList;
 				if ($scope.sideInformation != null && $scope.sideInformation.aSideInformation != null &&
 						$scope.sideInformation.aSideInformation.vendor != null &&
 						"ATRICA" == $scope.sideInformation.aSideInformation.vendor.toUpperCase()) {
@@ -244,6 +252,10 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 	}
 
 	function sideInformationFromDevice() {
+		var lanlinkVendorASupported = false;
+		var lanlinkVendorZSupported = false;
+		var ipServiceVendorASupported = false;
+		var ipServiceVendorZSupported = false;
 		var urlWorkFlow = "";
 		if(isProxy != "true") {
 			urlWorkFlow = workFlowAgentUrlBase + "/ws";
@@ -267,6 +279,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 						} else {
 							slotNumber = $scope.sideInformation.aSideInformation.xngSlotNumber;
 						}
+						if(supportedLanlinkVendorAList) {
+							for (var i = 0; i < supportedLanlinkVendorAList.length; i++) {
+								if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == supportedLanlinkVendorAList[i].toUpperCase()) {
+									lanlinkVendorASupported = true;
+									break;
+								}
+							}
+						}
 						deviceDetailsAside = {
 								'requestID'	: callASideCount,
 								'seibelUserID'	: username,
@@ -285,6 +305,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'xngSlotNumber': slotNumber
 						};
 					} else {
+						if(supportedIpServiceVendorAList) {
+							for (var i = 0; i < supportedIpServiceVendorAList.length; i++) {
+								if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == supportedIpServiceVendorAList[i].toUpperCase()) {
+									ipServiceVendorASupported = true;
+									break;
+								}
+							}
+						}
 						deviceDetailsAside = {
 								'requestID'	: callASideCount,
 								'seibelUserID'	: username,
@@ -298,71 +326,77 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'circuitID': $scope.circuit.circuitID
 						};
 					}
-					var respAgentASide = $http({
-						method  : 'POST',
-						url     : urlWorkFlow + '/getDeviceDetails',
-						data    : deviceDetailsAside,
-						headers : { 'Content-Type': 'application/json' },
-						timeout : conTimeout
-					});
-					respAgentASide.success(function(data) {
-						var l3DeviceDetails = data;
-						if (l3DeviceDetails) {
-							if (l3DeviceDetails.responseID == callASideCount) {
-								if (l3DeviceDetails.deviceDetails) {
-									$scope.aSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
-									$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
-									$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
-								} else {
-									$scope.showDeviceErrorASide = true;
-									$scope.deviceMessageASideError = errorMsg;
-								}
-								if(l3DeviceDetails.errorResponse) {
-									$scope.showDeviceErrorASide = true;
-									$scope.deviceMessageASideError = l3DeviceDetails.errorResponse.message;
-								}
-								$scope.aSideManagementIPAddress = l3DeviceDetails.deviceIP;
-								if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
-									if (l3DeviceDetails.deviceIP) {
-										$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
-										if(l3DeviceDetails.vendor) {
-											$scope.isMisMatchA = true;
-											$scope.vendorDeviceA = l3DeviceDetails.vendor;
-										}
-										if(l3DeviceDetails.model) {
-											$scope.isMisMatchA = true;
-											$scope.modelDeviceA = l3DeviceDetails.model;
-										}
-									}
-									if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
-										$scope.isAccedianOvertureA = true;
-									}
-								}
-							}
-						} else {
-							$scope.showDeviceErrorASide = true;
-							$scope.deviceMessageASideError = errorMsg;
-						}
-						$scope.showButtonRefreshASide = true;
-						$scope.showRefreshASideLoading = false;
-					});
-					respAgentASide.error(function(data, status) {
-						$scope.showButtonRefreshASide = true;
-						$scope.showRefreshASideLoading = false;
+					if(ipServiceVendorASupported == false && lanlinkVendorASupported == false) {
+						$scope.deviceMessageASideError = "Vendor not supported.";
 						$scope.showDeviceErrorASide = true;
-						if (status == 0) {
-							var respTime = new Date().getTime() - startTimeA;
-							console.info(respTime+":"+startTimeA);
-							if(respTime >= conTimeout) {
-								errorMsg = "Connection timeout.";
+						$scope.showRefreshASideLoading = false;
+					} else {
+						var respAgentASide = $http({
+							method  : 'POST',
+							url     : urlWorkFlow + '/getDeviceDetails',
+							data    : deviceDetailsAside,
+							headers : { 'Content-Type': 'application/json' },
+							timeout : conTimeout
+						});
+						respAgentASide.success(function(data) {
+							var l3DeviceDetails = data;
+							if (l3DeviceDetails) {
+								if (l3DeviceDetails.responseID == callASideCount) {
+									if (l3DeviceDetails.deviceDetails) {
+										$scope.aSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+										$scope.aSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+										$scope.aSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+									} else {
+										$scope.showDeviceErrorASide = true;
+										$scope.deviceMessageASideError = errorMsg;
+									}
+									if(l3DeviceDetails.errorResponse) {
+										$scope.showDeviceErrorASide = true;
+										$scope.deviceMessageASideError = l3DeviceDetails.errorResponse.message;
+									}
+									$scope.aSideManagementIPAddress = l3DeviceDetails.deviceIP;
+									if ($scope.circuit.productType.indexOf("LANLINK") > -1) {
+										if (l3DeviceDetails.deviceIP) {
+											$scope.sideInformation.aSideInformation.xngNetworkObjectName = null;
+											if(l3DeviceDetails.vendor) {
+												$scope.isMisMatchA = true;
+												$scope.vendorDeviceA = l3DeviceDetails.vendor;
+											}
+											if(l3DeviceDetails.model) {
+												$scope.isMisMatchA = true;
+												$scope.modelDeviceA = l3DeviceDetails.model;
+											}
+										}
+										if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
+											$scope.isAccedianOvertureA = true;
+										}
+									}
+								}
 							} else {
-								errorMsg = "Connection to server failed.";
+								$scope.showDeviceErrorASide = true;
+								$scope.deviceMessageASideError = errorMsg;
 							}
-						} else {
-							errorMsg = "Connection to server failed with status: " + status;
-						}
-						$scope.deviceMessageASideError = errorMsg;
-					});
+							$scope.showButtonRefreshASide = true;
+							$scope.showRefreshASideLoading = false;
+						});
+						respAgentASide.error(function(data, status) {
+							$scope.showButtonRefreshASide = true;
+							$scope.showRefreshASideLoading = false;
+							$scope.showDeviceErrorASide = true;
+							if (status == 0) {
+								var respTime = new Date().getTime() - startTimeA;
+								console.info(respTime+":"+startTimeA);
+								if(respTime >= conTimeout) {
+									errorMsg = "Connection timeout.";
+								} else {
+									errorMsg = "Connection to server failed.";
+								}
+							} else {
+								errorMsg = "Connection to server failed with status: " + status;
+							}
+							$scope.deviceMessageASideError = errorMsg;
+						});
+					}
 				} else {
 					$scope.showButtonRefreshASide = true;
 					$scope.showRefreshASideLoading = false;
@@ -382,6 +416,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 						} else {
 							slotNumber = $scope.sideInformation.zSideInformation.xngSlotNumber;
 						}
+						if(supportedLanlinkVendorZList) {
+							for (var i = 0; i < supportedLanlinkVendorZList.length; i++) {
+								if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == supportedLanlinkVendorZList[i].toUpperCase()) {
+									lanlinkVendorZSupported = true;
+									break;
+								}
+							}
+						}
 						var deviceDetailsZside = {
 								'requestID'	: callZSideCount,
 								'seibelUserID'	: username,
@@ -399,68 +441,74 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 								'xngNetworkObjectName': $scope.sideInformation.zSideInformation.xngNetworkObjectName,
 								'xngSlotNumber': slotNumber
 						};
-						var respAgentZSide = $http({
-							method  : 'POST',
-							url     : urlWorkFlow + '/getDeviceDetails',
-							data    : deviceDetailsZside,
-							headers : { 'Content-Type': 'application/json' },
-							timeout : conTimeout
-						});
-						respAgentZSide.success(function(data) {
-							var l3DeviceDetails = data;
-							if (l3DeviceDetails) {
-								if (l3DeviceDetails.responseID == callZSideCount) {
-									if (l3DeviceDetails.deviceDetails) {
-										$scope.zSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
-										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
-										$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
-									} else {
-										$scope.showDeviceErrorZSide = true;
-										$scope.deviceMessageZSideError = errorMsg;
-									}
-									if(l3DeviceDetails.errorResponse) {
-										$scope.showDeviceErrorZSide = true;
-										$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
-									}
-									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
-									if (l3DeviceDetails.deviceIP) {
-										$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
-									}
-									if(l3DeviceDetails.vendor) {
-										$scope.isMisMatchZ = true;
-										$scope.vendorDeviceZ = l3DeviceDetails.vendor;
-									}
-									if(l3DeviceDetails.model) {
-										$scope.isMisMatchZ = true;
-										$scope.modelDeviceZ = l3DeviceDetails.model;
-									}
-								}
-								if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
-									$scope.isAccedianOvertureZ = true;
-								}
-							} else {
-								$scope.showDeviceErrorZSide = true;
-								$scope.deviceMessageZSideError = errorMsg;
-							}
-							$scope.showButtonRefreshZSide = true;
-							$scope.showRefreshZSideLoading = false;
-						});
-						respAgentZSide.error(function(data, status) {
-							$scope.showButtonRefreshZSide = true;
+						if(!lanlinkVendorZSupported) {
+							$scope.deviceMessageZSideError = "Vendor not supported.";
 							$scope.showRefreshZSideLoading = false;
 							$scope.showDeviceErrorZSide = true;
-							if (status == 0) {
-								var respTime = new Date().getTime() - startTimeZ;
-								if(respTime >= conTimeout) {
-									errorMsg = "Connection timeout.";
+						} else {
+							var respAgentZSide = $http({
+								method  : 'POST',
+								url     : urlWorkFlow + '/getDeviceDetails',
+								data    : deviceDetailsZside,
+								headers : { 'Content-Type': 'application/json' },
+								timeout : conTimeout
+							});
+							respAgentZSide.success(function(data) {
+								var l3DeviceDetails = data;
+								if (l3DeviceDetails) {
+									if (l3DeviceDetails.responseID == callZSideCount) {
+										if (l3DeviceDetails.deviceDetails) {
+											$scope.zSideInterfaces = l3DeviceDetails.deviceDetails.interfaces;
+											$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+											$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+										} else {
+											$scope.showDeviceErrorZSide = true;
+											$scope.deviceMessageZSideError = errorMsg;
+										}
+										if(l3DeviceDetails.errorResponse) {
+											$scope.showDeviceErrorZSide = true;
+											$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
+										}
+										$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
+										if (l3DeviceDetails.deviceIP) {
+											$scope.sideInformation.zSideInformation.xngNetworkObjectName = null;
+										}
+										if(l3DeviceDetails.vendor) {
+											$scope.isMisMatchZ = true;
+											$scope.vendorDeviceZ = l3DeviceDetails.vendor;
+										}
+										if(l3DeviceDetails.model) {
+											$scope.isMisMatchZ = true;
+											$scope.modelDeviceZ = l3DeviceDetails.model;
+										}
+									}
+									if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
+										$scope.isAccedianOvertureZ = true;
+									}
 								} else {
-									errorMsg = "Connection to server failed.";
+									$scope.showDeviceErrorZSide = true;
+									$scope.deviceMessageZSideError = errorMsg;
 								}
-							} else {
-								errorMsg = "Connection to server failed with status: " + status;
-							}
-							$scope.deviceMessageZSideError = errorMsg;
-						});
+								$scope.showButtonRefreshZSide = true;
+								$scope.showRefreshZSideLoading = false;
+							});
+							respAgentZSide.error(function(data, status) {
+								$scope.showButtonRefreshZSide = true;
+								$scope.showRefreshZSideLoading = false;
+								$scope.showDeviceErrorZSide = true;
+								if (status == 0) {
+									var respTime = new Date().getTime() - startTimeZ;
+									if(respTime >= conTimeout) {
+										errorMsg = "Connection timeout.";
+									} else {
+										errorMsg = "Connection to server failed.";
+									}
+								} else {
+									errorMsg = "Connection to server failed with status: " + status;
+								}
+								$scope.deviceMessageZSideError = errorMsg;
+							});
+						}
 					} else {
 						$scope.showButtonRefreshZSide = true;
 						$scope.showRefreshZSideLoading = false;
@@ -472,6 +520,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 			} else {
 				if ($scope.sideInformation.zSideInformation) {
 					var startTimeZ = new Date().getTime();
+					if(supportedIpServiceVendorZList) {
+						for (var i = 0; i < supportedIpServiceVendorZList.length; i++) {
+							if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == supportedIpServiceVendorZList[i].toUpperCase()) {
+								ipServiceVendorZSupported = true;
+								break;
+							}
+						}
+					}
 					if ($scope.sideInformation.zSideInformation.deviceName) {
 						callZSideCount++;
 						var deviceDetailsZside = {
@@ -490,79 +546,85 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 						if ($scope.sideInformation.aSideInformation && $scope.sideInformation.aSideInformation.deviceName) {
 							deviceDetailsZside.associatedDevice = $scope.sideInformation.aSideInformation.deviceName;
 						}
-						var respAgentZSide = $http({
-							method  : 'POST',
-							url     : urlWorkFlow + '/getDeviceDetails',
-							data    : deviceDetailsZside,
-							headers : { 'Content-Type': 'application/json' },
-							timeout : conTimeout
-						});
-						respAgentZSide.success(function(data) {
-							var l3DeviceDetails = data;
-							if (l3DeviceDetails) {
-								if (l3DeviceDetails.responseID == callZSideCount) {
-									if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
-										$scope.showZEndPhysicalInterface = false;
-										if (l3DeviceDetails.deviceName) {
-											var routerId = l3DeviceDetails.deviceName;
-											var deviceName = "lo0-" + routerId + ".router.colt.net";
-											$scope.sideInformation.zSideInformation.xngDeviceName = l3DeviceDetails.deviceName;
-											$scope.sideInformation.zSideInformation.deviceName = deviceName;
-										}
-									}
-									$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
-									if (l3DeviceDetails.deviceDetails) {
-										if (l3DeviceDetails.deviceDetails.interfaces) {
-											for (var i = 0; i < l3DeviceDetails.deviceDetails.interfaces.length; i++) {
-												if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") != -1 || l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1) {
-													//logical
-													$scope.zSideInterfaceLogicals.push(l3DeviceDetails.deviceDetails.interfaces[i]);
-												} else {
-													//physical
-													$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);
-												}
-												if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1 && l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") == -1) {
-													//physical
-													$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);	
-												}
-											}
-										}
-										$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
-										$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
-									} else {
-										$scope.showDeviceErrorZSide = true;
-										$scope.deviceMessageZSideError = errorMsg;
-									}
-									if (l3DeviceDetails.errorResponse) {
-										$scope.showDeviceErrorZSide = true;
-										$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
-									}
-									$scope.zSideAssociatedDeviceIp = l3DeviceDetails.associatedDeviceIp;
-
-								}
-							} else {
-								$scope.showDeviceErrorZSide = true;
-								$scope.deviceMessageZSideError = errorMsg;
-							}
-							$scope.showButtonRefreshZSide = true;
-							$scope.showRefreshZSideLoading = false;
-						});
-						respAgentZSide.error(function(data, status) {
-							$scope.showButtonRefreshZSide = true;
+						if(!ipServiceVendorZSupported) {
+							$scope.deviceMessageZSideError = "Vendor not supported.";
 							$scope.showRefreshZSideLoading = false;
 							$scope.showDeviceErrorZSide = true;
-							if (status == 0) {
-								var respTime = new Date().getTime() - startTimeZ;
-								if(respTime >= conTimeout) {
-									errorMsg = "Connection timeout.";
+						} else {
+							var respAgentZSide = $http({
+								method  : 'POST',
+								url     : urlWorkFlow + '/getDeviceDetails',
+								data    : deviceDetailsZside,
+								headers : { 'Content-Type': 'application/json' },
+								timeout : conTimeout
+							});
+							respAgentZSide.success(function(data) {
+								var l3DeviceDetails = data;
+								if (l3DeviceDetails) {
+									if (l3DeviceDetails.responseID == callZSideCount) {
+										if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {
+											$scope.showZEndPhysicalInterface = false;
+											if (l3DeviceDetails.deviceName) {
+												var routerId = l3DeviceDetails.deviceName;
+												var deviceName = "lo0-" + routerId + ".router.colt.net";
+												$scope.sideInformation.zSideInformation.xngDeviceName = l3DeviceDetails.deviceName;
+												$scope.sideInformation.zSideInformation.deviceName = deviceName;
+											}
+										}
+										$scope.zSideManagementIPAddress = l3DeviceDetails.deviceIP;
+										if (l3DeviceDetails.deviceDetails) {
+											if (l3DeviceDetails.deviceDetails.interfaces) {
+												for (var i = 0; i < l3DeviceDetails.deviceDetails.interfaces.length; i++) {
+													if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") != -1 || l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1) {
+														//logical
+														$scope.zSideInterfaceLogicals.push(l3DeviceDetails.deviceDetails.interfaces[i]);
+													} else {
+														//physical
+														$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);
+													}
+													if (l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(":") != -1 && l3DeviceDetails.deviceDetails.interfaces[i].name.indexOf(".") == -1) {
+														//physical
+														$scope.zSidePhysicalInterfaces.push(l3DeviceDetails.deviceDetails.interfaces[i]);	
+													}
+												}
+											}
+											$scope.zSideDeviceStatus = l3DeviceDetails.deviceDetails.status;
+											$scope.zSideDeviceUpTime = l3DeviceDetails.deviceDetails.time;
+										} else {
+											$scope.showDeviceErrorZSide = true;
+											$scope.deviceMessageZSideError = errorMsg;
+										}
+										if (l3DeviceDetails.errorResponse) {
+											$scope.showDeviceErrorZSide = true;
+											$scope.deviceMessageZSideError = l3DeviceDetails.errorResponse.message;
+										}
+										$scope.zSideAssociatedDeviceIp = l3DeviceDetails.associatedDeviceIp;
+	
+									}
 								} else {
-									errorMsg = "Connection to server failed.";
+									$scope.showDeviceErrorZSide = true;
+									$scope.deviceMessageZSideError = errorMsg;
 								}
-							} else {
-								errorMsg = "Connection to server failed with status: " + status;
-							}
-							$scope.deviceMessageZSideError = errorMsg;
-						});
+								$scope.showButtonRefreshZSide = true;
+								$scope.showRefreshZSideLoading = false;
+							});
+							respAgentZSide.error(function(data, status) {
+								$scope.showButtonRefreshZSide = true;
+								$scope.showRefreshZSideLoading = false;
+								$scope.showDeviceErrorZSide = true;
+								if (status == 0) {
+									var respTime = new Date().getTime() - startTimeZ;
+									if(respTime >= conTimeout) {
+										errorMsg = "Connection timeout.";
+									} else {
+										errorMsg = "Connection to server failed.";
+									}
+								} else {
+									errorMsg = "Connection to server failed with status: " + status;
+								}
+								$scope.deviceMessageZSideError = errorMsg;
+							});
+						}
 					} else {
 						$scope.showButtonRefreshZSide = true;
 						$scope.showRefreshZSideLoading = false;
