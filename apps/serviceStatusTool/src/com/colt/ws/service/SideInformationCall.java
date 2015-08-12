@@ -211,7 +211,6 @@ public class SideInformationCall {
 					newPort = String.valueOf(Integer.valueOf(newPortBuffer.toString()));
 					newSlot = String.valueOf(Integer.valueOf(newSlot));
 				} catch (Exception e) {
-					log.error(e,e);
 					newPort = aSideInformation.getPort();
 				}
 			}
@@ -267,7 +266,6 @@ public class SideInformationCall {
 					newPort = String.valueOf(Integer.valueOf(newPortBuffer.toString()));
 					newSlot = String.valueOf(Integer.valueOf(newSlot));
 				} catch (Exception e) {
-					log.error(e,e);
 					newPort = zSideInformation.getPort();
 				}
 			}
