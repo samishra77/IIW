@@ -369,6 +369,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										}
 										if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
 											$scope.isAccedianOvertureA = true;
+											$scope.domainNameA = l3DeviceDetails.domainName;
 										}
 									}
 								}
@@ -484,6 +485,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 									}
 									if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
 										$scope.isAccedianOvertureZ = true;
+										$scope.domainNameZ = l3DeviceDetails.domainName;
 									}
 								} else {
 									$scope.showDeviceErrorZSide = true;
@@ -786,6 +788,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										}
 										if($scope.sideInformation.aSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.aSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
 											$scope.isAccedianOvertureA = true;
+											if (l3DeviceDetails.domainName != null) {
+												$scope.domainNameA = l3DeviceDetails.domainName;
+											}
 										}
 									}
 								} else if (type == "zside") {
@@ -796,6 +801,9 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 										}
 										if($scope.sideInformation.zSideInformation.vendor.toUpperCase() == "OVERTURE" || $scope.sideInformation.zSideInformation.vendor.toUpperCase() == "ACCEDIAN"){
 											$scope.isAccedianOvertureZ = true;
+											if (l3DeviceDetails.domainName != null) {
+												$scope.domainNameZ = l3DeviceDetails.domainName;
+											}
 										}
 									} else {
 										if (l3DeviceDetails.os && l3DeviceDetails.os == "erx") {

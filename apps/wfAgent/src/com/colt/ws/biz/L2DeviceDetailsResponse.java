@@ -9,7 +9,21 @@ public class L2DeviceDetailsResponse implements IDeviceDetailsResponse {
 	private ErrorResponse errorResponse;
 	private String vendor;
 	private String model;
+	private String domainName;
 
+	/**
+	 * @return the domainName
+	 */
+	public String getDomainName() {
+		return domainName;
+	}
+	/**
+	 * @param domainName the domainName to set
+	 */
+	public void setDomainName(String domainName) {
+		this.domainName = domainName;
+	}
+	
 	/**
 	 * @return the vendor
 	 */
@@ -117,4 +131,5 @@ public class L2DeviceDetailsResponse implements IDeviceDetailsResponse {
 	@Override
 	public void setAssociatedDeviceIp(String associatedDeviceIp) {
 	}
+
 }

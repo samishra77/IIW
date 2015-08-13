@@ -18,7 +18,6 @@
 	<classpathentry kind="lib" path="lib/spring-aspects-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-expression-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-tx-4.1.6.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/common-aptCache.jar"/>
 	<classpathentry kind="lib" path="lib/fabric.jar"/>
 	<classpathentry kind="lib" path="lib/common-aptBusiness.jar"/>
 	<classpathentry kind="lib" path="lib/commons-net-3.3.jar"/>
@@ -28,5 +27,6 @@
 	<classpathentry kind="lib" path="lib/jackson-core-2.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/common-AspenWrapper.jar"/>
 	<classpathentry kind="lib" path="lib/common-aptServices.jar"/>
+	<classpathentry kind="lib" path="lib/common-aptCache.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

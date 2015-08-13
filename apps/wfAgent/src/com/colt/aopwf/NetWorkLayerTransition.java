@@ -22,7 +22,14 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 	@Override
 	public String[] process(Map<String, Object> input) {
 		String[] resp = null;
-		IDeviceDetailsResponse deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
+		IDeviceDetailsResponse deviceDetailsResponse = null;
+		if(input.containsKey("deviceDetailsResponse")) {
+			if(input.get("deviceDetailsResponse") instanceof L2DeviceDetailsResponse) {
+				deviceDetailsResponse = (L2DeviceDetailsResponse) input.get("deviceDetailsResponse");
+			}
+		} else {
+			deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
+		}
 		try {
 			if(input != null && input.containsKey("deviceDetails")) {
 				DeviceDetailsRequest deviceDetails = (DeviceDetailsRequest) input.get("deviceDetails");
@@ -42,7 +49,9 @@ public class NetWorkLayerTransition implements IWorkflowProcessActivity {
 					} else {
 						deviceDetailsResponse.getDeviceDetails().setStatus(AgentUtil.UP);
 					}
-					input.put("deviceDetailsResponse", deviceDetailsResponse);
+					if(!input.containsKey("deviceDetailsResponse")) {
+						input.put("deviceDetailsResponse", deviceDetailsResponse);
+					}
 				}
 			}
 		} catch (Exception e) {

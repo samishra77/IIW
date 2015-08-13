@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.colt.apt.business.User;
 import com.colt.common.aptcache.IDeviceDAO;
+import com.colt.ws.biz.IDeviceDetailsResponse;
 import com.colt.apt.business.Device;
 
 import electric.registry.Registry;
@@ -13,7 +14,7 @@ public class AptUtil {
 
 	private Log log = LogFactory.getLog(AptUtil.class);
 
-	public String retrieveAddressByDeviceNameFromAPT(String deviceName, String type, String networkObjectName, String xngSlotNumber) {
+	public String retrieveAddressByDeviceNameFromAPT(String deviceName, String type, String networkObjectName, String xngSlotNumber, IDeviceDetailsResponse deviceDetailsResponse) {
 		try {
 			if(deviceName != null && !"".equals(deviceName)) {
 				String baseUrl = AgentConfig.getDefaultInstance().getProperty("apt.baseUrl");
@@ -25,6 +26,7 @@ public class AptUtil {
 
 				IDeviceDAO deviceDAO = (IDeviceDAO) Registry.bind(baseUrl+"/aptCache/services/DeviceDAO.wsdl",IDeviceDAO.class);
 				String address = null;
+				Device dev = null;
 				if (!type.equalsIgnoreCase("LANLink")) {
 					Device[] deviceArray = deviceDAO.retrieveDevicesByName(user, deviceName);
 					if (deviceArray != null && deviceArray.length > 0) {
@@ -32,7 +34,11 @@ public class AptUtil {
 					}
 				} else {
 					xngSlotNumber = processSlot(xngSlotNumber);
-					address = deviceDAO.retrieveIpaddressByDeviceName(user, deviceName, type, networkObjectName, xngSlotNumber);
+					dev = deviceDAO.retrieveDeviceByDeviceName(user, deviceName, type, networkObjectName, xngSlotNumber);
+					if (dev != null && dev.getAddress() != null) {
+						address = dev.getAddress();
+						deviceDetailsResponse.setDomainName(dev.getName());
+					}
 				}
 				return address;
 			}

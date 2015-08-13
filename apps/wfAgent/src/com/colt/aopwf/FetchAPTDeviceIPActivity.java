@@ -23,6 +23,7 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 	public String[] process(Map<String,Object> input) {
 		String[] resp = null;
 		String ipAddress = null;
+		IDeviceDetailsResponse deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
 		try {
 			List<String> list = null;
 			if(input != null && input.containsKey("deviceDetails")) {
@@ -33,7 +34,7 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 				if (!deviceDetails.getType().equals("LANLink")) {
 					if(deviceDetails != null && deviceDetails.getAssociatedDevice() != null && (deviceDetails.getAssociatedDeviceIp() == null || "".equals(deviceDetails.getAssociatedDeviceIp()))) {
 						if(deviceDetails != null && deviceDetails.getAssociatedDevice() != null && !deviceDetails.getAssociatedDevice().equals("")) {
-							associatedDeviceIp = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getAssociatedDevice(), deviceDetails.getType(), null, null);
+							associatedDeviceIp = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getAssociatedDevice(), deviceDetails.getType(), null, null, deviceDetailsResponse);
 							deviceDetails.setAssociatedDeviceIp(associatedDeviceIp);
 						}
 					}
@@ -46,11 +47,11 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 							ipAddress = list.get(0);
 						}
 					} else {
-						ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getName(), deviceDetails.getType(), deviceDetails.getXngNetworkObjectName(), deviceDetails.getXngSlotNumber());
+						ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(deviceDetails.getName(), deviceDetails.getType(), deviceDetails.getXngNetworkObjectName(), deviceDetails.getXngSlotNumber(), deviceDetailsResponse);
 						if((ipAddress == null || "".equals(ipAddress)) && !deviceDetails.getType().equals("LANLink")) {
 							if (deviceDetails.getName() != null && deviceDetails.getName().startsWith("lo0-")) {
 								String devName = "*" + deviceDetails.getName().substring(4,deviceDetails.getName().length());
-								ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(devName, deviceDetails.getType(), null, null);
+								ipAddress = aptUtil.retrieveAddressByDeviceNameFromAPT(devName, deviceDetails.getType(), null, null, deviceDetailsResponse);
 							}
 						}
 					}
@@ -64,6 +65,11 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 
 				if(ipAddress != null && !"".equals(ipAddress)) {
 					deviceDetails.setIp(ipAddress);
+					String vendor = deviceDetails.getDeviceType() != null ? deviceDetails.getDeviceType().getVendor() : "";
+					if (FactoryAdapter.VENDOR_ACCEDIAN.toUpperCase().equals(vendor.toUpperCase()) || 
+						FactoryAdapter.VENDOR_OVERTURE.toUpperCase().equals(vendor.toUpperCase())){
+						input.put("deviceDetailsResponse", deviceDetailsResponse);
+					}
 					resp = new String[] {"FETCH_DEVICE_DONE"};
 				} else {
 					String errorMsg = null;
@@ -76,7 +82,6 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 					} else {
 						errorMsg = MessagesErrors.getDefaultInstance().getProperty("apt.mgmtIPNotFound");
 					}
-					IDeviceDetailsResponse deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
 					DeviceDetail dd = new DeviceDetail();
 					ErrorResponse errorResponse = new ErrorResponse();
 					errorResponse.setMessage(errorMsg);
@@ -88,7 +93,6 @@ public class FetchAPTDeviceIPActivity implements IWorkflowProcessActivity {
 			}
 		} catch (Exception e) {
 			log.error(e,e);
-			IDeviceDetailsResponse deviceDetailsResponse = AgentUtil.discoverDeviceDetailsResponse(input);
 			DeviceDetail dd = new DeviceDetail();
 			ErrorResponse errorResponse = new ErrorResponse();
 			errorResponse.setMessage(e.toString());

@@ -127,4 +127,11 @@ public class L3DeviceDetailsResponse implements IDeviceDetailsResponse {
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
+	@Override
+	public String getDomainName() {
+		return null;
+	}
+	@Override
+	public void setDomainName(String domainName) {
+	}
 }

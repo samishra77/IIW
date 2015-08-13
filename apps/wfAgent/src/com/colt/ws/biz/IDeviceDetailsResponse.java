@@ -3,6 +3,14 @@ package com.colt.ws.biz;
 public interface IDeviceDetailsResponse {
 
 	/**
+	 * @return the domainName
+	 */
+	public String getDomainName();
+	/**
+	 * @param domainName the domainName to set
+	 */
+	public void setDomainName(String domainName);
+	/**
 	 * @return the vendor
 	 */
 	public String getVendor();

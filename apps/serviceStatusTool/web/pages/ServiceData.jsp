@@ -204,6 +204,10 @@
 								<td class="font-strong"><spring:message code="serviceData.aSide.deviceName"></spring:message></td>
 								<td>{{sideInformation.aSideInformation.deviceName}}</td>
 							</tr>
+							<tr ng-if="isAccedianOvertureA">
+								<td class="font-strong"><spring:message code="serviceData.aSide.fqdn"></spring:message></td>
+								<td>{{domainNameA}}</td>
+							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.vendor"></spring:message> / <spring:message code="serviceData.aSide.model"></spring:message> </td>
 								<td ng-if="!isMisMatchA" ><label style="font-weight: normal">{{sideInformation.aSideInformation.vendor}}</label> / <label style="font-weight: normal;"> {{sideInformation.aSideInformation.model}}</label></td>
@@ -313,6 +317,10 @@
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.deviceName"></spring:message></td>
 								<td>{{sideInformation.zSideInformation.deviceName}}</td>
+							</tr>
+							<tr ng-if="isAccedianOvertureZ">
+								<td class="font-strong"><spring:message code="serviceData.zSide.fqdn"></spring:message></td>
+								<td>{{domainNameZ}}</td>
 							</tr>
 							<tr>
 								<td class="font-strong"><spring:message code="serviceData.aSide.vendor"></spring:message> / <spring:message code="serviceData.aSide.model"></spring:message> </td>
