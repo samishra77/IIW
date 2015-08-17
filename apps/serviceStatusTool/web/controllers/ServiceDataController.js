@@ -923,12 +923,14 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 		$scope.aSideDeviceStatus = "";
 		$scope.aSideDeviceUpTime = "";
 		$scope.aSideManagementIPAddress = "";
+		$scope.domainNameA = "";
 		$scope.zSideInterfaceLogicals = [];
 		$scope.zSideInterfaces = "";
 		$scope.zSidePhysicalInterfaces = [];
 		$scope.zSideDeviceStatus = "";
 		$scope.zSideDeviceUpTime = "";
 		$scope.zSideManagementIPAddress	= "";
+		$scope.domainNameZ = "";
 	}
 };
 angular.module('sstApp').controller('ServiceDataController',ServiceDataController);
