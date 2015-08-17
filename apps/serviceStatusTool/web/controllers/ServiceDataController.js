@@ -245,7 +245,7 @@ var ServiceDataController = function ($scope,$routeParams,$http) {
 				}
 			}
 			if(slot != '') {
-				xngSlotNumber = parseInt(slot);
+				xngSlotNumber = parseInt(slot,10);
 			}
 		}
 		return xngSlotNumber;
