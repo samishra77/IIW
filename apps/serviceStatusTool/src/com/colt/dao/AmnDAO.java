@@ -479,9 +479,9 @@ public class AmnDAO extends DAO {
 
 	private void getCircuitCPESOLUTIONS(Circuit circuit, String circuitId) {
 		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select distinct a.LEGAL_CUSTOMER, b.SERVICE_OPTIONS, a.OCN, b.RELATED_ORDER_NO_ , b.RESILIENCE_OPTION " +
+			String sql = "select distinct a.LEGAL_CUSTOMER, b.SERVICE_OPTIONS, a.OCN, b.RELATED_ORDER_NO_ , b.RESILIENCE_OPTION, SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17) " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
-					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17) = :circuitID  ORDER BY a.CIRCUIT_REFERENCE_5D";
+					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17) = :circuitID  ORDER BY SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17)";
 
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuitId);
@@ -522,18 +522,18 @@ public class AmnDAO extends DAO {
 	public String getFqdnCpeSol(Circuit circuit, String circuitId) {
 		String result = "";
 		if(circuitId != null && !"".equals(circuitId) && circuit.getOrderNumber() != null && !"".equals(circuit.getOrderNumber())) {
-			String sql = "select distinct b.PRIMARY_DEVICE_ID " +
+			String sql = "select distinct b.PRIMARY_DEVICE_ID, SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17) " +
 					"from AMN.IE_OHS_CONTRACT a, AMN.IE_OHS_CPESOL_ORDER b " +
-					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17) = :circuitID ORDER BY a.CIRCUIT_REFERENCE_5D";
+					"where a.CONTRACT_NO = b.ORDER_NO_ and a.CONTRACT_NO = :orderNumber and SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17) = :circuitID ORDER BY SUBSTR(a.CIRCUIT_REFERENCE_5D,1,17)";
 			Query query = em.createNativeQuery(sql);
 			query.setParameter("circuitID", circuitId);
 			query.setParameter("orderNumber", circuit.getOrderNumber());
-			List<String> resultList = query.getResultList();
+			List<Object[]> resultList = query.getResultList();
 			if(resultList != null && resultList.size() > 0) {
 				for (int i = 0; i < resultList.size() ; i++) {
-					String resu = (String) resultList.get(i);
-					if (resu != null) {
-						result = resu;
+					Object[] resu = (Object[]) resultList.get(i);
+					if (resu != null && resu[0] != null) {
+						result = (String) resu[0];
 						break;
 					}
 				}
