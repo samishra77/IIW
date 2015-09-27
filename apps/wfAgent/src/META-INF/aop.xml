@@ -1,9 +1,0 @@
-<!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
-<aspectj>
-	<weaver>
-		<include within="com.colt.aopwf.*" />
-	</weaver>
-	<aspects>
-		<aspect name="com.colt.aopwf.ActivityTransitionAspect" />
-	</aspects>
-</aspectj>

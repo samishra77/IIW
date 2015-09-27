@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="apps/serviceStatusTool/src"/>
-	<classpathentry kind="src" path="apps/agentEncript/src"/>
-	<classpathentry kind="src" path="apps/wfAgent/src"/>
+	<classpathentry kind="src" path="apps/IIWTool/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hibernate-jpa-2.0-api.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate3.jar"/>
 	<classpathentry kind="lib" path="lib/spring-web-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-4.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.1.jar"/>
@@ -19,14 +18,19 @@
 	<classpathentry kind="lib" path="lib/spring-expression-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-tx-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/fabric.jar"/>
-	<classpathentry kind="lib" path="lib/common-aptBusiness.jar"/>
 	<classpathentry kind="lib" path="lib/commons-net-3.3.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.52.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/common-AspenWrapper.jar"/>
-	<classpathentry kind="lib" path="lib/common-aptServices.jar"/>
-	<classpathentry kind="lib" path="lib/common-aptCache.jar"/>
+	<classpathentry kind="lib" path="lib/spring-data-cassandra-1.2.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/cassandra-driver-core-2.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/spring-cql-1.2.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.12.jar"/>
+	<classpathentry kind="lib" path="lib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="lib/metrics-core-3.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/netty-all-4.0.30.Final.jar"/>
+	<classpathentry kind="lib" path="lib/spring-data-commons-1.10.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-data-commons-core-1.4.1.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

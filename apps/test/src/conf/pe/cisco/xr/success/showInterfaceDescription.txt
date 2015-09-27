@@ -1,5 +1,0 @@
-show interface description | include BCN/BCN/IA-128265
-
-Fri May 22 14:57:50.285 UTC
-Gi0/0/0/4.6        up          up          IfType[Access] Stype[IPAccess] SID[110501242] Customer[TRANSPERFECT] L3BEnd[Router_110501242] L3Circuit[BCN/BCN/IA-128265] Rate[20M] Contact[] Phone[]
-RP/0/8/CPU0:sar3.BLB#
